@@ -6,18 +6,21 @@ FROM centos:7
 MAINTAINER kangxiaolin ksf@zgykkj.com
 VOLUME /tmp
 #自动安装依赖
-RUN  cd /etc/yum.repos.d/ \
-    && yum -y install wget \
-    && wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo \
+RUN cd /etc/yum.repos.d/ \
+    && yum -y install wget  \
+	&& wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo \
+	&& wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo \
+	&& sed -i -e '/mirrors.cloud.aliyuncs.com/d' -e '/mirrors.aliyuncs.com/d' /etc/yum.repos.d/CentOS-Base.repo \
+	&& sed -i -e '/mirrors.cloud.aliyuncs.com/d' -e '/mirrors.aliyuncs.com/d' /etc/yum.repos.d/epel.repo \
+    && sed -i 's/http:/https:/g' /etc/yum.repos.d/CentOS-Base.repo \
+	&& sed -i 's/http:/https:/g' /etc/yum.repos.d/epel.repo \
     && yum clean all \
     && yum makecache \
     && yum update -y \
-    &&  yum -y  install nginx  \
-    &&  yum -y  install  java-1.8.0-openjdk java-1.8.0-openjdk-devel  \
-    &&  yum -y  install redis    \
-#这里可以设置 域名
-# 可以送本地加载 使用ADD 也可以直接写
-   && echo "server {  \
+    &&  yum -y  install nginx \
+    &&  yum -y  install  java-1.8.0-openjdk java-1.8.0-openjdk-devel \
+    &&  yum -y  install redis \
+    && echo "server {  \
                        listen       81; \
                        location ^~ /jeecg-boot { \
                       proxy_pass              http://127.0.0.1:8080/jeecg-boot/; \
@@ -25,7 +28,6 @@ RUN  cd /etc/yum.repos.d/ \
                       proxy_set_header        X-Real-IP \$remote_addr; \
                       proxy_set_header        X-Forwarded-For \$proxy_add_x_forwarded_for; \
                   } \
-                  #解决Router(mode: 'history')模式下，刷新路由地址不能找到页面的问题 \
                   location / { \
                      root   /var/www/html/; \
                       index  index.html index.htm; \
@@ -36,8 +38,6 @@ RUN  cd /etc/yum.repos.d/ \
                   } \
                   access_log  /var/log/nginx/access.log ; \
               } " > /etc/nginx/conf.d/default.conf  \
-
- # 设置启动脚本
      && touch /etc/init.d/start.sh \
      && touch jeecgboot.log \
      && chmod +x /etc/init.d/start.sh \
