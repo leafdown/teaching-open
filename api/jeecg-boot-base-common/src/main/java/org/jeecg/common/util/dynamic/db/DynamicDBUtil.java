@@ -48,6 +48,7 @@ public class DynamicDBUtil {
         dataSource.setTestOnReturn(false);
         dataSource.setBreakAfterAcquireFailure(true);
         dataSource.setConnectionErrorRetryAttempts(0);
+        dataSource.setTimeBetweenConnectErrorMillis(60);
         dataSource.setUsername(dbUser);
         dataSource.setMaxWait(60000);
         dataSource.setPassword(dbPassword);

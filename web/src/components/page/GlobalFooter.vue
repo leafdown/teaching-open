@@ -1,10 +1,7 @@
 <template>
   <div class="footer">
     <div class="links">
-      <a href="http://teaching.vip" target="_blank">首页</a>
-      <a href="https://github.com/open-scratch/teaching" target="_blank">
-        <a-icon type="github"/>
-      </a>
+      <a href="http://teacher.lanqu.vip" target="_blank">首页</a>
     </div>
     <div class="copyright">
       Copyright
