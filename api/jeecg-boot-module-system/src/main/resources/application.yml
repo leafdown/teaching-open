@@ -8,8 +8,8 @@ swagger:
   production: false
   basic:
     enable: false
-    username: jeecg
-    password: jeecg1314
+    username: leafdown
+    password: 1445829
 # 第三方登录
 justauth:
   enabled: true

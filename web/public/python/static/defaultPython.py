@@ -3,4 +3,4 @@ import turtle
 t = turtle.Turtle()
 t.forward(100)
 
-print ("Teaching Python Editor")
+print ("欢迎来到蓝趣编程课堂")

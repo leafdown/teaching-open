@@ -127,7 +127,7 @@ spring:
         connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
       datasource:
         master:
-          url: jdbc:mysql://192.168.90.99:3306/teachingopen?useUnicode=true&characterEncoding=utf-8
+          url: jdbc:mysql://teacher_mysql:3306/teachingopen?useUnicode=true&characterEncoding=utf-8
           username: teachingopen
           password: teachingopen
           driver-class-name: com.mysql.jdbc.Driver
@@ -174,11 +174,11 @@ jeecg :
   domain: https://teacher.lanqu.vip
   # 本地：local\Minio：minio\阿里云：alioss
   uploadType: qiniu
-  path :
+  path:
     #文件上传根目录 设置
-    upload: D://opt//upFiles
+    upload: /upload
     #webapp文件路径
-    webapp: D://opt//webapp
+    webapp: /webapp
   #短信秘钥
   sms:
     accessKeyId: ??
@@ -187,18 +187,17 @@ jeecg :
     excludeUrls: /test/jeecgDemo/demo3,/test/jeecgDemo/redisDemo/**
   #阿里云oss存储配置
   oss:
-    endpoint: oss-cn-beijing.aliyuncs.com
-    accessKey: ??
-    secretKey: ??
-    bucketName: jeecgos
-    staticDomain: ??
+    endpoint: oss-cn-hangzhou.aliyuncs.com
+    accessKey: LTAInRAhT87V071k
+    secretKey: SecretqemcUT4eFYTJ5QNwEMhSuJnLK4IYqO
+    bucketName: lanqu-teacher
+    staticDomain: lanqu-teacher.oss-cn-hangzhou.aliyuncs.com
   #七牛云存储配置
   qiniu:
     accessKey: zjkV5A8EwEzkEfvmGr3Vx3mUwdkbhC9SyLxwHFt5
     secretKey: H22fPuQBk5OjnFkzdzSbDY8fkesLiQ03XvIbRUxH
     bucketName: lanqu-teacher
     staticDomain: //storage.lanqu.vip
-
   # ElasticSearch 设置
   elasticsearch:
     cluster-name: jeecg-ES

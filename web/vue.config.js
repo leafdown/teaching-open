@@ -68,10 +68,10 @@ module.exports = {
   },
 
   devServer: {
-    port: 80,
+    port: 443,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', 
+        target: 'https://teacher.lanqu.vip', 
         ws: false,
         changeOrigin: true
       },

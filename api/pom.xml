@@ -51,7 +51,7 @@
 	</repositories>
 	
     <properties>
-        <jeecgboot.version>2.2.0</jeecgboot.version>
+        <jeecgboot.version>2.3.0</jeecgboot.version>
         <java.version>1.8</java.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

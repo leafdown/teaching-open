@@ -187,11 +187,11 @@ jeecg :
     excludeUrls: /test/jeecgDemo/demo3,/test/jeecgDemo/redisDemo/**
   #阿里云oss存储配置
   oss:
-    endpoint: oss-cn-beijing.aliyuncs.com
-    accessKey: ??
-    secretKey: ??
-    bucketName: jeecgos
-    staticDomain: ??
+    endpoint: oss-cn-hangzhou.aliyuncs.com
+    accessKey: LTAInRAhT87V071k
+    secretKey: SecretqemcUT4eFYTJ5QNwEMhSuJnLK4IYqO
+    bucketName: lanqu-teacher
+    staticDomain: lanqu-teacher.oss-cn-hangzhou.aliyuncs.com
   #七牛云存储配置
   qiniu:
     accessKey: zjkV5A8EwEzkEfvmGr3Vx3mUwdkbhC9SyLxwHFt5

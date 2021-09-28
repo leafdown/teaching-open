@@ -72,6 +72,7 @@ public class OssBootUtil {
      * @return oss 中的相对文件路径
      */
     public static String upload(MultipartFile file, String fileDir,String customBucket) {
+        log.info("fileDir = " + fileDir);
         String FILE_URL = null;
         initOSS(endPoint, accessKeyId, accessKeySecret);
         StringBuilder fileUrl = new StringBuilder();
@@ -88,16 +89,17 @@ public class OssBootUtil {
             String orgName = file.getOriginalFilename();
             orgName = CommonUtils.getFileName(orgName);
             String fileName = orgName.substring(0, orgName.lastIndexOf(".")) + "_" + System.currentTimeMillis() + orgName.substring(orgName.indexOf("."));
-            if (!fileDir.endsWith("/")) {
+            if (!fileDir.endsWith("/") && !fileDir.isEmpty()) {
                 fileDir = fileDir.concat("/");
             }
             fileUrl = fileUrl.append(fileDir + fileName);
-
+            log.info("fileUrl1 = " + fileUrl);
             if (oConvertUtils.isNotEmpty(staticDomain) && staticDomain.toLowerCase().startsWith("http")) {
                 FILE_URL = staticDomain + "/" + fileUrl;
             } else {
                 FILE_URL = "https://" + newBucket + "." + endPoint + "/" + fileUrl;
             }
+            log.info("fileUrl2 = " + fileUrl);
             PutObjectResult result = ossClient.putObject(newBucket, fileUrl.toString(), file.getInputStream());
             // 设置权限(公开读)
 //            ossClient.setBucketAcl(newBucket, CannedAccessControlList.PublicRead);
