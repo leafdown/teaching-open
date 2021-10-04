@@ -9,6 +9,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.jeecg.common.api.vo.DictResult;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.PermissionData;
 import org.jeecg.common.system.query.QueryGenerator;
@@ -81,8 +83,8 @@ public class TeachingCourseUnitController extends JeecgController<TeachingCourse
 	}
 
 	 @GetMapping("getUnitWorkInfo")
-	 public Result<CourseUnitWorkModel> getUnitWorkInfo(@RequestParam String unitId) {
-		 Result<CourseUnitWorkModel> result = new Result<CourseUnitWorkModel>();
+	 public DictResult<CourseUnitWorkModel> getUnitWorkInfo(@RequestParam String unitId) {
+		 DictResult<CourseUnitWorkModel> result = new DictResult<CourseUnitWorkModel>();
 		 LoginUser user = getCurrentUser();
 		 if (user == null){
 			 //未登录
@@ -137,13 +139,13 @@ public class TeachingCourseUnitController extends JeecgController<TeachingCourse
 	public Result<?> delete(@RequestParam(name="id",required=true) String id) {
 		TeachingCourseUnit unit = teachingCourseUnitService.getById(id);
 		if (unit != null){
-			sysFileService.deleteWithFile(unit.getCoursePpt());
-			sysFileService.deleteWithFile(unit.getUnitCover());
-			sysFileService.deleteWithFile(unit.getCourseVideo());
-			sysFileService.deleteWithFile(unit.getCourseWork());
-			sysFileService.deleteWithFile(unit.getCourseWorkAnswer());
-			sysFileService.deleteWithFile(unit.getCourseCase());
-			sysFileService.deleteWithFile(unit.getCoursePlan());
+			sysFileService.deleteByKeyWithFile(unit.getCoursePpt());
+			sysFileService.deleteByKeyWithFile(unit.getUnitCover());
+			sysFileService.deleteByKeyWithFile(unit.getCourseVideo());
+			sysFileService.deleteByKeyWithFile(unit.getCourseWork());
+			sysFileService.deleteByKeyWithFile(unit.getCourseWorkAnswer());
+			sysFileService.deleteByKeyWithFile(unit.getCourseCase());
+			sysFileService.deleteByKeyWithFile(unit.getCoursePlan());
 			teachingCourseUnitService.removeById(id);
 		}
 		return Result.ok("删除成功!");
@@ -162,13 +164,13 @@ public class TeachingCourseUnitController extends JeecgController<TeachingCourse
 		List<String> idList = Arrays.asList(ids.split(","));
 		List<TeachingCourseUnit> unitList = teachingCourseUnitService.list(new QueryWrapper<TeachingCourseUnit>().in("id", idList));
 		for(TeachingCourseUnit unit: unitList){
-			sysFileService.deleteWithFile(unit.getCoursePpt());
-			sysFileService.deleteWithFile(unit.getUnitCover());
-			sysFileService.deleteWithFile(unit.getCourseVideo());
-			sysFileService.deleteWithFile(unit.getCourseWork());
-			sysFileService.deleteWithFile(unit.getCourseWorkAnswer());
-			sysFileService.deleteWithFile(unit.getCourseCase());
-			sysFileService.deleteWithFile(unit.getCoursePlan());
+			sysFileService.deleteByKeyWithFile(unit.getCoursePpt());
+			sysFileService.deleteByKeyWithFile(unit.getUnitCover());
+			sysFileService.deleteByKeyWithFile(unit.getCourseVideo());
+			sysFileService.deleteByKeyWithFile(unit.getCourseWork());
+			sysFileService.deleteByKeyWithFile(unit.getCourseWorkAnswer());
+			sysFileService.deleteByKeyWithFile(unit.getCourseCase());
+			sysFileService.deleteByKeyWithFile(unit.getCoursePlan());
 		}
 		this.teachingCourseUnitService.removeByIds(idList);
 		return Result.ok("批量删除成功!");
