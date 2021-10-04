@@ -17,7 +17,7 @@
           <a-textarea v-decorator="['courseDesc', validatorRules.courseDesc]" rows="4" placeholder="请输入课程介绍"/>
         </a-form-item>
         <a-form-item label="课程图标" :labelCol="labelCol" :wrapperCol="wrapperCol">
-          <j-upload v-decorator="[ 'courseIcon', validatorRules.courseIcon]" :uploadTarget="'qiniu'" :maxFile="1" :trigger-change="true"></j-upload>
+          <j-upload v-decorator="[ 'courseIcon', validatorRules.courseIcon]"  :maxFile="1" :trigger-change="true"></j-upload>
         </a-form-item>
         <a-form-item label="展示形式" :labelCol="labelCol" :wrapperCol="wrapperCol">
           <a-select placeholder="请选择展示形式" v-decorator="['showType', validatorRules.showType, {initialValue:'1'}]" @change="onShowTypeSelected">
@@ -25,11 +25,16 @@
             <a-select-option :value="2">卡片</a-select-option>
           </a-select>
         </a-form-item>
+        <a-form-item label="是否共享" :labelCol="labelCol" :wrapperCol="wrapperCol">
+          <a-tooltip placement="top" title="共享后所有学生都可以上本课程">
+          <a-switch v-model="model.isShared" checkedChildren="是" unCheckedChildren="否"/>
+          </a-tooltip>
+        </a-form-item>
         <a-form-item label="课程封面" :labelCol="labelCol" :wrapperCol="wrapperCol">
-          <j-upload v-decorator="['courseCover', validatorRules.courseCover]" :uploadTarget="'qiniu'" :maxFile="1" :trigger-change="true"></j-upload>
+          <j-upload v-decorator="['courseCover', validatorRules.courseCover]"  :maxFile="1" :trigger-change="true"></j-upload>
         </a-form-item>
         <a-form-item v-show="model.showType == 1" label="课程地图" :labelCol="labelCol" :wrapperCol="wrapperCol">
-          <j-upload v-decorator="['courseMap', validatorRules.courseMap]" :uploadTarget="'qiniu'" :maxFile="1" :trigger-change="true"></j-upload>
+          <j-upload v-decorator="['courseMap', validatorRules.courseMap]"  :maxFile="1" :trigger-change="true"></j-upload>
         </a-form-item>
 
       </a-form>
@@ -97,7 +102,7 @@
         this.model = Object.assign({}, record);
         this.visible = true;
         this.$nextTick(() => {
-          this.form.setFieldsValue(pick(this.model,'createBy','createTime','courseName','courseDesc','courseIcon','courseCover','showType', 'courseMap'))
+          this.form.setFieldsValue(pick(this.model,'createBy','createTime','courseName','courseDesc','courseIcon','courseCover','showType','isShared', 'courseMap'))
         })
       },
       close () {

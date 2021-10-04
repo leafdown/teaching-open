@@ -2,16 +2,16 @@
   <a-modal
     :visible="visible"
     :title="record.workName"
-    :width="600"
+    :width="620"
     @ok="handleOk"
     @cancel="handleCancel"
     cancelText="关闭"
   >
-    <iframe id="player" :src="frameHref"></iframe>
+    <iframe id="player" scrolling="auto" :src="frameHref"></iframe>
   </a-modal>
 </template>
 <script>
-import { getAction } from '@/api/manage'
+import { getAction,getFileAccessHttpUrl } from '@/api/manage'
 export default {
   name: 'TeachingWorkPreviewModal',
   components: {},
@@ -36,27 +36,18 @@ export default {
           this.frameHref = '/scratch3/player.html?workId=' + record.id
           return
         case '3':
-          this.frameHref = '/scratchjr/editor.html?mode=edit&filepath=' + record.workFileUrl
+          this.frameHref = '/scratchjr/editor.html?mode=edit&filepath=' + record.workFileKey_url
           return
         case '4':
-          this.frameHref = '/python/player.html?lang=turtle&url=' + record.workFileUrl
+          this.frameHref = '/python/player.html?lang=turtle&url=' + record.workFileKey_url
           return
       }
-    },
-    getQiniuFile(text) {
-      if (!text) {
-        this.$message.warning('未知的文件')
-        return
-      }
-      if (text.indexOf(',') > 0) {
-        text = text.substring(0, text.indexOf(','))
-      }
-      return window._CONFIG['qn_base'] + text
     },
     close() {
       this.$emit('close')
       this.visible = false
       window.player.contentWindow.vm.stopAll()
+      this.frameHref = ""
     },
 
     handleOk() {
@@ -70,8 +61,9 @@ export default {
 </script>
 <style scoped>
 iframe {
+  overflow: hidden;
   border: none;
-  width: 520px;
+  width: 550px;
   height: 500px;
 }
 </style>

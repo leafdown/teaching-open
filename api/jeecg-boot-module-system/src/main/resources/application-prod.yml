@@ -179,6 +179,7 @@ jeecg :
     upload: /upload
     #webapp文件路径
     webapp: /webapp
+    staticDomain: /api/sys/common/static
   #短信秘钥
   sms:
     accessKeyId: ??

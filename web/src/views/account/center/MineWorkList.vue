@@ -175,12 +175,6 @@ export default {
         delete: '/teaching/teachingWork/delete',
         deleteBatch: '/teaching/teachingWork/deleteBatch',
         shareUrl: window._CONFIG['webURL'] + "/scratch3/scratch-mobile.html?workId=",
-        detailUrl:
-          window.location.protocol +
-          '//' +
-          window.location.hostname +
-          (window.location.port ? ':' + window.location.port : '') +
-          '/scratch3-h5/detail.html?workId='
       }
     }
   },
@@ -198,12 +192,12 @@ export default {
           return window.open('/scratch3/index.html?workId='+record.id)
           break;
         case '3':
-          return window.open('/scratchjr/editor.html?mode=edit&filepath=' + record.workFileUrl)
+          return window.open('/scratchjr/editor.html?mode=edit&filepath=' + record.workFileKey_url)
           break;
         case '4':
           return window.open('/python/index.html?workId=' + record.id)
         default:
-          return window.open(record.workFileUrl)
+          return window.open(record.workFileKey_url)
       }
     }
   }

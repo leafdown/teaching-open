@@ -1,56 +1,35 @@
 <template>
   <div class="app-list">
-    <a-list :grid="{ gutter: 24, lg: 4, md: 3, sm: 2, xs: 1 }" :dataSource="dataSource">
+    <a-list :grid="{ gutter: 24, xxl:4, xl:4, lg: 3, md: 2, sm: 1, xs: 1 }" :dataSource="dataSource">
       <a-list-item slot="renderItem" slot-scope="item">
         <a-card :hoverable="true">
           <template class="ant-card-extra" slot="extra">
-            <span style="margin-bottom: 3px">{{ item.workType_dictText }}</span>
-            <a-divider type="vertical"/>
             <span class="create-time">{{item.createTime}}</span>
-            <a-popconfirm title="确定删除吗?" @confirm="() => handleDelete(item.id)">
-              <a><a-icon type="delete" /></a>
-            </a-popconfirm>
+            <span style="margin-left: 6px">{{ item.workType_dictText }}</span>
           </template>
           <a-card-meta>
-            
-            <!-- <a-avatar class="card-avatar" slot="avatar" :src="item.avatar" size="small" /> -->
             <div class="meta-cardInfo" slot="description">
-              <div slot="title">{{item.workName}}</div>
+              <p>{{item.workName}}</p>
               <a :href="getEditorHref(item)" target="_blank">
-                <img v-if="item.coverFileUrl" :src="item.coverFileUrl" />
+                <img v-if="item.coverFileKey" :src="getFileAccessHttpUrl(item.coverFileKey)" />
                 <img v-if="item.workType==4" src="@/assets/python.png" alt="">
               </a>
             </div>
           </a-card-meta>
           
           <template class="ant-card-actions" slot="actions">
-            <!-- <a>
-              <a-icon type="download"/>
-            </a>
-            <a>
+            <a-popconfirm title="确定删除吗?" @confirm="() => handleDelete(item.id)">
+              <a><a-icon type="delete" /></a>
+            </a-popconfirm>
+            <a :href="getEditorHref(item)" target="_blank">
               <a-icon type="edit"/>
             </a>
-            <a>
-              <a-icon type="share-alt"/>
-            </a>-->
-            <!-- <a>
-              <a-dropdown>
-                <a class="ant-dropdown-link" href="javascript:;">
-                  <a-icon type="ellipsis"/>
-                </a>
-                <a-menu slot="overlay">
-                  <a-menu-item>
-                    <a href="javascript:;">1st menu item</a>
-                  </a-menu-item>
-                  <a-menu-item>
-                    <a href="javascript:;">2nd menu item</a>
-                  </a-menu-item>
-                  <a-menu-item>
-                    <a href="javascript:;">3rd menu item</a>
-                  </a-menu-item>
-                </a-menu>
-              </a-dropdown>
-            </a>-->
+            <a-popover trigger="click" v-if="item.workType==1||item.workType==2">
+              <template slot="content">
+                <qrcode :value="url.shareUrl + item.id" :size="250"></qrcode>
+              </template>
+              <a><a-icon type="share-alt"/></a>
+            </a-popover>
           </template>
         </a-card>
       </a-list-item>
@@ -59,18 +38,22 @@
 </template>
 
 <script>
-import { deleteAction, getAction, downFile } from '@/api/manage'
+import { deleteAction, getAction, downFile,getFileAccessHttpUrl } from '@/api/manage'
+import QrCode from '@/components/tools/QrCode'
 
 export default {
   name: 'MineWorksCard',
-  components: {},
+  components: {
+    qrcode: QrCode,
+  },
   data() {
     return {
       dataSource: [],
       qn_base: window._CONFIG['qn_base'],
       url: {
         list: '/teaching/teachingWork/mine',
-        delete: '/teaching/teachingWork/delete'
+        delete: '/teaching/teachingWork/delete',
+        shareUrl: window._CONFIG['webURL'] + "/scratch3/scratch-mobile.html?workId=",
       }
     }
   },
@@ -78,6 +61,7 @@ export default {
     this.getWorkList()
   },
   methods: {
+    getFileAccessHttpUrl,
     getWorkList: function() {
       var that = this;
       getAction(that.url.list, null).then(res => {
@@ -111,12 +95,12 @@ export default {
           return '/scratch3/index.html?workId='+item.id
           break;
         case '3':
-          return '/scratchjr/editor.html?mode=edit&filepath=' + item.workFileUrl
+          return '/scratchjr/editor.html?mode=edit&filepath=' + item.workFileKey_url
           break;
         case '4':
-        return '/python/index.html?workId=' + item.id
+          return '/python/index.html?workId=' + item.id
         default:
-          return item.workFileUrl
+          return item.workFileKey_url
       }
     }
   }

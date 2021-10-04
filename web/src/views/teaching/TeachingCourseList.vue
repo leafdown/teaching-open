@@ -65,7 +65,7 @@
         </template>
         <template slot="imgSlot" slot-scope="text">
           <span v-if="!text" style="font-size: 12px;font-style: italic;">无此图片</span>
-          <img v-else :src="getQiniuUrl(text)" height="25px" alt="图片不存在" style="max-width:80px;font-size: 12px;font-style: italic;"/>
+          <img v-else :src="getFileAccessHttpUrl(text)" height="25px" alt="图片不存在" style="max-width:80px;font-size: 12px;font-style: italic;"/>
         </template>
         <template slot="fileSlot" slot-scope="text">
           <span v-if="!text" style="font-size: 12px;font-style: italic;">无此文件</span>
@@ -75,7 +75,7 @@
             type="primary"
             icon="download"
             size="small"
-            @click="getQiniuFile(text)">
+            @click="getFileAccessHttpUrl(text)">
             下载
           </a-button>
         </template>
@@ -135,9 +135,12 @@
             dataIndex: 'courseName'
           },
           {
-            title:'课程介绍',
+            title:'是否共享',
             align:"center",
-            dataIndex: 'courseDesc'
+            dataIndex: 'isShared',
+            customRender(v){
+              return v?"是":"否"
+            }
           },
           {
             title:'课程图标',
