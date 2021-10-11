@@ -8,3 +8,5 @@
 
 ## front
 **/*.lock
+teaching-open.code-workspace
+.vscode/settings.json

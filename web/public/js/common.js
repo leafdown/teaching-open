@@ -223,7 +223,7 @@ function dataURLtoBlob(dataurl) {
 }
 
 function getFileAccessHttpUrl(avatar,subStr) {
-  if(!subStr) subStr = 'http'
+  if(!subStr) subStr = 'https'
   if(avatar && avatar.startsWith(subStr)){
     return avatar;
   }else{
@@ -238,14 +238,16 @@ function getFileAccessHttpUrl(avatar,subStr) {
 }
 
 window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
+f
+
+unction gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
-gtag('config', 'UA-155190299-2');
+gtag('config', 'G-HPJJESN3X4');
 
 var _hmt = _hmt || [];
 (function() {
   var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?5701500c2c4326d51b2652ee8426452e";
+  hm.src = "https://hm.baidu.com/hm.js?50e7486025ea62b7c0e8198e0436f80e";
   var s = document.getElementsByTagName("script")[0]; 
   s.parentNode.insertBefore(hm, s);
 })();

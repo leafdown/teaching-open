@@ -134,7 +134,8 @@ export default {
         userInfo: "/teaching/user/info",
         userHonor: "/teaching/teachingUserHonor/userHonor",
         editUser: "/teaching/user/edit",
-        imgerver: window._CONFIG['domianURL'] + '/sys/common/static'
+        imgerver: window._CONFIG['staticDomainURL']
+        //imgerver: window._CONFIG['domianURL'] + '/sys/common/static'
       }
     }
   },
@@ -290,7 +291,7 @@ export default {
       }
     },
     getAvatarView() {
-      return this.url.imgerver + '/' + this.userInfo.avatar
+      return this.userInfo.avatar
     }
   }
 }

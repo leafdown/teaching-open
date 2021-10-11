@@ -4,18 +4,20 @@
 <head>
   <meta charset=utf-8>
   <meta name=viewport content="width=device-width,initial-scale=1">
-  <title>Teaching Python</title>
-  <script src="../js/jquery.min.js"></script>
-  <script src="../js/jquery.cokie.min.js"></script>
-  <script src="../js/jquery.qrcode.min.js"></script>
+  <meta name="google" value="notranslate">
+  <title>蓝趣Python在线编程</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
   <script src="../js/qiniu.min.js"></script>
   <script src="../js/common.js"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HPJJESN3X4"></script>
+  <link rel=icon href=../logo.png>
   <script>
     var uploadParam = {}
     var workName = ''
     var workId = urlParams('workId')
     var unitId = urlParams('unitId')
-    var access_token = getUserToken()
     var userInfo = getUserInfo();
     var qn_token = getQiniuToken();
     setInterval(function () {
@@ -39,7 +41,7 @@
       console.log(res);
       if(res.success){
         var key = res.message
-        uploadParam.projectKey = uploadFile(key, '学生作业-sb3', key, 1)
+        uploadParam.projectKey = uploadFile(key, '学生作业-python', key, 1)
         uploadWork()
       }else{
         alert("上传失败：" + res.message)
@@ -81,7 +83,7 @@
         dataType: 'json',
         contentType: 'application/json',
         beforeSend: function (request) {
-          request.setRequestHeader('X-Access-Token', access_token)
+          request.setRequestHeader('X-Access-Token', getUserToken())
         },
         data: JSON.stringify({
           courseId: unitId,
