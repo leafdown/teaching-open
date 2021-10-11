@@ -238,9 +238,7 @@ function getFileAccessHttpUrl(avatar,subStr) {
 }
 
 window.dataLayer = window.dataLayer || [];
-f
-
-unction gtag(){dataLayer.push(arguments);}
+function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-HPJJESN3X4');
 
