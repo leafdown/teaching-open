@@ -98,7 +98,7 @@ export default {
           return '/scratchjr/editor.html?mode=edit&filepath=' + item.workFileKey_url
           break;
         case '4':
-          return '/python/index.html?workId=' + item.id
+          return '/python/index.html?mode=edit&workId=' + item.id
         default:
           return item.workFileKey_url
       }
@@ -117,8 +117,19 @@ export default {
     zoom: 1;
     margin-top: 16px;
     height: 200px;
+    display: block; 
+    position: relative;
     img {
-      width: 100%;
+      margin-top: 20px;
+      max-height: calc(100% - 30px);
+      width:auto;
+      height:auto;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate3d(-50%,-50%,0);
+      -webkit-transform: translate3d(-50%,-50%,0);
+
     }
     > div {
       position: relative;
