@@ -309,8 +309,6 @@
               '/scratch3/scratch-mobile.html?workId=' +
               res.result.id
             createCode('qrcode', shareUrl)
-            var qrDiv = document.getElementById('qrcode');
-          //创建图片，插入id为qrcode的div元素中
             var img = document.createElement('img');
             img.id = 'qrCodeIco';
             img.src = '/logo.png';
@@ -319,7 +317,6 @@
             img.style.height = '50px';
             img.style.verticalAlign = 'middle;';
             img.style.zIndex = 2;
-            //将img插入到div
             qrDiv.appendChild(img);
             $('.scratch-filter').show()
             $('.release-success').show()
