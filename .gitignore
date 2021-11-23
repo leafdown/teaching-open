@@ -10,3 +10,7 @@
 **/*.lock
 teaching-open.code-workspace
 .vscode/settings.json
+
+dist/
+sample/
+*.DS_Store

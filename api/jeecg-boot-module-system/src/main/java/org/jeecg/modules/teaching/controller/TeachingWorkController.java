@@ -219,18 +219,18 @@ public class TeachingWorkController extends BaseController {
 									  @RequestParam(required = false, defaultValue = "view") String orderBy, //排序
 									  HttpServletRequest request) {
 		 QueryWrapper<StudentWorkModel> queryWrapper = new QueryWrapper<StudentWorkModel>();
-		 queryWrapper.orderByDesc("teaching_work.star_num");
+		 //queryWrapper.orderByDesc("teaching_work.star_num");
 		 queryWrapper.ge("teaching_work.work_status", 1);
 		 switch (orderBy){
 			 case "view":
-				 queryWrapper.orderByDesc("teaching_work.view_num");
+				queryWrapper.orderByDesc("teaching_work.view_num");
 			 	break;
 			 case "time":
 				queryWrapper.orderByDesc("teaching_work.create_time");
 				break;
 			 case "star":
-				 queryWrapper.orderByDesc("teaching_work.star_num");
-				 break;
+				queryWrapper.orderByDesc("teaching_work.star_num");
+				break;
 		 }
 
 		 IPage<StudentWorkModel> pageList = teachingWorkService.listWorkModel(new Page<>(pageNo, pageSize), queryWrapper);

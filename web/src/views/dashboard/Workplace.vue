@@ -34,7 +34,7 @@
                 <a-card :bordered="false" :body-style="{ padding: 0 }">
                   <a-card-meta>
                     <div slot="title" class="card-title">
-                      <a-avatar size="small" :src="item.cover"/>
+                      <a-avatar size="small" :src="item.cover" icon="user"/>
                       <a>{{ item.title }}</a>
                     </div>
                     <div slot="description" class="card-description">
@@ -54,7 +54,7 @@
             <a-list>
               <a-list-item :key="index" v-for="(item, index) in activities">
                 <a-list-item-meta>
-                  <a-avatar slot="avatar" :src="item.user.avatar" />
+                  <a-avatar slot="avatar" :src="item.user.avatar" icon="user"/>
                   <div slot="title">
                     <span>{{ item.user.nickname }}</span>&nbsp;
                     在&nbsp;<a href="#">{{ item.project.name }}</a>&nbsp;
@@ -96,7 +96,7 @@
               <a-row>
                 <a-col :span="12" v-for="(item, index) in teams" :key="index">
                   <a>
-                    <a-avatar size="small" :src="item.avatar" />
+                    <a-avatar size="small" :src="item.avatar" icon="user"/>
                     <span class="member">{{ item.name }}</span>
                   </a>
                 </a-col>

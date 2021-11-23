@@ -19,249 +19,293 @@
       padding: 0px;
     }
 
-    .chromeframe {
-      margin: 0.2em 0;
-      background: #ccc;
-      color: #000;
-      padding: 0.2em 0;
+    .outer {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: #fff6e3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    #loader-wrapper {
-      position: fixed;
+    .main {
+      position: relative;
+    }
+
+    .dragon {
+      width: 200px;
+      height: 140px;
+      transform-origin: 50% 80%;
+      animation: zoomIn .5s cubic-bezier(0.47, 0, 0.75, 0.72) infinite alternate;
+    }
+
+    .dragon .body {
+      position: absolute;
       top: 0;
-      left: 0;
+      right: 0;
+      width: 180px;
+      height: 128px;
+      background: url(./img/body.png) no-repeat center center;
+      background-size: contain;
+      z-index: 10;
+    }
+
+    .dragon .horn-left {
+      position: absolute;
+      top: -17px;
+      left: 32px;
+      width: 31px;
+      height: 31px;
+      background: url(./img/horn-left.png) no-repeat;
+      background-size: contain;
+      z-index: 9;
+      transform-origin: 150% 200%;
+      transform: rotate(-5deg);
+      animation: swingRight .5s cubic-bezier(0.47, 0, 0.75, 0.72) infinite alternate;
+    }
+
+    .dragon .horn-right {
+      position: absolute;
+      top: -16px;
+      left: 110px;
+      width: 34px;
+      height: 31px;
+      background: url(./img/horn-right.png) no-repeat;
+      background-size: contain;
+      z-index: 9;
+      transform-origin: -50% 200%;
+      transform: rotate(5deg);
+      animation: swingLeft .5s cubic-bezier(0.47, 0, 0.75, 0.72) infinite alternate;
+    }
+
+    .dragon .eye {
+      position: absolute;
+      top: 39px;
+      width: 11px;
+      height: 11px;
+      background: url(./img/eye.png) no-repeat;
+      background-size: contain;
+      z-index: 12;
+    }
+
+    .dragon .eye.left {
+      left: 49px;
+    }
+
+    .dragon .eye.right {
+      left: 118px;
+      transform-origin: 50% 50%;
+      transform: rotate(180deg);
+    }
+
+    .dragon .blush {
+      position: absolute;
+      top: 46px;
+      width: 15px;
+      height: 9px;
+      background: url(./img/blush.png) no-repeat;
+      background-size: 100% 100%;
+      z-index: 11;
+      animation: blush .5s ease infinite alternate;
+    }
+
+    .dragon .blush.left {
+      left: 43px;
+    }
+
+    .dragon .blush.right {
+      left: 120px;
+    }
+
+    .dragon .mouth {
+      position: absolute;
+      top: 52px;
+      left: 49px;
+      width: 78px;
+      height: 56px;
+      background: url(./img/mouth.png) no-repeat;
+      background-size: 100%;
+      z-index: 11;
+      animation: openMouth 1s ease infinite;
+    }
+
+    .dragon .tail-sting {
+      position: absolute;
+      top: 67px;
+      left: 139px;
+      width: 40px;
+      height: 38px;
+      background: url(./img/tail-sting.png) no-repeat;
+      background-size: contain;
+      z-index: 9;
+      transform-origin: 0 100%;
+      animation: tailUp .5s cubic-bezier(0.47, 0, 0.75, 0.72) infinite alternate;
+    }
+
+    .shadow-wrapper {
+      position: absolute;
+      top: 110px;
+      width: 100%;
+    }
+
+    .shadow {
+      margin: 0 auto;
+      width: 110px;
+      height: 30px;
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 50%;
+      z-index: 0;
+      animation: zoomIn .5s cubic-bezier(0.47, 0, 0.75, 0.72) infinite alternate;
+    }
+
+    .fire-wrapper {
+      position: absolute;
+      width: 40px;
+      top: 60px;
+      left: 88px;
+      transform: translate(-50%, -50%);
+      transform-origin: 50% 100%;
+      animation: fireUp 1s ease-in infinite;
+    }
+
+    .fire {
+      padding-bottom: 135%;
       width: 100%;
       height: 100%;
-      z-index: 999999;
+      background: url(./img/fire.png) no-repeat;
+      background-size: contain;
+      animation: fire 1s ease-out infinite;
     }
 
-    /* 滚动条优化 start */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: #f6f6f6;
-      border-radius: 2px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #cdcdcd;
-      border-radius: 2px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #747474;
-    }
-
-    ::-webkit-scrollbar-corner {
-      background: #f6f6f6;
-    }
-
-    .load_title {
-      font-family: 'Open Sans';
-      color:#FFF;
-      font-size: 18px;
+    .progress {
+      margin-top: 30px;
       width: 100%;
-      text-align: center;
-      z-index: 9999999999999;
-      position: absolute;
-      top: 60%;
-      opacity: 1;
-      line-height: 30px;
     }
 
-    /* 滚动条优化 end */
-    #loading{
-		background-color: #3498db;
-		height: 100%;
-		width: 100%;
-		position: fixed;
-		z-index: 1;
-		margin-top: 0px;
-		top: 0px;
-	}
-	#loading-center{
-		width: 100%;
-		height: 100%;
-		position: relative;
-		}
-	#loading-center-absolute {
-		position: absolute;
-		left: 50%;
-		top: 50%;
-		height: 100px;
-		width: 100px;
-		margin-top: -50px;
-		margin-left: -50px;
-	}
-	.object{
-		position: absolute;
-		height: 10px;
-		width: 50px;		
-		background-color: #FFF;
-	}	
-	.object:nth-child(2n+0) {
-		-webkit-animation: animate_right 2s infinite;
-		animation: animate_right 2s infinite;
-	}
-	.object:nth-child(2n+1) {
-		-webkit-animation: animate_left 2s infinite;
-		animation: animate_left 2s infinite;
-	}		
-	.object:nth-child(1){
-		top: 0px;
-		left: 0px;	
-		}
-	.object:nth-child(2){
-		top: 0px;
-		left: 50px;
-		}
-	.object:nth-child(3){
-		top: 10px;
-		left: 0px;	
-		-webkit-animation-delay: 0.1s;
-	    animation-delay: 0.1s;	
-		}
-	.object:nth-child(4){
-		top: 10px;
-		left: 50px;
-		-webkit-animation-delay: 0.1s;
-	    animation-delay: 0.1s;	
-		}
-	.object:nth-child(5){
-		top: 20px;
-		left: 0px;
-		-webkit-animation-delay: 0.2s;
-	    animation-delay: 0.2s;	
-		}
-	.object:nth-child(6){
-		top: 20px;
-		left: 50px;
-		-webkit-animation-delay: 0.2s;
-	    animation-delay: 0.2s;
-		}
-	.object:nth-child(7){
-		top: 30px;
-		left: 0px;	
-		-webkit-animation-delay: 0.3s;
-	    animation-delay: 0.3s;		
-		}
-	.object:nth-child(8){
-		top: 30px;
-		left: 50px;
-		-webkit-animation-delay: 0.3s;
-	    animation-delay: 0.3s;	
-		}
-	.object:nth-child(9){
-		top: 40px;
-		left: 0px;	
-		-webkit-animation-delay: 0.4s;
-	    animation-delay: 0.4s;
-		}				
-	.object:nth-child(10){
-		top: 40px;
-		left: 50px;	
-		-webkit-animation-delay: 0.4s;
-	    animation-delay: 0.4s;
-		}	
-	.object:nth-child(11){
-		top: 50px;
-		left: 0px;	
-		-webkit-animation-delay: 0.5s;
-	    animation-delay: 0.5s;
-		}				
-	.object:nth-child(12){
-		top: 50px;
-		left: 50px;	
-		-webkit-animation-delay: 0.5s;
-	    animation-delay: 0.5s;
-		}	
-	.object:nth-child(13){
-		top: 60px;
-		left: 0px;	
-		-webkit-animation-delay: 0.6s;
-	    animation-delay: 0.6s;
-		}				
-	.object:nth-child(14){
-		top: 60px;
-		left: 50px;	
-		-webkit-animation-delay: 0.6s;
-	    animation-delay: 0.6s;
-		}	
-	.object:nth-child(15){
-		top: 70px;
-		left: 0px;	
-		-webkit-animation-delay: 0.7s;
-	    animation-delay: 0.7s;
-		}				
-	.object:nth-child(16){
-		top: 70px;
-		left: 50px;	
-		-webkit-animation-delay: 0.7s;
-	    animation-delay: 0.7s;
-		}
-	.object:nth-child(17){
-		top: 80px;
-		left: 0px;	
-		-webkit-animation-delay: 0.8s;
-	    animation-delay: 0.8s;
-		}				
-	.object:nth-child(18){
-		top: 80px;
-		left: 50px;	
-		-webkit-animation-delay: 0.8s;
-	    animation-delay: 0.8s;
-		}
-	.object:nth-child(19){
-		top: 90px;
-		left: 0px;	
-		-webkit-animation-delay: 0.9s;
-	    animation-delay: 0.9s;
-		}				
-	.object:nth-child(20){
-		top: 90px;
-		left: 50px;	
-		-webkit-animation-delay: 0.9s;
-	    animation-delay: 0.9s;
-		}
-	@-webkit-keyframes animate_right {
-	50% {
-		-ms-transform: translate(200px,-200px) rotate(180deg); 
-	   	-webkit-transform: translate(200px,-200px) rotate(180deg); 
-	    transform: translate(200px,-200px) rotate(180deg); 
-	  }
-	}
-	@keyframes animate_right {
-	50% {
-		-ms-transform: translate(200px,-200px) rotate(180deg); 
-	   	-webkit-transform: translate(200px,-200px) rotate(180deg); 
-	    transform: translate(200px,-200px) rotate(180deg); 
-	  }
-	}
-	@-webkit-keyframes animate_left {
-	50% {
-		-ms-transform: translate(-200px,-200px) rotate(180deg); 
-	   	-webkit-transform: translate(-200px,-200px) rotate(180deg); 
-	    transform: translate(-200px,-200px) rotate(180deg); 
-	  }
-	}
+    .progress .outer {
+      width: 100%;
+      height: 14px;
+      border-radius: 7px;
+      background: rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
 
-	@keyframes animate_left {
+    .progress .inner {
+      width: 0;
+      height: 100%;
+      background: #ffcd33;
+      animation: loading 2s linear infinite;
+    }
 
-	50% {
-		-ms-transform: translate(-200px,-200px) rotate(180deg); 
-	   	-webkit-transform: translate(-200px,-200px) rotate(180deg); 
-	    transform: translate(-200px,-200px) rotate(180deg); 
-	  }
-	}
+    @keyframes zoomIn {
+      100% {
+        transform: scale(1.16, 1.16);
+      }
+    }
+
+    @keyframes swingRight {
+      100% {
+        transform: rotate(5deg);
+      }
+    }
+
+    @keyframes swingLeft {
+      100% {
+        transform: rotate(-5deg);
+      }
+    }
+
+    @keyframes blush {
+      0% {
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes openMouth {
+      0% {
+        -webkit-clip-path: ellipse(20% 0% at 50% 0);
+        clip-path: ellipse(20% 0% at 50% 0);
+      }
+
+      50% {
+        -webkit-clip-path: ellipse(100% 100% at 50% 0);
+        clip-path: ellipse(100% 100% at 50% 0);
+      }
+
+      70% {
+        -webkit-clip-path: ellipse(100% 100% at 50% 0);
+        clip-path: ellipse(100% 100% at 50% 0);
+      }
+
+      100% {
+        -webkit-clip-path: ellipse(20% 0% at 50% 0);
+        clip-path: ellipse(20% 0% at 50% 0);
+      }
+    }
+
+    @keyframes tailUp {
+      0% {
+        transform: scaleY(0.9);
+      }
+
+      100% {
+        transform: scaleY(1.06);
+      }
+    }
+
+    @keyframes loading {
+      100% {
+        width: 100%;
+      }
+    }
+
+    @keyframes fireUp {
+      0% {
+        top: 70px;
+      }
+
+      20% {
+        top: 70px;
+      }
+
+      100% {
+        top: -80px;
+      }
+    }
+
+    @keyframes fire {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.8;
+      }
+
+      20% {
+        transform: scale(0, 0);
+        opacity: 0.8;
+      }
+
+      50% {
+        opacity: 0.8;
+      }
+
+      100% {
+        transform: scale(1, 1);
+        opacity: 0;
+      }
+    }
   </style>
   <!-- 全局配置 -->
   <script>
     window._CONFIG = {};
-    window._CONFIG['domianURL'] = window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + '/api';
-    window._CONFIG['webURL'] = window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '')
+    window._CONFIG['domianURL'] = window.location.protocol + '//' + window.location.hostname + (window.location.port ?
+      ':' + window.location.port : '') + '/api';
+    window._CONFIG['webURL'] = window.location.protocol + '//' + window.location.hostname + (window.location.port ?
+      ':' + window.location.port : '')
     window._CONFIG['casPrefixUrl'] = 'http://cas.example.org:8443/cas';
     window._CONFIG['onlinePreviewDomainURL'] = 'http://fileview.jeecg.com/onlinePreview'
     window._CONFIG['staticDomainURL'] = window._CONFIG['domianURL'] + '/sys/common/static/';
@@ -282,35 +326,33 @@
 <body>
   <!-- built files will be auto injected -->
   <div id="app">
-    <div id="loader-wrapper">
-      <div id="loading">
-        <div id="loading-center">
-          <div id="loading-center-absolute">
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
-            <div class="object"></div>
+    <div class="outer">
+      <div class="main">
+        <div class="shadow-wrapper">
+          <div class="shadow"></div>
+        </div>
+        <div class="dragon">
+          <div class="body"></div>
+          <div class="horn-left"></div>
+          <div class="horn-right"></div>
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="blush left"></div>
+          <div class="blush right"></div>
+          <div class="mouth"></div>
+          <div class="tail-sting"></div>
+        </div>
+        <div class="fire-wrapper">
+          <div class="fire"></div>
+        </div>
+        <div class="progress">
+          <div class="outer">
+            <div class="inner"></div>
           </div>
         </div>
       </div>
-      <div class="load_title">欢迎来到蓝趣编程课堂...</div>
     </div>
+  </div>
 
 </body>
 

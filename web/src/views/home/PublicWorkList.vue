@@ -29,7 +29,7 @@
                   <p>{{ item.workName }}</p>
                   <a-row class="work-author">
                     <a-col :span='6'>
-                      <a-avatar shape="square" class="avatar" :size="40" :src="item.avatar_url"/>
+                      <a-avatar shape="square" class="avatar" :size="40" :src="item.avatar_url"  icon="user"/>
                     </a-col>
                     <a-col :span='18'>
                       <span>{{item.realname || item.username}}</span>
@@ -64,7 +64,7 @@
                   <p>{{ item.workName }}</p>
                   <a-row class="work-author">
                     <a-col :span='6'>
-                      <a-avatar shape="square" class="avatar" :size="40" :src="item.avatar_url"/>
+                      <a-avatar shape="square" class="avatar" :size="40" :src="item.avatar_url"  icon="user"/>
                     </a-col>
                     <a-col :span='18'>
                       <span>{{item.realname || item.username}}</span>
@@ -99,7 +99,12 @@
                   <p>{{ item.workName }}</p>
                   <a-row class="work-author">
                     <a-col :span='6'>
-                      <a-avatar shape="square" class="avatar" :size="40" :src="item.avatar_url"/>
+                      <template v-if="item.avatar_url === ''">
+                        <a-avatar shape="square" class="avatar" :size="40" :src="item.avatar_url"  icon="user" />
+                      </template>
+                      <template v-else>
+                        <a-avatar shape="square" class="avatar" :size="40" :src="item.avatar_url"  icon="user"/>
+                      </template>
                     </a-col>
                     <a-col :span='18'>
                       <span>{{item.realname || item.username}}</span>
@@ -200,7 +205,7 @@ export default {
 
 <style lang="less" scoped>
 .container {
-  background: url(/img/bg_blue.png) no-repeat;
+  background: url(/img/clipart-arrows-water-8.png) no-repeat;
   background-color: #f6f6f6;
   background-size: 100% 250px;
 }

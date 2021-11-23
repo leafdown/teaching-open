@@ -1,12 +1,9 @@
 <template>
     <div class="copyright">
-          <a href="https://github.com/open-scratch/teaching" target="_blank">
-            <a-icon type="github" />
-          </a>
           <a-divider type="vertical" />
           Copyright
           <a-icon type="copyright" />
-          2020 <span>{{ brandName }}</span>
+          2019 - 2021 <span>{{ brandName }}</span>
           <a-divider type="vertical" />
           <a href="http://beian.miit.gov.cn/"
             ><span

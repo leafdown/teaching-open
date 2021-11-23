@@ -26,7 +26,7 @@
             <div class="project-info">
               <a-row type="flex" justify="space-around">
                 <a-col :span="4">
-                  <a-avatar shape="square" class="avatar" :size="60" :src="workInfo.avatar_url" />
+                  <a-avatar shape="square" class="avatar" :size="60" :src="workInfo.avatar_url" icon="user"/>
                   <p>{{ workInfo.realname || workInfo.username }}</p>
                 </a-col>
                 <a-col :span="14">
@@ -59,7 +59,7 @@
               <div class="publish">
                 <a-row type="flex" justify="space-between">
                   <a-col span="3" class="comment-user">
-                    <a-avatar shape="square" :size="60" icon="user" :src="getFileAccessHttpUrl(avatar())" />
+                    <a-avatar shape="square" :size="60" icon="user" :src="getFileAccessHttpUrl(avatar())"/>
                     <p>
                       {{ token ? nickname() : '未登录' }}
                     </p>
@@ -250,7 +250,7 @@ export default {
 
 <style lang="less" scoped>
 .container {
-  background: url(/img/bg_blue.png) no-repeat;
+  background: url(/img/clipart-arrows-water-8.png) no-repeat;
   background-color: #f6f6f6;
   background-size: 100% 250px;
 }
