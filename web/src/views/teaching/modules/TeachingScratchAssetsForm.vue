@@ -171,7 +171,7 @@ export default {
         queryById: '/teaching/teachingScratchAssets/queryById'
       },
       scratchTagCode: '',
-      assetPrefix: '/internalapi/asset/',
+      assetPrefix: 'internalapi/asset/',
 
       costumFile: '',
       soundFile: '',

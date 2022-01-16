@@ -33,6 +33,7 @@
     "vue-area-linkage": "^5.1.0",
     "vue-cropper": "^0.4.8",
     "vue-i18n": "^8.7.0",
+    "vue-lazy-loading": "^1.0.3",
     "vue-loader": "^15.7.0",
     "vue-ls": "^3.2.0",
     "vue-photo-preview": "^1.1.3",

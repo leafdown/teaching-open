@@ -17,16 +17,16 @@
             <div v-if="unit.courseVideoSource==3" v-html="unit.courseVideo"></div>
           </a-tab-pane>
           <a-tab-pane key="scratch" tab="案例" v-if="unit.courseCase">
-            <iframe id="player" :src="previewCourseCase(unit)"></iframe>
+            <iframe id="player" :src="previewCourseCase(unit)" allowtransparency='true' frameborder="0" scrolling="no" allowfullscreen></iframe>
           </a-tab-pane>
         </a-tabs>
         <template v-else>
           <div key="video" tab="视频" v-if="unit.courseVideo">
-            <voeideo oncontextmenu="return false;" :src="getFileAccessHttpUrl(unit.courseVideo)" controls="true"></video>
+            <video oncontextmenu="return false;" :src="getFileAccessHttpUrl(unit.courseVideo)" controls="true"></video>
           </div>
-          <div key="scratch" tab="案例" v-if="unit.courseCase">
+          <div key="scratch" tab="案例" v-if="unit.courseCase"  v-loading="loading">
             <!-- <iframe id="player" :src="'/scratch3/player.html?workUrl=' + getFileAccessHttpUrl(unit.courseCase)"></iframe> -->
-            <iframe id="player" :src="previewCourseCase(unit)"></iframe>
+            <iframe id="player" :src="previewCourseCase(unit)" allowtransparency='true' frameborder="0" scrolling="no" allowfullscreen></iframe>
           </div>
         </template>
       </div>

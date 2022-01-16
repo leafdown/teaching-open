@@ -11741,6 +11741,11 @@ vue-i18n@^8.7.0:
   resolved "https://registry.yarnpkg.com/vue-i18n/-/vue-i18n-8.25.0.tgz#1037d9295fa2845a230b771de473481edb2cfc4c"
   integrity sha512-ynhcL+PmTxuuSE1T10htiSXzjBozxYIE3ffbM1RfgAkVbr/v1SP+9Mi/7/uv8ZVV1yGuKjFAYp9BXq+X7op6MQ==
 
+vue-lazy-loading@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/vue-lazy-loading/-/vue-lazy-loading-1.0.3.tgz#208897c266beaa766b12f8448482b1b4fdc0d75f"
+  integrity sha512-coCxCT/jaPecRbTHz/VfpvOAyPJnh9fT4Ly2XNKdbD+go/0gybPZkplvFx5oP/gQdQ0QdS1auJaV7Hh1F8aYOg==
+
 vue-loader@^13.0.5:
   version "13.7.3"
   resolved "https://registry.yarnpkg.com/vue-loader/-/vue-loader-13.7.3.tgz#e07440f78230a639d00ada4da7b96d0e9d62037f"

@@ -252,7 +252,7 @@ window.launchIntoFullscreen = function(element) {
 
 //退出全屏
 window.exitFullscreen = function() {
-  if (window.document.exitFullscreen) {
+  if (window.document.exitFullscreen && window.isFullscreen()) {
     window.document.exitFullscreen();
   } else if (document.mozCancelFullScreen) {
     window.document.mozCancelFullScreen();
@@ -260,6 +260,14 @@ window.exitFullscreen = function() {
     window.document.webkitExitFullscreen();
   }
 }
+
+window.onresize = function () {
+  if (!window.isFullscreen()) {
+    // 要执行的动作
+    console.log('你按下了Esc');
+  }
+}
+
 
 //是否全屏
 window.isFullscreen = function(){
@@ -269,7 +277,7 @@ window.isFullscreen = function(){
          document.webkitFullscreenElement || false;
 }
 
-console.log("Teacing Open v2.6");
+console.log("Lanqu Teaching v2.6");
 
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}

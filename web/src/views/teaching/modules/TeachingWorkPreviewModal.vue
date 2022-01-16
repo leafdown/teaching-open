@@ -7,7 +7,7 @@
     @cancel="handleCancel"
     cancelText="关闭"
   >
-    <iframe id="player" scrolling="auto" :src="frameHref"></iframe>
+    <iframe id="player" :src="frameHref" allowtransparency='true' frameborder="0" scrolling="no" allowfullscreen></iframe>
   </a-modal>
 </template>
 <script>

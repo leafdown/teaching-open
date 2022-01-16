@@ -41,6 +41,7 @@ import vueBus from '@/utils/vueBus';
 import JeecgComponents from '@/components/jeecg/index'
 import '@/assets/less/JAreaLinkage.less'
 import VueAreaLinkage from 'vue-area-linkage'
+import LazyLoading from 'vue-lazy-loading'
 
 Vue.config.productionTip = false
 Vue.use(Storage, config.storageOptions)
@@ -54,6 +55,7 @@ Vue.use(preview)
 Vue.use(vueBus);
 Vue.use(JeecgComponents);
 Vue.use(VueAreaLinkage);
+Vue.use(LazyLoading)
 
 new Vue({
   router,

@@ -13,7 +13,7 @@ create table teaching_scratch_assets
     id varchar(40) not null
         primary key,
     asset_type tinyint not null comment '素材类型 1背景 2声音 3造型 4角色',
-    asset_name varchar(100) null comment '冗余 素材名',
+    asset_name varchar(1000) null comment '冗余 素材名',
     asset_data longtext null comment '素材json数据',
     md5_ext varchar(5000) null comment '冗余 素材md5',
     tags varchar(1000) null comment '标签',

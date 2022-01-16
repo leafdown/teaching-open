@@ -2030,7 +2030,12 @@
             onPygameClose: function (a) {
                 Sk.insertEvent("quit");
                 Sk.Sk_interrupt = true;
-                //this.getEditor().setReadOnly(false)
+                try {
+                    this.getEditor().setReadOnly(false)
+                }
+                catch (e) {
+                    console.log("No getEditor");
+                }
                 this.$pygameModal.foundation('reveal', 'close')
             },
             onSubmitClick: function (a) {
@@ -5844,7 +5849,9 @@
                         i = void 0, b.completer && b.completer.detach()
                     }), b.setOptions({
                         enableBasicAutocompletion: !0,
-                        enableLiveAutocompletion: !0
+                        enableSnippets: !0,
+                        enableLiveAutocompletion: !0,
+                        
                     })) : (b.off('file.rename', e), b.off('file.remove', f), b.setOptions({
                         enableBasicAutocompletion: !1,
                         enableLiveAutocompletion: !1
@@ -8659,7 +8666,14 @@
                 }
 
                 Sk.Sk_interrupt = true;
-                //this.getEditor().setReadOnly(false)
+
+                try {
+                    this.getEditor().setReadOnly(false)
+                }
+                catch (e) {
+                    console.log("No getEditor");
+                }
+                
                 p()
             },
             showTestResult: function (a) {

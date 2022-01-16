@@ -11,14 +11,18 @@
             <!-- 播放器 -->
             <div class="scratch-player">
               <iframe
-                :src="
-                  workInfo.workFile ? '/scratch3/player.html?workUrl=' + workInfo.workFileKey_url : 'about:blank'
+                ref="Iframe" 
+                v-lazy="
+                  workInfo.workFile ? '/scratch3/embed.html?workUrl=' + workInfo.workFileKey_url : 'about:blank'
                 "
                 id="player"
                 frameborder="0"
                 width="100%"
                 height="100%"
                 scrolling="no"
+                loading="lazy"
+                allowtransparency='true' 
+                allowfullscreen='true' 
               ></iframe>
             </div>
 
@@ -155,6 +159,7 @@ export default {
       loadingMore: false,
       commentsPage: 0,
       comments: [],
+      loading: true,
     }
   },
   created() {
@@ -166,6 +171,7 @@ export default {
   },
   mounted() {
     var that = this
+    const iframe = this.$refs.Iframe;
     //scratch全屏
     document.addEventListener('scratchFullScreen', function (e) {
       window.launchIntoFullscreen(document.getElementById('player'))
@@ -181,6 +187,23 @@ export default {
         p.focus()
       })
     })
+    document.addEventListener("keydown", function(e) {
+     if (e.key == 'esc') {
+        window.document.exitFullscreen();
+  }
+}, false);
+    if (iframe.attachEvent) {
+      // IE
+      iframe.attachEvent('onload', () => {
+        that.stateChange();
+
+      });
+    } else {
+      // 非IE
+      iframe.onload = function () {
+        that.stateChange();
+      };
+    }
   },
   methods: {
     ...mapGetters(['nickname', 'avatar', 'userInfo']),
@@ -243,6 +266,9 @@ export default {
     },
     enter() {
       this.$router.push('/account/center')
+    },
+    stateChange() {
+      this.loading = false;
     },
   },
 }
@@ -377,4 +403,5 @@ export default {
     text-align: center;
   }
 }
+
 </style>

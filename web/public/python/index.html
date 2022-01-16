@@ -179,20 +179,26 @@
 
     function emailVerificationForm() {
       $.ajax({
-          method: "POST",
-          url: "/api/users/verify-email",
-          data: {
-            'g-recaptcha-response': grecaptcha.getResponse()
-          }
-        })
-        .done(function (result) {
-          if (result.success) {
-            $('#account').notify(
-              "Verification email sent.", {
-                position: 'top center',
-                className: 'success'
-              }
-            );
+        url: '/api/teaching/teachingWork/submit',
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json',
+        beforeSend: function (request) {
+          request.setRequestHeader('X-Access-Token', access_token)
+        },
+        data: JSON.stringify({
+          courseId: unitId,
+          workCover: "",
+          workFile: uploadParam.projectKey,
+          workName: uploadParam.projectTitle,
+          id: workId,
+          workType: 4,
+          departId: departId,
+          additionalId: additionalId,
+        }),
+        success: function (res) {
+          if (res.code == 200) {
+            alert("提交成功")
           } else {
             $('#account').notify(
               "There was a problem sending the verification email. Please try again.", {
