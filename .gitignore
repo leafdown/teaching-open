@@ -5,6 +5,7 @@
 ## backend
 **/target
 **/logs
+api/jeecg-boot-base-common/target/*.*
 
 ## front
 **/*.lock
