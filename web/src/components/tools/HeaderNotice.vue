@@ -120,11 +120,11 @@
     mounted() {
       this.loadData();
       //this.timerFun();
-      this.initWebSocket();
+      //this.initWebSocket();
      // this.heartCheckFun();
     },
     destroyed: function () { // 离开页面生命周期函数
-      this.websocketclose();
+      //this.websocketclose();
     },
     methods: {
       timerFun() {
@@ -200,14 +200,14 @@
 
       initWebSocket: function () {
         // WebSocket与普通的请求所用协议有所不同，ws等同于http，wss等同于https
-        var userId = store.getters.userInfo.id;
-        var url = window._CONFIG['domianURL'].replace("https://","wss://").replace("http://","ws://")+"/websocket/"+userId;
-        console.log(url);
-        this.websock = new WebSocket(url);
-        this.websock.onopen = this.websocketOnopen;
-        this.websock.onerror = this.websocketOnerror;
-        this.websock.onmessage = this.websocketOnmessage;
-        this.websock.onclose = this.websocketOnclose;
+        //var userId = store.getters.userInfo.id;
+        //var url = window._CONFIG['domianURL'].replace("https://","wss://").replace("http://","ws://")+"/websocket/"+userId;
+        //console.log(url);
+        //this.websock = new WebSocket(url);
+        //this.websock.onopen = this.websocketOnopen;
+        //this.websock.onerror = this.websocketOnerror;
+        //this.websock.onmessage = this.websocketOnmessage;
+        //this.websock.onclose = this.websocketOnclose;
       },
       websocketOnopen: function () {
         console.log("WebSocket连接成功");

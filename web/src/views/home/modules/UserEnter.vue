@@ -21,7 +21,7 @@ import { ACCESS_TOKEN } from '@/store/mutation-types'
 export default {
   data() {
     return {
-      brandName: window._CONFIG['brandName'],
+      brandName: this.$store.getters.sysConfig.brandName,
       token: '',
     }
   },

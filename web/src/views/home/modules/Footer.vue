@@ -17,19 +17,17 @@
             ></a
           >
         </div>
+    <div class="footer" v-html="$store.getters.sysConfig.footer"></div>
 </template>
 <script>
-export default {
-    data() {
-        return {
-            brandName: window._CONFIG['brandName'],
-            beian: window._CONFIG['beian'],
-        }
-    },
-}
 </script>
 <style scoped>
-  .copyright {
+.footer {
+  width: 100%;
+  height: 90px;
+  bottom:0;
+  padding-top: 20px;
+  padding-bottom: 15px;
     text-align: center;
-  }
+}
 </style>

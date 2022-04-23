@@ -137,6 +137,33 @@
   <![endif]-->
   <style type="text/css" abt="234"></style>
   <script>
+    
+    var uploadParam = {}
+    var workName = ''
+    var workId = urlParams('workId')
+    var unitId = urlParams('unitId')
+    var departId = urlParams('departId')
+    var additionalId = urlParams('additionalId')
+    var access_token = getUserToken()
+    var userInfo = getUserInfo();
+    var qn_token = getQiniuToken();
+    setInterval(function () {
+      qn_token = getQiniuToken();
+    }, 600 * 1000)
+    // twl mine create course
+    var scene = urlParams("scene")
+
+    var observer = {
+      next(res) { },
+      error(err) {
+        console.log(1, err)
+      },
+      complete(res) {
+        uploadParam.projectKey = uploadFile(res.key, '学生作业-python', res.key, 2)
+        uploadWork()
+    }
+  }
+
     function submitReportContentForm() {
       document.getElementById('report-content-form').submit();
     }

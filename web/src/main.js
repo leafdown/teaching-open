@@ -31,7 +31,9 @@ import {
   DEFAULT_FIXED_HEADER_HIDDEN,
   DEFAULT_FIXED_SIDEMENU,
   DEFAULT_CONTENT_WIDTH_TYPE,
-  DEFAULT_MULTI_PAGE
+  DEFAULT_MULTI_PAGE,
+  SYS_CONFIG,
+  MENU
 } from "@/store/mutation-types"
 import config from '@/defaultSettings'
 
@@ -42,6 +44,7 @@ import JeecgComponents from '@/components/jeecg/index'
 import '@/assets/less/JAreaLinkage.less'
 import VueAreaLinkage from 'vue-area-linkage'
 import LazyLoading from 'vue-lazy-loading'
+import { getSysConfig, getMenu} from '@/api/manage'
 
 Vue.config.productionTip = false
 Vue.use(Storage, config.storageOptions)
@@ -57,7 +60,33 @@ Vue.use(JeecgComponents);
 Vue.use(VueAreaLinkage);
 Vue.use(LazyLoading)
 
-new Vue({
+let cacheTime = 600000 //缓存10分钟
+
+const start = async()=>{
+  //获取配置
+  let sysConfig = store.getters.sysConfig;
+  if (!sysConfig) {
+    await getSysConfig().then(res => {
+      if (res.success) {
+        sysConfig = res.result
+        Vue.ls.set(SYS_CONFIG, sysConfig, cacheTime)
+        store.commit('SET_SYS_CONFIG', sysConfig)
+      }
+    })
+  }
+  if(sysConfig.brandName){
+    window.document.title = sysConfig.brandName
+  }
+  //获取菜单
+  if (store.getters.menuList == null) {
+    await getMenu().then(res => {
+      const menuData = res.result;
+      Vue.ls.set(MENU, menuData, cacheTime)
+      store.commit('SET_MENU', menuData)
+    })
+  }
+
+  new Vue({
   router,
   store,
   mounted () {
@@ -74,4 +103,7 @@ new Vue({
     store.commit('SET_MULTI_PAGE',Vue.ls.get(DEFAULT_MULTI_PAGE,config.multipage))
   },
   render: h => h(App)
-}).$mount('#app')
+  }).$mount('#app')
+}
+
+start()
