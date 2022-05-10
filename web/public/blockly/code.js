@@ -18,51 +18,8 @@ var Code = {};
  * Lookup for names of supported languages.  Keys should be in ISO 639 format.
  */
 Code.LANGUAGE_NAME = {
-  'ar': 'العربية',
-  'be-tarask': 'Taraškievica',
-  'br': 'Brezhoneg',
-  'ca': 'Català',
-  'cs': 'Česky',
-  'da': 'Dansk',
-  'de': 'Deutsch',
-  'el': 'Ελληνικά',
-  'en': 'English',
-  'es': 'Español',
-  'et': 'Eesti',
-  'fa': 'فارسی',
-  'fr': 'Français',
-  'he': 'עברית',
-  'hr': 'Hrvatski',
-  'hrx': 'Hunsrik',
-  'hu': 'Magyar',
-  'ia': 'Interlingua',
-  'is': 'Íslenska',
-  'it': 'Italiano',
-  'ja': '日本語',
-  'kab': 'Kabyle',
-  'ko': '한국어',
-  'mk': 'Македонски',
-  'ms': 'Bahasa Melayu',
-  'nb': 'Norsk Bokmål',
-  'nl': 'Nederlands, Vlaams',
-  'oc': 'Lenga d\'òc',
-  'pl': 'Polski',
-  'pms': 'Piemontèis',
-  'pt-br': 'Português Brasileiro',
-  'ro': 'Română',
-  'ru': 'Русский',
-  'sc': 'Sardu',
-  'sk': 'Slovenčina',
-  'sr': 'Српски',
-  'sv': 'Svenska',
-  'ta': 'தமிழ்',
-  'th': 'ภาษาไทย',
-  'tlh': 'tlhIngan Hol',
-  'tr': 'Türkçe',
-  'uk': 'Українська',
-  'vi': 'Tiếng Việt',
   'zh-hans': '简体中文',
-  'zh-hant': '正體中文'
+  'en': 'English'
 };
 
 /**
@@ -96,7 +53,7 @@ Code.getLang = function() {
   var lang = Code.getStringParamFromUrl('lang', '');
   if (Code.LANGUAGE_NAME[lang] === undefined) {
     // Default to English.
-    lang = 'en';
+    lang = 'zh-hans';
   }
   return lang;
 };
@@ -240,7 +197,7 @@ Code.LANG = Code.getLang();
  * @private
  */
 Code.TABS_ = [
-  'blocks', 'javascript', 'php', 'python', 'dart', 'lua', 'xml', 'json'
+  'blocks', 'javascript', 'python'
 ];
 
 /**
@@ -248,7 +205,7 @@ Code.TABS_ = [
  * @private
  */
 Code.TABS_DISPLAY_ = [
-  'Blocks', 'JavaScript', 'PHP', 'Python', 'Dart', 'Lua', 'XML', 'JSON'
+  'Blocks',  'Python', 'JavaScript'
 ];
 
 Code.selected = 'blocks';
@@ -259,44 +216,7 @@ Code.selected = 'blocks';
  */
 Code.tabClick = function(clickedName) {
   // If the XML tab was open, save and render the content.
-  if (document.getElementById('tab_xml').classList.contains('tabon')) {
-    var xmlTextarea = document.getElementById('content_xml');
-    var xmlText = xmlTextarea.value;
-    var xmlDom = null;
-    try {
-      xmlDom = Blockly.Xml.textToDom(xmlText);
-    } catch (e) {
-      var q = window.confirm(
-          MSG['parseError'].replace(/%1/g, 'XML').replace('%2', e));
-      if (!q) {
-        // Leave the user on the XML tab.
-        return;
-      }
-    }
-    if (xmlDom) {
-      Code.workspace.clear();
-      Blockly.Xml.domToWorkspace(xmlDom, Code.workspace);
-    }
-  }
-
-  if (document.getElementById('tab_json').classList.contains('tabon')) {
-    var jsonTextarea = document.getElementById('content_json');
-    var jsonText = jsonTextarea.value;
-    var json = null;
-    try {
-      json = JSON.parse(jsonText);
-    } catch (e) {
-      var q = window.confirm(
-          MSG['parseError'].replace(/%1/g, 'JSON').replace('%2', e));
-      if (!q) {
-        // Leave the user on the JSON tab.
-        return;
-      }
-    }
-    if (json) {
-      Blockly.serialization.workspaces.load(json, Code.workspace);
-    }
-  }
+  
 
   if (document.getElementById('tab_blocks').classList.contains('tabon')) {
     Code.workspace.setVisible(false);
@@ -359,13 +279,7 @@ Code.renderContent = function() {
     Code.attemptCodeGeneration(Blockly.JavaScript);
   } else if (content.id === 'content_python') {
     Code.attemptCodeGeneration(Blockly.Python);
-  } else if (content.id === 'content_php') {
-    Code.attemptCodeGeneration(Blockly.PHP);
-  } else if (content.id === 'content_dart') {
-    Code.attemptCodeGeneration(Blockly.Dart);
-  } else if (content.id === 'content_lua') {
-    Code.attemptCodeGeneration(Blockly.Lua);
-  }
+  } 
   if (typeof PR === 'object') {
     PR.prettyPrint();
   }

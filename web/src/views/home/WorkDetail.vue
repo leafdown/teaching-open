@@ -395,7 +395,6 @@ export default {
   width: 300px !important;
 }
 
-<<<<<<< HEAD
 .ant-layout-footer {
   height: 50px;
   bottom: 0;
@@ -405,6 +404,4 @@ export default {
   }
 }
 
-=======
->>>>>>> upstream/master
 </style>

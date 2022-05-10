@@ -7,13 +7,7 @@
       <span>{{brandName}}</span>
       <a-divider type="vertical"></a-divider>
     <div class="links">
-<<<<<<< HEAD
       <a href="http://teacher.lanqu.vip" target="_blank">首页</a>
-=======
-        <a href="https://github.com/open-scratch/teaching" target="_blank">
-        <a-icon type="github"/>
-      </a>
->>>>>>> upstream/master
     </div>
     </div>
     

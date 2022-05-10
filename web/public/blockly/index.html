@@ -1,48 +1,41 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="zh" >
 <head>
-  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google" value="notranslate">
-  <title>Blockly</title>
+
+  <title>蓝趣编程课堂-积木编程</title>
   <link rel="stylesheet" href="style.css">
   <script src="./storage.js"></script>
   <script src="./blockly_compressed.js"></script>
   <script src="./blocks_compressed.js"></script>
   <script src="./javascript_compressed.js"></script>
   <script src="./python_compressed.js"></script>
-  <script src="./php_compressed.js"></script>
-  <script src="./lua_compressed.js"></script>
-  <script src="./dart_compressed.js"></script>
   <script src="./code.js"></script>
-
 </head>
 
 <body>
   <table width="100%" height="100%">
     <tr>
       <td colspan=2>
-        <table width="100%">
+        <table width="100%" style="background-color: #1890FF;">
           <tr id="tabRow" height="1em">
-            <td id="tab_blocks" class="tabon">Blocks</td>
-            <td class="tabmin tab_collapse">&nbsp;</td>
-            <td id="tab_javascript" class="taboff tab_collapse">JavaScript</td>
+            <td id="tab_blocks" class="tabon">积木块</td>
             <td class="tabmin tab_collapse">&nbsp;</td>
             <td id="tab_python" class="taboff tab_collapse">Python</td>
             <td class="tabmin tab_collapse">&nbsp;</td>
-            <td id="tab_php" class="taboff tab_collapse">PHP</td>
+            <td id="tab_javascript" class="taboff tab_collapse">JavaScript</td>
             <td class="tabmin tab_collapse">&nbsp;</td>
-            <td id="tab_lua" class="taboff tab_collapse">Lua</td>
-            <td class="tabmin tab_collapse">&nbsp;</td>
-            <td id="tab_dart" class="taboff tab_collapse">Dart</td>
-            <td class="tabmin tab_collapse">&nbsp;</td>
-            <td id="tab_xml" class="taboff tab_collapse">XML</td>
-            <td class="tabmin tab_collapse">&nbsp;</td>
-            <td id="tab_json" class="taboff tab_collapse">JSON</td>
             <td class="tabmin">&nbsp;</td>
             <td id="tab_code" class="taboff tab_collapse">
               <select id="code_menu"></select>
+            </td>
+            <td id="logo" style="border: 0ch;" >
+              <span title="蓝趣编程课堂" data-dropdown="brand-menu" aria-controls="brand-menu" aria-expanded="false">
+            <img class="show-for-large-up" src="../img/logo.svg">
+
+          </span>
             </td>
             <td class="tabmax">
               <select class="farSide" id="languageMenu"></select>
@@ -395,6 +388,7 @@
 <script src="../js/jquery.qrcode.min.js"></script>
 <script src="../js/qiniu.min.js"></script>
 <script src="../js/common.js"></script>
+
 <script>
   var uploadParam = {}
   var workName = ''
@@ -452,7 +446,7 @@
       console.log(1, err)
     },
     complete(res) {
-      uploadParam.projectKey = uploadFile(res.key, '学生作业-blockly', res.key)
+      uploadParam.projectKey = uploadFile(res.key, '学生作业-', res.key)
       uploadParam.projectTitle = $("#project-name").val() ? $("#project-name").val() : "Blockly code"
       uploadWork(uploadParam.projectKey, uploadParam.projectTitle)
     }
@@ -550,5 +544,4 @@
     var subscription = observable.subscribe(observer)
   }
 </script>
-
 </html>

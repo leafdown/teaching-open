@@ -31,5 +31,6 @@ justauth:
   cache:
     type: default
     prefix: 'demo::'
-    timeout: 1h# 用户体验提升计划
+    timeout: 1h
+    # 用户体验提升计划
 ueip: true

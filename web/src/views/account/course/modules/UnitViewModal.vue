@@ -17,11 +17,7 @@
             <div v-if="unit.courseVideoSource==3" v-html="unit.courseVideo"></div>
           </a-tab-pane>
           <a-tab-pane key="scratch" tab="案例" v-if="unit.courseCase">
-<<<<<<< HEAD
             <iframe id="player" :src="previewCourseCase(unit)" allowtransparency='true' frameborder="0" scrolling="no" allowfullscreen></iframe>
-=======
-            <iframe id="player" :src="previewCourseCase(unit)" scrolling="no"></iframe>
->>>>>>> upstream/master
           </a-tab-pane>
         </a-tabs>
         <template v-else>
@@ -30,7 +26,7 @@
           </div>
           <div key="scratch" tab="案例" v-if="unit.courseCase"  v-loading="loading">
             <!-- <iframe id="player" :src="'/scratch3/player.html?workUrl=' + getFileAccessHttpUrl(unit.courseCase)"></iframe> -->
-            <iframe id="player" :src="previewCourseCase(unit)" allowtransparency='true' frameborder="0" scrolling="no" allowfullscreen></iframe>
+            <iframe id="player" :src="previewCourseCase(unit)" scrolling="no"></iframe>
           </div>
         </template>
       </div>
@@ -109,16 +105,24 @@ export default {
     },
     previewCourseCase(unit) {
       let url = this.getFileAccessHttpUrl(unit.courseCase)
+      let go_url = "";
+      console.log(url);
       switch(unit.courseWorkType){
         case 1:
-          return '/scratch3/player.html?workUrl=' + url
+          go_url = '/scratch3/player.html?workUrl=' + url;
+          break;
         case 2:
-          return '/scratch3/player.html?workUrl=' + url
+           go_url = '/scratch3/player.html?workUrl=' + url;
+           break;
         case 3:
-          return '/scratchjr/editor.html?mode=edit&filepath=' + url
+           go_url = '/scratchjr/editor.html?mode=edit&filepath=' + url;
+           break;
         case 4:
-          return '/python/player.html?lang=turtle&url='+ url
+           go_url = '/python/player.html?lang=turtle&url='+ url;
+           break;
       }
+      console.log(go_url);
+      return go_url;
     },
     handleViewCode (unit) {
       switch (unit.courseWorkType) {
