@@ -10,8 +10,8 @@
             </a-form-item>
           </a-col>
           <a-col :xl="6" :lg="7" :md="8" :sm="24">
-            <a-form-item label="分配班级">
-              <j-select-depart placeholder="请选择分配班级" :onlyLeaf="true" :onlyCategory="3" :rootOpened="true" v-model="queryParam.workDept" />
+            <a-form-item label="班级">
+              <j-select-depart placeholder="请选择班级" :onlyLeaf="true" :onlyCategory="3" :rootOpened="true" v-model="queryParam.workDept" />
             </a-form-item>
           </a-col>
           <a-col :xl="6" :lg="7" :md="8" :sm="24">
@@ -50,16 +50,17 @@
       </div>
 
       <a-table
+        class="j-table-force-nowrap"
         ref="table"
         size="middle"
         bordered
         rowKey="id"
+        :scroll="{x:true}"
         :columns="columns"
         :dataSource="dataSource"
         :pagination="ipagination"
         :loading="loading"
         :rowSelection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
-        class="j-table-force-nowrap"
         @change="handleTableChange"
       >
         <template slot="htmlSlot" slot-scope="text">
@@ -81,7 +82,9 @@
             下载
           </a-button>
         </template>
-
+        <span slot="desc" slot-scope="text">
+          <j-ellipsis :value="text" :length="20" />
+        </span>
         <span slot="action" slot-scope="text, record">
           <a @click="handleEdit(record)">编辑</a>
 
@@ -110,13 +113,14 @@ import { mixinDevice } from '@/utils/mixin'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import TeachingAdditionalWorkModal from './modules/TeachingAdditionalWorkModal'
 import JSelectDepart from '@/components/jeecgbiz/JSelectDepart'
-
+import JEllipsis from '@/components/jeecg/JEllipsis'
 export default {
   name: 'TeachingAdditionalWorkList',
   mixins: [JeecgListMixin, mixinDevice],
   components: {
     JSelectDepart,
     TeachingAdditionalWorkModal,
+    JEllipsis
   },
   data() {
     return {
@@ -152,6 +156,7 @@ export default {
           title: '作业描述',
           align: 'center',
           dataIndex: 'workDesc',
+          scopedSlots: { customRender: 'desc' },
         },
         {
           title: '作业封面',
@@ -183,7 +188,7 @@ export default {
           title: '操作',
           dataIndex: 'action',
           align: 'center',
-          // fixed:"right",
+          fixed:"right",
           width: 147,
           scopedSlots: { customRender: 'action' },
         },

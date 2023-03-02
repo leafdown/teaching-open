@@ -149,7 +149,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 	public List<String> getRole(String username) {
 		return sysUserRoleMapper.getRoleByUserName(username);
 	}
-	
+
+	@Override
+	public List<String> getRoleById(String userId) {
+		return sysUserRoleMapper.getRoleByUserId(userId);
+	}
+
 	/**
 	 * 通过用户名获取用户角色集合
 	 * @param username 用户名
@@ -162,6 +167,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 		log.info("-------通过数据库读取用户拥有的角色Rules------username： " + username + ",Roles size: " + (roles == null ? 0 : roles.size()));
 		return new HashSet<>(roles);
 	}
+
+	@Override
+	public Set<String> getUserIdRolesSet(String userId) {
+		List<String> roles = sysUserRoleMapper.getRoleIdByUserId(userId);
+		log.info("-------通过数据库读取用户拥有的角色Rules------userId： " + userId + ",Roles size: " + (roles == null ? 0 : roles.size()));
+		return new HashSet<>(roles);
+	}
+
 
 	/**
 	 * 通过用户名获取用户权限集合
@@ -221,30 +234,18 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 		return info;
 	}
 
-	// 根据部门Id查询
-	@Override
-	public IPage<SysUser> getUserByDepId(Page<SysUser> page, String departId,String username) {
-		return userMapper.getUserByDepId(page, departId,username);
-	}
-
-	@Override
-	public IPage<SysUser> getUserByDepIds(Page<SysUser> page, List<String> departIds, String username, String realname) {
-		return userMapper.getUserByDepIds(page, departIds,username, realname);
-	}
-
 	@Override
 	public Map<String, String> getDepNamesByUserIds(List<String> userIds) {
-		List<SysUserDepVo> list = this.baseMapper.getDepNamesByUserIds(userIds);
-
 		Map<String, String> res = new HashMap<String, String>();
+		if (userIds == null || userIds.isEmpty()){return res;}
+		List<SysUserDepVo> list = this.baseMapper.getDepNamesByUserIds(userIds);
 		list.forEach(item -> {
-					if (res.get(item.getUserId()) == null) {
-						res.put(item.getUserId(), item.getDepartName());
-					} else {
-						res.put(item.getUserId(), res.get(item.getUserId()) + "," + item.getDepartName());
-					}
-				}
-		);
+			if (res.get(item.getUserId()) == null) {
+				res.put(item.getUserId(), item.getDepartName());
+			} else {
+				res.put(item.getUserId(), res.get(item.getUserId()) + "," + item.getDepartName());
+			}
+		});
 		return res;
 	}
 
@@ -407,8 +408,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 	}
 
 	@Override
-	public Page<SysUserModel> getUserList(Page<SysUserModel> page, QueryWrapper<SysUserModel> queryWrapper) {
-		List<SysUserModel> list = userMapper.getUserList(page, queryWrapper);
+	public Page<SysUser> getUserList(Page<SysUser> page, QueryWrapper<SysUser> queryWrapper) {
+		List<SysUser> list = userMapper.getUserList(page, queryWrapper);
 		return page.setRecords(list);
 	}
 
@@ -446,17 +447,37 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
 	@Override
 	public Map<String, String> getRoleNamesByUserIds(List<String> userIds) {
-		List<SysUserDepVo> list = this.baseMapper.getRoleNamesByUserIds(userIds);
 		Map<String, String> res = new HashMap<String, String>();
+		if(userIds == null || userIds.isEmpty()){return res;}
+		List<SysUserDepVo> list = this.baseMapper.getRoleNamesByUserIds(userIds);
 		list.forEach(item -> {
-					if (res.get(item.getUserId()) == null) {
-						res.put(item.getUserId(), item.getRoleName());
-					} else {
-						res.put(item.getUserId(), res.get(item.getUserId()) + "," + item.getRoleName());
-					}
-				}
-		);
+			if (res.get(item.getUserId()) == null) {
+				res.put(item.getUserId(), item.getRoleName());
+			} else {
+				res.put(item.getUserId(), res.get(item.getUserId()) + "," + item.getRoleName());
+			}
+		});
 		return res;
 	}
+
+	@Override
+	public int getUserRoleLevelByUsername(String username) {
+		Integer level = sysUserRoleMapper.getUserRoleLevelByUsername(username);
+		if (level == null){
+			return -1;
+		}else{
+			return level;
+		}
+	}
+
+    @Override
+    public int getUserRoleLevel(String username) {
+		Integer level = sysUserRoleMapper.getUserRoleLevel(username);
+		if (level == null){
+			return -1;
+		}else{
+			return level;
+		}
+    }
 
 }

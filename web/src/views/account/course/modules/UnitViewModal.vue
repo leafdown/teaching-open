@@ -43,12 +43,8 @@
               <template v-slot:expandIcon="props">
                 <a-icon type="caret-right" :rotate="props.isActive ? 90 : 0" />
               </template>
-              <a-collapse-panel :header="'课后作业'" :style="customStyle">
-                <a
-                  target="_blank"
-                  @click="handleViewCode(unit)"
-                  ><a-icon type="edit" />去做作业</a
-                >
+              <a-collapse-panel v-if="unit.courseWork" :header="'课后作业'" :style="customStyle">
+                <a-button @click="handleViewCode(unit)" type="primary" icon="edit">去做作业</a-button>
               </a-collapse-panel>
               <a-collapse-panel v-if="unit.coursePpt" :header="'课程资料'" :style="customStyle">
                 <div v-for="(u,i) in unit.coursePpt_url.split(',')" :key="i">
@@ -57,6 +53,13 @@
                 >
                   <a v-else target="_blank" :href="u"
                     ><a-icon type="file" /> 查看资料 {{(i+1)}}</a
+                  >
+                </div>
+              </a-collapse-panel>
+              <a-collapse-panel v-if="unit.coursePlan" :header="'课程教案'" :style="customStyle">
+                <div v-for="(u,i) in unit.coursePlan_url.split(',')" :key="i">
+                  <a target="_blank" :href="u"
+                    ><a-icon type="file" /> 查看教案 {{(i+1)}}</a
                   >
                 </div>
               </a-collapse-panel>
@@ -133,10 +136,10 @@ export default {
           window.open('/scratch3/index.html?scene=course&unitId='+unit.id)
           break
         case 3:
-          window.open('/scratchjr/editor.html?mode=edit&filepath=' + this.getFileAccessHttpUrl(unit.courseWork))
+          window.open('/scratchjr/editor.html?scene=course&mode=edit&filepath=' + this.getFileAccessHttpUrl(unit.courseWork))
           break
         case 4:
-          window.open('/python/index.html?lang=turtle&unitId='+unit.id + "&url=" + this.getFileAccessHttpUrl(unit.courseWork))
+          window.open('/python/index.html?scene=course&lang=turtle&unitId='+unit.id + "&url=" + this.getFileAccessHttpUrl(unit.courseWork))
           break
         default:
           window.open(this.getFileAccessHttpUrl(unit.mediaPath))

@@ -2,26 +2,32 @@ package org.jeecg.modules.system.controller;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
+import org.jeecg.common.constant.FillRuleConstant;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.common.util.FillRuleUtil;
 import org.jeecg.common.util.ImportExcelUtil;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.common.controller.BaseController;
 import org.jeecg.modules.system.entity.SysDepart;
 import org.jeecg.modules.system.model.DepartIdModel;
 import org.jeecg.modules.system.model.SysDepartTreeModel;
 import org.jeecg.modules.system.service.ISysDepartService;
 import org.jeecg.modules.system.service.ISysPositionService;
+import org.jeecg.modules.system.service.ISysUserService;
 import org.jeecg.modules.system.util.FindsDepartsChildrenUtil;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
@@ -33,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -52,7 +59,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/sys/sysDepart")
 @Slf4j
-public class SysDepartController {
+public class SysDepartController extends BaseController {
 
 	@Autowired
 	private ISysDepartService sysDepartService;
@@ -67,8 +74,16 @@ public class SysDepartController {
 	public Result<List<SysDepartTreeModel>> queryMyDeptTreeList() {
 		Result<List<SysDepartTreeModel>> result = new Result<>();
 		LoginUser user = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+
 		try {
 			if(oConvertUtils.isNotEmpty(user.getUserIdentity()) && user.getUserIdentity().equals( CommonConstant.USER_IDENTITY_2 )){
+				// 如果角色是admin和dev，展示所有部门
+				if(hasRole("admin") || hasRole("dev")){
+					List<SysDepart> departList = this.sysDepartService.getRootDepart();
+					String departIds = departList.stream().map(SysDepart::getId).collect(Collectors.joining(","));
+					user.setDepartIds(departIds); //全部顶级部门
+				}
+
 				List<SysDepartTreeModel> list = sysDepartService.queryMyDeptTreeList(user.getDepartIds());
 				result.setResult(list);
 				result.setMessage(CommonConstant.USER_IDENTITY_2.toString());
@@ -149,6 +164,16 @@ public class SysDepartController {
 		if (sysDepartEntity == null) {
 			result.error500("未找到对应实体");
 		} else {
+			// 如果调整了parentId，同步更新orgCode
+			if (!StringUtils.isEmpty(sysDepart.getParentId()) && !sysDepart.getParentId().equals(sysDepartEntity.getParentId())){
+//				JSONObject formData = new JSONObject();
+//				formData.put("parentId",sysDepart.getParentId());
+//				String[] codeArray = (String[]) FillRuleUtil.executeRule(FillRuleConstant.DEPART,formData);
+//				sysDepart.setOrgCode(codeArray[0]);
+//				List<String> subDeptIds = sysDepartService.getSubDepIdsByDepId(sysDepart.getId());
+				result.error500("暂不支持调整层级结构");
+				return result;
+			}
 			boolean ok = sysDepartService.updateDepartDataById(sysDepart, username);
 			// TODO 返回false说明什么？
 			if (ok) {
@@ -216,25 +241,6 @@ public class SysDepartController {
 	 */
 	@RequestMapping(value = "/queryIdTree", method = RequestMethod.GET)
 	public Result<List<DepartIdModel>> queryIdTree() {
-//		Result<List<DepartIdModel>> result = new Result<List<DepartIdModel>>();
-//		List<DepartIdModel> idList;
-//		try {
-//			idList = FindsDepartsChildrenUtil.wrapDepartIdModel();
-//			if (idList != null && idList.size() > 0) {
-//				result.setResult(idList);
-//				result.setSuccess(true);
-//			} else {
-//				sysDepartService.queryTreeList();
-//				idList = FindsDepartsChildrenUtil.wrapDepartIdModel();
-//				result.setResult(idList);
-//				result.setSuccess(true);
-//			}
-//			return result;
-//		} catch (Exception e) {
-//			log.error(e.getMessage(),e);
-//			result.setSuccess(false);
-//			return result;
-//		}
 		Result<List<DepartIdModel>> result = new Result<>();
 		try {
 			List<DepartIdModel> list = sysDepartService.queryDepartIdTreeList();

@@ -82,27 +82,14 @@ public interface ISysUserService extends IService<SysUser> {
 	 * @return
 	 */
 	public List<String> getRole(String username);
-	
+	public List<String> getRoleById(String userId);
+
 	/**
 	  * 查询用户信息包括 部门信息
 	 * @param username
 	 * @return
 	 */
 	public SysUserCacheInfo getCacheUser(String username);
-
-	/**
-	 * 根据部门Id查询
-	 * @param
-	 * @return
-	 */
-	public IPage<SysUser> getUserByDepId(Page<SysUser> page, String departId, String username);
-
-	/**
-	 * 根据部门Ids查询
-	 * @param
-	 * @return
-	 */
-	public IPage<SysUser> getUserByDepIds(Page<SysUser> page, List<String> departIds, String username, String realname);
 
 	/**
 	 * 根据 userIds查询，查询用户所属部门的名称（多个部门名逗号隔开）
@@ -145,6 +132,7 @@ public interface ISysUserService extends IService<SysUser> {
 	 * @return 角色集合
 	 */
 	Set<String> getUserRolesSet(String username);
+	Set<String> getUserIdRolesSet(String userId);
 
 	/**
 	 * 通过用户名获取用户权限集合
@@ -214,7 +202,7 @@ public interface ISysUserService extends IService<SysUser> {
 	 */
 	boolean removeLogicDeleted(List<String> userIds);
 
-    IPage<SysUserModel> getUserList(Page<SysUserModel> page, QueryWrapper<SysUserModel> queryWrapper);
+    IPage<SysUser> getUserList(Page<SysUser> page, QueryWrapper<SysUser> queryWrapper);
 
     SysUser getUserByOpenId(String openId);
     /**
@@ -242,4 +230,8 @@ public interface ISysUserService extends IService<SysUser> {
 	 * @return
 	 */
 	Map<String, String> getRoleNamesByUserIds(List<String> userIds);
+
+	//获取角色的最高权限
+	int getUserRoleLevelByUsername(String username);
+	int getUserRoleLevel(String userId);
 }

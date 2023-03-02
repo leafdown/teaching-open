@@ -46,7 +46,7 @@
                 ></j-upload>
               </a-form-item>
             </a-col>
-            <!-- <a-col :span="24">
+            <a-col :span="24">
               <a-form-item label="轮播图" :labelCol="labelCol2" :wrapperCol="wrapperCol2">
                 <j-upload
                   v-decorator="['banner']"
@@ -62,7 +62,7 @@
                   <a-textarea :auto-size="{ minRows: 2, maxRows: 10 }" v-decorator="['bannerLinks']"/>
                 </a-tooltip>
               </a-form-item>
-            </a-col> -->
+            </a-col>
             <a-col :span="24">
               <a-form-item label="底部文字" :labelCol="labelCol2" :wrapperCol="wrapperCol2">
                 <j-editor v-decorator="['footer']" :triggerChange="true" />
@@ -180,7 +180,7 @@ export default {
           console.log(formData)
           postAction('/sys/config/saveTenantConfig', formData).then((res) => {
             if (res.success) {
-              this.$message.success(res.message)
+              this.$message.success("修改成功，部分设置将在1小时内生效")
               this.$emit('ok')
               this.visible = false
             } else {

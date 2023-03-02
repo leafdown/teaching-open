@@ -142,8 +142,9 @@
     var workName = ''
     var workId = urlParams('workId')
     var unitId = urlParams('unitId')
-    var departId = urlParams('departId')
-    var additionalId = urlParams('additionalId')
+    var departId = urlParams('departId') //班级ID
+    var additionalId = urlParams('additionalId') //附加作业ID
+    var scene = urlParams("scene") || 'create' //来源
     var access_token = getUserToken()
     var userInfo = getUserInfo();
     var qn_token = getQiniuToken();
@@ -188,12 +189,16 @@
       submitRecaptchaForm('sign-up-long');
     }
 
-    function submitSignUpIndexForm() {
-      submitRecaptchaForm('sign-up-index');
-    }
-
-    function submitSignUpInterestForm() {
-      submitRecaptchaForm('interest-signup-form');
+    window.submitCode = function (projectName, code) {
+      console.log(code);
+      var uuid = window.uuid()
+      uploadParam.projectTitle = projectName
+      var defaultUploadType = getSysConfig('uploadType')
+      if(defaultUploadType == 'qiniu'){
+        upload2Qiniu(code, 'python/' + uuid + '.py', projectName, observer)
+      }else{
+        update2Local(new Blob([code], {type: 'text/plain'}),uploadParam.projectTitle + ".py", 'python', handleFileUploaded)
+      }
     }
 
     function submitEducatorForm() {
@@ -220,8 +225,10 @@
           workName: uploadParam.projectTitle,
           id: workId,
           workType: 4,
+          workStatus: 1,
           departId: departId,
           additionalId: additionalId,
+          workScene: scene,
         }),
         success: function (res) {
           if (res.code == 200) {

@@ -33,8 +33,22 @@
               </a-select>
             </a-form-item>
           </a-col>
-
           <template v-if="toggleSearchStatus">
+            <a-col :md="6" :sm="8">
+              <a-form-item label="用户部门">
+                <j-select-depart v-model="queryParam.departId" :multi="true"></j-select-depart>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="8">
+              <a-form-item label="注册时间">
+                <a-range-picker
+                  
+                  format="YYYY-MM-DD HH:mm:ss"
+                  :placeholder="['开始时间', '结束时间']"
+                  @change="onDateChange"
+                />
+              </a-form-item>
+            </a-col>
             <a-col :md="6" :sm="8">
               <a-form-item label="性别">
                 <a-select v-model="queryParam.sex" placeholder="请选择性别">
@@ -78,9 +92,10 @@
 
     <!-- 操作按钮区域 -->
     <div class="table-operator" style="border-top: 5px">
-      <a-button @click="handleAdd" type="primary" icon="plus">添加用户</a-button>
-      <a-button type="primary" icon="download" @click="handleExportXls('用户信息')">导出</a-button>
+      <a-button @click="handleAdd" v-has="'user:add'" type="primary" icon="plus">添加用户</a-button>
+      <a-button type="primary" v-has="'user:export'" icon="download" @click="handleExportXls('用户信息')">导出</a-button>
       <a-upload
+        v-has="'user:import'"
         name="file"
         :showUploadList="false"
         :multiple="false"
@@ -90,21 +105,12 @@
       >
         <a-button type="primary" icon="import">导入</a-button>
       </a-upload>
-      <a-button type="primary" icon="hdd" @click="recycleBinVisible = true">回收站</a-button>
+      <a-button v-has="'user:recycle'" type="primary" icon="hdd" @click="recycleBinVisible = true">回收站</a-button>
       <a-dropdown v-if="selectedRowKeys.length > 0">
         <a-menu slot="overlay" @click="handleMenuClick">
-          <a-menu-item key="1">
-            <a-icon type="delete" @click="batchDel" />
-            删除
-          </a-menu-item>
-          <a-menu-item key="2">
-            <a-icon type="lock" @click="batchFrozen('2')" />
-            冻结
-          </a-menu-item>
-          <a-menu-item key="3">
-            <a-icon type="unlock" @click="batchFrozen('1')" />
-            解冻
-          </a-menu-item>
+          <a-menu-item key="1" v-has="'user:del'"> <a-icon type="delete" @click="batchDel" />删除 </a-menu-item>
+          <a-menu-item key="2" v-has="'user:status'"> <a-icon type="lock" @click="batchFrozen('2')" />冻结 </a-menu-item>
+          <a-menu-item key="3" v-has="'user:status'"> <a-icon type="unlock" @click="batchFrozen('1')" />解冻 </a-menu-item>
         </a-menu>
         <a-button style="margin-left: 8px">
           批量操作
@@ -124,10 +130,12 @@
       </div>
 
       <a-table
+        class="j-table-force-nowrap"
         ref="table"
         bordered
         size="middle"
         rowKey="id"
+        :scroll="{x:true}"
         :columns="columns"
         :dataSource="dataSource"
         :pagination="ipagination"
@@ -142,8 +150,7 @@
         </template>
 
         <span slot="action" slot-scope="text, record">
-          <!-- <a @click="handleEdit(record)" v-has="'user:edit'">编辑</a>-->
-          <a @click="handleEdit(record)">编辑</a>
+          <a @click="handleEdit(record)" v-has="'user:edit'">编辑</a>
 
           <a-divider type="vertical" />
 
@@ -158,19 +165,19 @@
                 <a href="javascript:;" @click="handleChangePassword(record.username)">密码</a>
               </a-menu-item>
 
-              <a-menu-item>
+              <a-menu-item v-has="'user:del'">
                 <a-popconfirm title="确定删除吗?" @confirm="() => handleDelete(record.id)">
                   <a>删除</a>
                 </a-popconfirm>
               </a-menu-item>
 
-              <a-menu-item v-if="record.status == 1">
+              <a-menu-item v-if="record.status == 1" v-has="'user:status'">
                 <a-popconfirm title="确定冻结吗?" @confirm="() => handleFrozen(record.id, 2, record.username)">
                   <a>冻结</a>
                 </a-popconfirm>
               </a-menu-item>
 
-              <a-menu-item v-if="record.status == 2">
+              <a-menu-item v-if="record.status == 2" v-has="'user:status'">
                 <a-popconfirm title="确定解冻吗?" @confirm="() => handleFrozen(record.id, 1, record.username)">
                   <a>解冻</a>
                 </a-popconfirm>
@@ -198,11 +205,12 @@ import UserModal from './modules/UserModal'
 import PasswordModal from './modules/PasswordModal'
 import GenStudentModal from './modules/GenStudentModal'
 import { putAction, getFileAccessHttpUrl } from '@/api/manage'
-import { frozenBatch, queryall } from '@/api/api'
+import { frozenBatch, queryMySubRole } from '@/api/api'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import SysUserAgentModal from './modules/SysUserAgentModal'
 import JInput from '@/components/jeecg/JInput'
 import UserRecycleBinModal from './modules/UserRecycleBinModal'
+import JSelectDepart from '@/components/jeecgbiz/JSelectDepart'
 
 export default {
   name: 'UserList',
@@ -214,6 +222,7 @@ export default {
     GenStudentModal,
     JInput,
     UserRecycleBinModal,
+    JSelectDepart,
   },
   data() {
     return {
@@ -222,7 +231,7 @@ export default {
       recycleBinVisible: false,
       roleList: [],
       columns: [
-        /*{
+        {
             title: '#',
             dataIndex: '',
             key:'rowIndex',
@@ -231,7 +240,13 @@ export default {
             customRender:function (t,r,index) {
               return parseInt(index)+1;
             }
-          },*/
+          },
+          {
+          title: '用户ID',
+          align: 'center',
+          dataIndex: 'id',
+          width: 120,
+        },
         {
           title: '用户账号',
           align: 'center',
@@ -274,7 +289,7 @@ export default {
         },
         {
           title: '身份',
-          width: '80',
+          width: 80,
           dataIndex: 'userIdentity',
           customRender: (v) => {
             return v == '2' ? '上级' : '学生'
@@ -283,20 +298,14 @@ export default {
         {
           title: '角色',
           align: 'center',
-          dataIndex: 'roleNames',
+          dataIndex: 'roleTxt',
           width: 180,
-          customRender: function (value) {
-            return value ? value.join() : '--'
-          },
         },
         {
           title: '部门',
           align: 'center',
-          dataIndex: 'departNames',
+          dataIndex: 'orgCodeTxt',
           width: 180,
-          customRender: function (value) {
-            return value ? value.join() : '--'
-          },
         },
         {
           title: '负责部门',
@@ -311,10 +320,17 @@ export default {
           dataIndex: 'status_dictText',
         },
         {
+          title: '注册时间',
+          align: 'center',
+          width: 180,
+          dataIndex: 'createTime',
+        },
+        {
           title: '操作',
           dataIndex: 'action',
           scopedSlots: { customRender: 'action' },
           align: 'center',
+          fixed:"right",
           width: 170,
         },
       ],
@@ -338,7 +354,7 @@ export default {
   },
   methods: {
     initialRoleList() {
-      queryall().then((res) => {
+      queryMySubRole().then((res) => {
         if (res.success) {
           this.roleList = res.result
         } else {
@@ -349,7 +365,11 @@ export default {
     getAvatarView: function (avatar) {
       return getFileAccessHttpUrl(avatar)
     },
-
+    onDateChange: function (value, dateString) {
+      console.log(dateString[0],dateString[1]);
+      this.queryParam.createTime_begin=dateString[0];
+      this.queryParam.createTime_end=dateString[1];
+    },
     batchFrozen: function (status) {
       if (this.selectedRowKeys.length <= 0) {
         this.$message.warning('请选择一条记录！')

@@ -1,18 +1,21 @@
 <template>
   <div class="app-list">
-    <a-list :grid="{ gutter: 24, xxl:4, xl:4, lg: 3, md: 2, sm: 1, xs: 1 }" :dataSource="dataSource">
+    <a-list :grid="{ gutter: 24, xxl:4, xl:4, lg: 3, md: 2, sm: 1, xs: 1 }" :dataSource="dataSource" :pagination="pagination">
       <a-list-item slot="renderItem" slot-scope="item">
         <a-card :hoverable="true">
           <template class="ant-card-extra" slot="extra">
-            <span class="create-time">{{item.createTime}}</span>
-            <span style="margin-left: 6px">{{ item.workType_dictText }}</span>
+            <a :href="getEditorHref(item)" target="_blank">
+              <h3>
+                <a-tag color="blue">{{item.workType_dictText}}</a-tag>
+                <j-ellipsis :value="item.workName" :length="35" />
+              </h3>
+            </a>
           </template>
           <a-card-meta>
             <div class="meta-cardInfo" slot="description">
               <a :href="getEditorHref(item)" target="_blank">
-                <p>{{item.workName}}</p>
                 <img v-if="item.coverFileKey" :src="getFileAccessHttpUrl(item.coverFileKey)" />
-                <img v-else src="@/assets/python.png" alt="">
+                <img v-else src="@/assets/code.png" alt="">
               </a>
             </div>
           </a-card-meta>
@@ -40,16 +43,22 @@
 <script>
 import { deleteAction, getAction, downFile,getFileAccessHttpUrl } from '@/api/manage'
 import QrCode from '@/components/tools/QrCode'
-
+import JEllipsis from '@/components/jeecg/JEllipsis'
 export default {
   name: 'MineWorksCard',
   components: {
     qrcode: QrCode,
+    JEllipsis
   },
   data() {
     return {
+      pagination: {
+        onChange: page => {
+          console.log(page);
+        },
+        pageSize: 12,
+      },
       dataSource: [],
-      qn_base: window._CONFIG['qn_base'],
       url: {
         list: '/teaching/teachingWork/mine',
         delete: '/teaching/teachingWork/delete',
@@ -111,24 +120,16 @@ export default {
   /deep/.ant-card-extra{
     margin-left:0!important;
     height: 55px;
+    .title{
+      
+    }
   }
   .meta-cardInfo {
     zoom: 1;
     margin-top: 16px;
     height: 200px;
-    display: block; 
-    position: relative;
     img {
-      margin-top: 20px;
-      max-height: calc(100% - 30px);
-      width:auto;
-      height:auto;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate3d(-50%,-50%,0);
-      -webkit-transform: translate3d(-50%,-50%,0);
-
+      width: 100%;
     }
     > div {
       position: relative;

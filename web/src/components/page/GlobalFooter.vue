@@ -11,6 +11,7 @@
     </div>
     </div>
     
+  <div class="footer" v-html="$store.getters.sysConfig.footer">
   </div>
 </template>
 
@@ -19,7 +20,7 @@
     name: "LayoutFooter",
     data() {
       return {
-        brandName: this.$store.getters.sysConfig.brandName
+        footer: this.$store.getters.sysConfig.brandName
       }
     },
   }

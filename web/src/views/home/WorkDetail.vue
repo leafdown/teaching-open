@@ -4,7 +4,6 @@
       <a-layout-header>
         <Header/>
       </a-layout-header>
-
       <a-layout>
         <a-layout-content>
           <div class="project-detail">
@@ -33,13 +32,13 @@
                   <a-avatar shape="square" class="avatar" :size="60" :src="workInfo.avatar_url" icon="user"/>
                   <p>{{ workInfo.realname || workInfo.username }}</p>
                 </a-col>
-                <a-col :span="14">
+                <a-col :span="14" v-if="!_isMobile()">
                   <div class="project-meta">
                     <h2 class="title">{{ workInfo.workName }}</h2>
                     <p class="time">{{ workInfo.createTime }}</p>
                   </div>
                 </a-col>
-                <a-col :span="6">
+                <a-col :span="_isMobile()?12:6">
                   <div class="project-op">
                     <a-icon type="eye" theme="twoTone" />
                     <span class="gap">{{ workInfo.viewNum }}</span>
@@ -55,6 +54,12 @@
                     </a-popover>
                   </div>
                 </a-col>
+                <a-col :span="24" v-if="_isMobile()">
+                  <div class="project-meta">
+                    <h2 class="title">{{ workInfo.workName }}</h2>
+                    <p class="time">{{ workInfo.createTime }}</p>
+                  </div>
+                </a-col>
               </a-row>
             </div>
 
@@ -62,8 +67,8 @@
             <div class="project-comment">
               <div class="publish">
                 <a-row type="flex" justify="space-between">
-                  <a-col span="3" class="comment-user">
-                    <a-avatar shape="square" :size="60" icon="user" :src="getFileAccessHttpUrl(avatar())"/>
+                  <a-col :span="3" class="comment-user"  v-if="!_isMobile()">
+                    <a-avatar shape="square" :size="60" icon="user" :src="getFileAccessHttpUrl(avatar())" />
                     <p>
                       {{ token ? nickname() : '未登录' }}
                     </p>
@@ -76,7 +81,7 @@
                       placeholder="说说这个作品怎么样吧"
                     ></a-textarea>
                   </a-col>
-                  <a-col :span="4">
+                  <a-col :span="_isMobile()?6:4">
                     <div class="comment-btn">
                       <a-button :disabled="!token" type="dashed" @click="comment">发表评论</a-button>
                     </div>
@@ -118,7 +123,7 @@
             </div>
           </div>
         </a-layout-content>
-        <a-layout-sider>
+        <a-layout-sider v-if="!_isMobile()">
           <UserEnter/>
         </a-layout-sider>
       </a-layout>
@@ -204,6 +209,9 @@ export default {
         that.stateChange();
       };
     }
+    //计算播放器高度
+    let playerDom = document.getElementById("player");
+    playerDom.style.height = playerDom.clientWidth * 0.9 + "px";
   },
   methods: {
     ...mapGetters(['nickname', 'avatar', 'userInfo']),
@@ -267,6 +275,9 @@ export default {
     enter() {
       this.$router.push('/account/center')
     },
+    _isMobile() {
+      return navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i) != null
+    },
     stateChange() {
       this.loading = false;
     },
@@ -297,17 +308,18 @@ export default {
 }
 
 .ant-layout-has-sider {
-  width: 1100px;
+  max-width: 1100px;
+  width: 100%;
   margin: -100px auto 0;
 }
 
 .project-detail {
-  width: 730px;
+  max-width: 730px;
   .scratch-player {
     margin: auto;
     iframe {
-      width: 720px;
-      height: 600px;
+      max-width: 720px;
+      max-height: 600px;
     }
   }
   .project-info {
