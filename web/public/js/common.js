@@ -1,7 +1,9 @@
-window.urlParams = function(paramName) {
+window.urlParams = function (paramName) {
   var reg = new RegExp('[?&]' + paramName + '=([^&]*)[&]?', 'i')
   var paramVal = window.location.search.match(reg)
-  return paramVal == null ? '' : decodeURIComponent(paramVal[1])
+  if(paramVal == null) return ''
+  var param = paramVal[1].replace(/%/g,'%25');
+  return decodeURIComponent(param)
 }
 
 window.uuid = function() {
@@ -20,33 +22,44 @@ window.uuid = function() {
 
 window.getUserInfo = function() {
   userInfo = localStorage.getItem('pro__Login_Userinfo')
-  if(userInfo){
+  if(!userInfo){ return null;}
     userInfo = JSON.parse(userInfo).value
-    console.log(userInfo)
     return userInfo
-  }
 }
 
 window.getUserRole = function(){
   userRole = localStorage.getItem('pro__Login_UserRole')
-  if(userRole){
+  if(!userRole){return null;}
     userRole = JSON.parse(userRole).value
-    console.log(userRole)
     return userRole
-  }
 }
 
 window.getUserToken = function() {
+  if(!localStorage.getItem("pro__Access-Token")) return null;
   var token = JSON.parse(localStorage.getItem("pro__Access-Token"))
   return token==null?null:token.value
 }
 
 window.getSysConfig = function(key){
-  var config = JSON.parse(localStorage.getItem("pro__SYS_CONFIG"))
-  if(config && config.value){
-    return config.value[key]
+  if(localStorage.getItem("pro__SYS_CONFIG") && JSON.parse(localStorage.getItem("pro__SYS_CONFIG")).value){
+    return JSON.parse(localStorage.getItem("pro__SYS_CONFIG")).value[key]
   }else{
-    return null
+    let config = null
+    $.ajax({
+      url: '/api/sys/config/getCurrentConfig',
+      async: false,
+      success: function(res){
+        if(res.code == 0){
+          config = res.result
+          let configCache = {
+            expire: new Date().getTime()+3600000,
+            value: config
+          }
+          localStorage.setItem("pro__SYS_CONFIG", JSON.stringify(configCache))
+        }
+      }
+    })
+    return config
   }
 }
 

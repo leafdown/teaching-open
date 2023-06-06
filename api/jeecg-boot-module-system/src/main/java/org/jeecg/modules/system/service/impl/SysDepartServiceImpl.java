@@ -3,6 +3,7 @@ package org.jeecg.modules.system.service.impl;
 import java.util.*;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.FillRuleConstant;
@@ -371,12 +372,9 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
 		return baseMapper.queryDepartsByUsername(username);
 	}
 
-	/**
-	 * 根据用户所负责部门ids获取父级部门编码
-	 * @param departIds
-	 * @return
-	 */
-	private String[] getMyDeptParentOrgCode(String departIds){
+
+	@Override
+	public String[] getMyDeptParentOrgCode(String departIds){
 		//根据部门id查询所负责部门
 		LambdaQueryWrapper<SysDepart> query = new LambdaQueryWrapper<SysDepart>();
 		query.eq(SysDepart::getDelFlag, CommonConstant.DEL_FLAG_0.toString());
@@ -390,6 +388,37 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
 		String orgCode = this.getMyDeptParentNode(list);
 		String[] codeArr = orgCode.split(",");
 		return codeArr;
+	}
+
+	@Override
+	public List<SysDepart> getParentDeparts(String departId) {
+		List<SysDepart> departList = new ArrayList<>();
+		SysDepart  depart = this.getById(departId);
+		if(depart != null){
+			departList.add(depart);
+			for (int i=1; i< depart.getOrgCode().length()/3; i++){
+				String code = depart.getOrgCode().substring(0,i*3);
+				departList.add(this.getOne(new QueryWrapper<SysDepart>().eq("org_code", code).eq("del_flag", 0)));
+			}
+		}
+		return departList;
+	}
+
+	@Override
+	public List<String> getParentDepartIds(String departId) {
+		List<String> departList = new ArrayList<>();
+		SysDepart  depart = this.getById(departId);
+		if(depart != null){
+			departList.add(depart.getId());
+			for (int i=1; i< depart.getOrgCode().length()/3; i++){
+				String code = depart.getOrgCode().substring(0,i*3);
+				SysDepart pd = this.getOne(new QueryWrapper<SysDepart>().eq("org_code", code).eq("del_flag", 0));
+				if (pd != null){
+					departList.add(pd.getId());
+				}
+			}
+		}
+		return departList;
 	}
 
 	/**
@@ -412,8 +441,10 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
 		StringBuffer parentOrgCode = new StringBuffer();
 		//2.获取同一公司的根节点
 		for(String str : map.values()){
-			String[] arrStr = str.split(",");
-			parentOrgCode.append(",").append(this.getMinLengthNode(arrStr));
+			//这里有bug，一串部门编码中间如果有个高层级的，后面的就截断了
+//			String[] arrStr = str.split(",");
+//			parentOrgCode.append(",").append(this.getMinLengthNode(arrStr));
+			parentOrgCode.append(",").append(str);
 		}
 		return parentOrgCode.substring(1);
 	}

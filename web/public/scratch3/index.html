@@ -13,8 +13,7 @@
   <script src="https://cdn.bootcdn.net/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script async src="//api.paas.plus/js/errlog.js"></script>
   <script src="../js/qiniu.min.js"></script>
-  <script src="../js/common.js"></script>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HPJJESN3X4"></script>
+  <script src="../js/common.js?v=27"></script>
   <script>
     var canShare = true
     var uploadParam = {}
@@ -282,6 +281,7 @@
     console.log(getSysConfig('qiniuDomain'))
     //请求提交作业
     function requestUpload(status){
+      qn_token = getQiniuToken();
       workStatus = status
       $('.scratch-filter').show()
       $('.uploading').show()
@@ -341,7 +341,7 @@
               '//' +
               window.location.hostname +
               (window.location.port ? ':' + window.location.port : '') +
-              '/scratch3/scratch-mobile.html?workId=' +
+              '/work-detail?id==' +
               res.result.id
             createCode('qrcode', shareUrl)
             var img = document.createElement('img');

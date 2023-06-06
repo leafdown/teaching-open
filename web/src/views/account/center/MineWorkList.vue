@@ -184,7 +184,7 @@ export default {
         list: '/teaching/teachingWork/mine',
         delete: '/teaching/teachingWork/delete',
         deleteBatch: '/teaching/teachingWork/deleteBatch',
-        shareUrl: window._CONFIG['webURL'] + "/scratch3/scratch-mobile.html?workId=",
+        shareUrl: window._CONFIG['webURL'] + "/work-detail?id=",
       }
     }
   },
@@ -204,7 +204,7 @@ export default {
         case '4':
           return window.open('/python/index.html?workId=' + record.id)
         case '10':
-          return window.open('/blockly/index.html?workId=' + record.id)
+          return window.open('/blockly/index.html?lang=zh-hans&workId=' + record.id)
         default:
           return window.open(record.workFileKey_url)
       }

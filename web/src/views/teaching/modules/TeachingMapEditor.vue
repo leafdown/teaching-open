@@ -92,7 +92,7 @@ export default {
     },
     handleOk() {
       putAction('/teaching/teachingCourseUnit/editBatch', this.unitList).then((res) => {
-        this.$notification.success(res)
+        this.$message.success(res.message)
         this.saved = true
       })
     },
@@ -120,7 +120,7 @@ export default {
           this.currentUnitId = selectUnitId==null?this.unitList[0].id:selectUnitId
           console.log("----"+this.currentUnitId);
         } else {
-          this.$notification.error('未找到课程单元')
+          this.$message.error('没有课程单元')
         }
       })
     },
@@ -195,7 +195,7 @@ export default {
     .unit-title {
       background-color: #52c41ab3;
       display: block;
-      min-width: 64px;
+      width: fit-content;
       padding: 0.4em 0.6em 0.3em;
       font-size: 75%;
       font-weight: 700;
