@@ -199,6 +199,7 @@ jeecg :
     secretKey: H22fPuQBk5OjnFkzdzSbDY8fkesLiQ03XvIbRUxH
     bucketName: lanqu-teacher
     staticDomain: //storage.lanqu.vip
+    area: cn-east-2
   # ElasticSearch 设置
   elasticsearch:
     cluster-name: jeecg-ES

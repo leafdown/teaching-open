@@ -1787,6 +1787,8 @@ INSERT INTO `sys_dict` VALUES ('c36169beb12de8a71c8683ee7c28a503', '部门状态
 INSERT INTO `sys_dict` VALUES ('c5a14c75172783d72cbee6ee7f5df5d1', 'Online图表类型', 'online_graph_type', 'Online图表类型', 0, 'admin', '2019-04-12 17:04:06', NULL, NULL, 0);
 INSERT INTO `sys_dict` VALUES ('d6e1152968b02d69ff358c75b48a6ee1', '流程类型', 'bpm_process_type', NULL, 1, 'admin', '2021-02-22 19:26:54', 'admin', '2019-03-30 18:14:44', 0);
 INSERT INTO `sys_dict` VALUES ('fc6cd58fde2e8481db10d3a1e68ce70c', '用户状态', 'user_status', NULL, 0, 'admin', '2019-03-18 21:57:25', 'admin', '2019-03-18 23:11:58', 1);
+INSERT INTO `sys_dict`(`id`, `dict_name`, `dict_code`, `description`, `del_flag`, `create_by`, `create_time`, `update_by`, `update_time`, `type`) VALUES ('1678348253119864835', '课程分类', 'course_category', '', 0, 'admin', '2023-07-10 18:19:40', NULL, NULL, 0);
+INSERT INTO `sys_dict`(`id`, `dict_name`, `dict_code`, `description`, `del_flag`, `create_by`, `create_time`, `update_by`, `update_time`, `type`) VALUES ('1678348253119864834', '课程类型', 'course_type', '', 0, 'admin', '2023-07-10 18:19:40', NULL, NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_dict_item
@@ -2121,7 +2123,7 @@ CREATE TABLE `sys_log`  (
   INDEX `index_logt_ype`(`log_type`) USING BTREE,
   INDEX `index_operate_type`(`operate_type`) USING BTREE,
   INDEX `index_log_type`(`log_type`) USING BTREE
-) ENGINE = MyISAM CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_log
@@ -2402,7 +2404,7 @@ CREATE TABLE `sys_quartz_job`  (
   `status` int(1) NULL DEFAULT NULL COMMENT '状态 0正常 -1停止',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uniq_job_class_name`(`job_class_name`) USING BTREE
-) ENGINE = MyISAM CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_quartz_job
@@ -3094,14 +3096,17 @@ CREATE TABLE `teaching_course`  (
   `sys_org_code` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '所属部门',
   `del_flag` int(1) NULL DEFAULT NULL COMMENT '删除标志',
   `course_name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '科目名',
-  `course_desc` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '科目介绍',
+  `course_desc` longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '科目介绍',
   `course_icon` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '科目图标',
   `course_cover` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '科目封面',
   `show_type` int(11) NULL DEFAULT NULL COMMENT '展示类型',
   `course_map` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '课程地图',
   `is_shared` tinyint(4) NOT NULL DEFAULT 0 COMMENT '是否共享课程',
+  `show_home` tinyint(4) NOT NULL DEFAULT 0 COMMENT '是否首页展示',
   `order_num` int(11) NOT NULL DEFAULT 1 COMMENT '排序',
   `depart_ids` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '授权部门',
+  `course_type` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '课程类型',
+  `course_category` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '课程分类',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `courseName`(`course_name`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
@@ -3109,8 +3114,8 @@ CREATE TABLE `teaching_course`  (
 -- ----------------------------
 -- Records of teaching_course
 -- ----------------------------
-INSERT INTO `teaching_course` VALUES ('1443420350180347906', 'admin', '2021-09-30 11:40:03', 'admin', '2023-01-09 15:29:16', 'A01', NULL, 'Scratch入门课', 'Scratch入门课程', NULL, '4670249d28704923811397a063e083d5.jpg', 1, NULL, 0, 1);
-INSERT INTO `teaching_course` VALUES ('1468455261786087426', 'admin', '2021-12-08 13:39:51', 'admin', '2023-01-09 15:30:20', 'A01', NULL, 'Scratch进阶课', 'Scratch进阶课程', NULL, 'b893dbb7324c4c80807b468b5e7a7e3f.jpg', 1, 'e788a77fafa943f08cfe77785194eebd.jpg', 0, 2);
+INSERT INTO `teaching_course` VALUES ('1443420350180347906', 'admin', '2021-09-30 11:40:03', 'admin', '2023-01-09 15:29:16', 'A01', NULL, 'Scratch入门课', 'Scratch入门课程', NULL, '4670249d28704923811397a063e083d5.jpg', 1, NULL, 0, 1, 0, '', '', '');
+INSERT INTO `teaching_course` VALUES ('1468455261786087426', 'admin', '2021-12-08 13:39:51', 'admin', '2023-01-09 15:30:20', 'A01', NULL, 'Scratch进阶课', 'Scratch进阶课程', NULL, 'b893dbb7324c4c80807b468b5e7a7e3f.jpg', 1, 'e788a77fafa943f08cfe77785194eebd.jpg', 0, 2, 0, '', '', '');
 
 -- ----------------------------
 -- Table structure for teaching_course_dept
@@ -3167,21 +3172,16 @@ create table teaching_course_unit
     show_course_plan    tinyint      default 0  null comment '对学生显示教案',
     map_x               int                     null comment '地图X坐标',
     map_y               int                     null comment '地图Y坐标',
+    media_content       longtext                null comment '富文本课件',
     order_num           int          default 1  not null comment '排序'
 );
 
 create index courseId
-    on teachingopendev.teaching_course_unit (course_id);
+    on teaching_course_unit (course_id);
 
 create index unitName
-    on teachingopendev.teaching_course_unit (unit_name);
+    on teaching_course_unit (unit_name);
 
-
-
--- ----------------------------
--- Records of teaching_course_unit
--- ----------------------------
-INSERT INTO `teaching_course_unit` VALUES ('1443420554338095106', 'admin', '2021-09-30 11:40:52', 'admin', '2023-01-12 12:51:29', 'A01', NULL, '第一课', '第一课，Scratch是什么', '55ae580f1d31403ebf8ba66d3092a094.jpg', '1468455261786087426', 'cctv_1652803839525.mp4', 1, 'Epic Ninja v1.12_1652803422180.12.sb3', '', 2, 'a176bfc29b624fe48540d76dae79b5ba.sb3', NULL, NULL, 587, 426, 1);
 
 -- ----------------------------
 -- Table structure for teaching_menu
@@ -3221,7 +3221,8 @@ INSERT INTO `teaching_menu` VALUES ('1481959345444990978', '', '个人中心', '
 INSERT INTO `teaching_menu` VALUES ('1509808945860902914', '1481554751841755137', 'Python', '/python/index.html?scene=create', 1, 2.00, NULL, 1, NULL, 'admin', '2022-04-01 16:24:38', 'admin', '2022-04-01 17:02:11', 0, 1, 1, 0, 0);
 INSERT INTO `teaching_menu` VALUES ('1509809019143782402', '1481554751841755137', 'ScratchJr', '/scratchjr/home.html?scene=create', 1, 1.00, NULL, 1, NULL, 'admin', '2022-04-01 16:24:55', 'admin', '2022-04-01 17:01:59', 0, 1, 1, 0, 0);
 INSERT INTO `teaching_menu` VALUES ('1515601801083052034', '1481554751841755137', 'Blockly', '/blockly/index.html?lang=zh-hans&scene=create', 1, 4.00, NULL, 1, NULL, 'admin', '2022-04-17 16:03:22', NULL, NULL, 0, 1, 0, 0, 0);
-INSERT INTO `teaching_menu` VALUES ('1614545041074384897', '', '发现', '/new', 0, 2.00, 'search', 1, NULL, 'admin', '2023-01-15 16:48:29', 'admin', '2023-01-15 16:48:43', 0, 0, 1, 0, 0);
+INSERT INTO `teaching_menu` VALUES ('1614545041074384897', '', '发现', '/workList?type=1', 0, 2.00, 'search', 1, NULL, 'admin', '2023-01-15 16:48:29', 'admin', '2023-01-15 16:48:43', 0, 0, 1, 0, 0);
+INSERT INTO `teaching_menu`(`id`, `parent_id`, `name`, `url`, `menu_type`, `sort_no`, `icon`, `is_leaf`, `description`, `create_by`, `create_time`, `update_by`, `update_time`, `del_flag`, `internal_or_external`, `is_route`, `hidden`, `need_login`) VALUES ('1677199026683559937', '', '课程', '/courseList', 0, 2.00, 'calculator', 1, NULL, 'admin', '2023-07-07 14:13:03', 'admin', '2023-07-07 14:13:28', 0, 0, 1, 0, 0);
 
 -- ----------------------------
 -- Table structure for teaching_scratch_assets
@@ -3281,20 +3282,6 @@ CREATE TABLE `teaching_work`  (
   INDEX `courseId`(`course_id`) USING BTREE,
   INDEX `userId`(`user_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
-
--- ----------------------------
--- Records of teaching_work
--- ----------------------------
-INSERT INTO `teaching_work` VALUES ('1515608509045952514', 'admin', '2023-01-09 16:32:45', 'admin', '2023-01-09 16:32:53', 'A01', 'e9ca23d68d884d4ebb19d07889727dae', '', '管理员作品', '2', '1612366754000596993', '1612366754227089409', 1, 2, 0, 0, 19, '', 'create');
-INSERT INTO `teaching_work` VALUES ('1517395583084597249', 'admin', '2022-04-22 14:51:13', 'admin', '2023-01-15 14:15:34', 'A03', 'e9ca23d68d884d4ebb19d07889727dae', '', 'Epic Ninja v1.12', '2', '1517395582551920641', '1517395581432041474', 3, 1, 0, 0, 7, '', 'create');
-INSERT INTO `teaching_work` VALUES ('1517395625572896770', 'admin', '2022-04-22 14:51:23', 'admin', '2023-01-15 16:45:34', 'A03', 'e9ca23d68d884d4ebb19d07889727dae', '', '2 PacMan', '2', '1517395624650149889', '1517395625098940418', 4, 0, 0, 0, 32, '', 'create');
-INSERT INTO `teaching_work` VALUES ('1517395658737258497', 'admin', '2022-04-22 14:51:31', 'admin', '2022-07-16 18:14:34', 'A03', 'e9ca23d68d884d4ebb19d07889727dae', '', '新作品', '2', '1517395657600602113', '1517395655587336193', 3, 0, 0, 0, 3, '', 'create');
-INSERT INTO `teaching_work` VALUES ('1517395755046866945', 'admin', '2022-04-22 14:51:54', 'teacher', '2022-07-16 18:14:38', 'A03', 'e9ca23d68d884d4ebb19d07889727dae', '', 'Glitchy Logo Tutorial', '2', '1517395754593882113', '1517395751389433858', 3, 0, 0, 0, 11, '', 'create');
-INSERT INTO `teaching_work` VALUES ('1517396542489694209', 'student', '2022-04-22 14:55:02', 'teacher', '2022-04-22 15:02:27', 'A01A05A01', '2cb6e8e9b9ac4ccca17a1c3020a118d4', '', 'ScrollingDemo', '2', '1517396541818605569', '1517396540770029569', 3, 0, 0, 0, 0, '', 'create');
-INSERT INTO `teaching_work` VALUES ('1587018459311169537', 'admin', '2022-10-31 17:49:43', 'admin', '2023-01-15 12:24:28', 'A01', 'e9ca23d68d884d4ebb19d07889727dae', '', '羊了个羊-改编wwf', '2', '1587018973830635521', '1587018968826830849', 1, 0, 0, 0, 2, '', 'create');
-INSERT INTO `teaching_work` VALUES ('1587019591622254594', 'student', '2022-10-31 17:52:10', 'admin', '2023-01-15 16:45:27', '班级2,班级1', '2cb6e8e9b9ac4ccca17a1c3020a118d4', '', '羊了个羊-改编学生', '2', '1587019591198629890', '1587019590808559617', 4, 0, 0, 0, 1, '1478636409044680705', 'additional');
-INSERT INTO `teaching_work` VALUES ('1588090874574794753', 'admin', '2022-11-03 16:49:14', 'admin', '2023-01-15 14:19:19', 'A01', 'e9ca23d68d884d4ebb19d07889727dae', '', 'Blockly code', '10', '1588090917876789249', '', 0, 0, 0, 0, 2, '', 'create');
-INSERT INTO `teaching_work` VALUES ('1608691048804712450', 'admin', '2022-12-30 13:06:48', 'admin', '2023-01-15 14:19:22', 'A01', 'e9ca23d68d884d4ebb19d07889727dae', '', 'Scratch3班级作业', '2', '1608691048418836482', '1608691048011988994', 1, 0, 0, 0, 1, '1478636409044680705', 'additional');
 
 -- ----------------------------
 -- Table structure for teaching_work_comment
@@ -3381,10 +3368,5 @@ CREATE TABLE `wechat_user`  (
 -- ----------------------------
 -- Records of wechat_user
 -- ----------------------------
-INSERT INTO `wechat_user` VALUES ('1236921740769107969', NULL, 'oJgzvv5A0yUkNGprRqd7l4OhVJLg', 'ooKi0v9gOeFDqMA7e3hRi-7Mee9o', '创客*赵文栋', NULL, '', '', '', 'http://thirdwx.qlogo.cn/mmopen/vi_32/LbPiaLiaWH3Zx4xXOicj9LLfviasiaHcj8Jj27ibbFCNmTbnAcPceA2IvecgbxIC0yD26wLxyDzj9EtiaZNicqnpfZ8iaNg/132', NULL, NULL, NULL, NULL, '2020-03-09 15:48:18', NULL, '2020-03-09 22:33:17', NULL, 'wx2154aa8b958db927');
-INSERT INTO `wechat_user` VALUES ('1236926173020168194', NULL, 'oJgzvv2z2Ern6UccZy007CwPj7JU', 'ooKi0vweMEO8vi_4W3mvzDo8Vn8E', 'Evil Lord', NULL, '菏泽', '山东', '菏泽', 'http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKGKnRsqeCd7Seuqt6vWKOicbQCkdGXSiaLYpPrm4pZwKWibTZdibpPia7hic7k3DQTjAlxIEX36lCicqD3g/132', NULL, NULL, NULL, NULL, '2020-03-09 16:05:55', 'admin', '2020-03-09 18:01:30', NULL, 'wx2154aa8b958db927');
-INSERT INTO `wechat_user` VALUES ('1236943560297684994', '1236947419388825601', 'oJgzvv7Q58w_l7KSLSFz8xIlv_cM', 'ooKi0v9p1LOLeW1CDlex1i1Wvi6M', '程宇', NULL, '金山', '上海', '金山', 'http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTLUNenNGYxS1TIj3XDBTaIxk3UWQ78CiadVFvplFkeT1WqUNxZ5FZibfy3iaPGIpqXIibXNlXibcMIcUSw/132', NULL, NULL, NULL, NULL, '2020-03-09 17:15:00', NULL, '2020-03-09 17:30:20', NULL, 'wx2154aa8b958db927');
-INSERT INTO `wechat_user` VALUES ('1236951423414030338', NULL, 'oJgzvv9UJ2T7e6a-pLR17ol3D0i8', 'ooKi0v5b01XJgrmCtAKCa0vsNiXU', '请假', NULL, '徐汇', '上海', '徐汇', 'http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKQNUgjtVPmh2SjWGHghzSSPl0ONy26LfDfbWsSrNdecQXibv5A1YVjhgoTL8ON0WdDabcoibS0LdJw/132', NULL, NULL, NULL, NULL, '2020-03-09 17:46:15', NULL, '2020-03-09 17:46:56', NULL, 'wx2154aa8b958db927');
-INSERT INTO `wechat_user` VALUES ('1237023690286288897', NULL, 'oJgzvv7XGJkPwZ1onrZ8vEFo5cfo', 'ooKi0v5qdNUy024SN4JBuDmg46Hw', '毓', NULL, '', '', '', 'http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83erFX7Vn1goXrtxOjJEx0VyUmRJ5DicicRaXoibBCNqibwvUFSicoFFA9reZXjWuiapoeicp1pOsGkuYicSUXg/132', NULL, NULL, NULL, NULL, '2020-03-09 22:33:25', NULL, NULL, NULL, 'wx2154aa8b958db927');
 
 SET FOREIGN_KEY_CHECKS = 1;

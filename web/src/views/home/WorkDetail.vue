@@ -341,6 +341,7 @@ export default {
 .ant-layout-header {
   height: 250px;
   width: 100%;
+  padding: 0;
 }
 
 .ant-layout-has-sider {
@@ -350,7 +351,10 @@ export default {
 }
 
 .project-detail {
-  max-width: 730px;
+  max-width: 780px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
   .scratch-player {
     margin: auto;
     iframe {
