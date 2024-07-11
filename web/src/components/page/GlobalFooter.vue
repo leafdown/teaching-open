@@ -11,7 +11,7 @@
     </div>
     </div>
     
-  <div class="footer" v-html="$store.getters.sysConfig.footer">
+  
   </div>
 </template>
 
