@@ -130,12 +130,9 @@ export default {
            go_url = '/scratch3/player.html?workUrl=' + url;
            break;
         case 3:
-<<<<<<< HEAD
            go_url = '/scratchjr/editor.html?mode=edit&filepath=' + url;
            break;
-=======
           return '/scratchjr/editor.html?mode=edit&workFile=' + url
->>>>>>> upstream/master
         case 4:
            go_url = '/python/player.html?lang=turtle&url='+ url;
            break;
