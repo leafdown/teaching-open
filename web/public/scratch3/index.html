@@ -17,11 +17,11 @@
   <script>
     var canShare = true
     var uploadParam = {}
-    var workName = ''
     var workId = urlParams('workId')
     var unitId = urlParams('unitId')
     var workFileUrl = urlParams('workFile') //SB3路径
     var workName = urlParams('workName') //作业名
+    if(workName) workName = decodeURIComponent(workName)
     var departId = urlParams('departId') //班级ID
     var additionalId = urlParams('additionalId') //附加作业ID
     var scene = urlParams("scene") || 'create' //来源
@@ -72,7 +72,7 @@
     window.scratchConfig = {
       session: {
         token: userToken,
-        username: userInfo.realname || userInfo.username,
+        username: userInfo.realname || userInfo.username || '',
         //avatar: getQiniuUrl(userInfo.avatar) || './static/avatar.png',
       },
       backpack:{
@@ -86,7 +86,7 @@
       },
       projectInfo: {//作品信息
         projectName: "",
-        authorUsername: userInfo.username, //默认为自己的用户名
+        authorUsername: userInfo.username || '', //默认为自己的用户名
         authorAvatar: './static/avatar.png',
       },
       logo: {
@@ -253,7 +253,7 @@
           })
         } else {
           window.scratch.loadProject('/project/project.sb3', () => {
-            window.scratch.setProjectName(userInfo?userInfo.realname + '作品' : 'Scratch作品')
+            window.scratch.setProjectName(userInfo&&userInfo.realname?userInfo.realname + '作品' : 'Scratch作品')
             $('.loading').hide()
             $('.scratch-filter').hide()
           })
@@ -374,7 +374,7 @@
               '//' +
               window.location.hostname +
               (window.location.port ? ':' + window.location.port : '') +
-              '/work-detail?id==' +
+              '/work-detail?id=' +
               res.result.id
             createCode('qrcode', shareUrl)
             var img = document.createElement('img');

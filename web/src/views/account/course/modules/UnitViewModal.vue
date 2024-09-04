@@ -10,7 +10,7 @@
       :width="800"
     >
       <div class="video-area">
-        <a-tabs v-if="unit.courseVideo || unit.courseCase">
+        <a-tabs v-if="unit.courseVideo || unit.courseCase || unit.mediaContent">
           <a-tab-pane key="video" tab="视频" v-if="unit.courseVideo">
             <video v-if="unit.courseVideoSource==1" :src="unit.courseVideo_url" controls="true" controlsList='nodownload noremote footbar' oncontextmenu="return false;"></video>
             <video v-if="unit.courseVideoSource==2" :src="unit.courseVideo" controls="true" controlsList='nodownload noremote footbar' oncontextmenu="return false;"></video>
@@ -130,8 +130,12 @@ export default {
            go_url = '/scratch3/player.html?workUrl=' + url;
            break;
         case 3:
+<<<<<<< HEAD
            go_url = '/scratchjr/editor.html?mode=edit&filepath=' + url;
            break;
+=======
+          return '/scratchjr/editor.html?mode=edit&workFile=' + url
+>>>>>>> upstream/master
         case 4:
            go_url = '/python/player.html?lang=turtle&url='+ url;
            break;
@@ -148,7 +152,7 @@ export default {
           window.open('/scratch3/index.html?scene=course&unitId='+unit.id)
           break
         case 3:
-          window.open('/scratchjr/editor.html?scene=course&mode=edit&filepath=' + this.getFileAccessHttpUrl(unit.courseWork))
+          window.open('/scratchjr/editor.html?scene=course&mode=edit&workFile=' + this.getFileAccessHttpUrl(unit.courseWork))
           break
         case 4:
           window.open('/python/index.html?scene=course&lang=turtle&unitId='+unit.id + "&url=" + this.getFileAccessHttpUrl(unit.courseWork))

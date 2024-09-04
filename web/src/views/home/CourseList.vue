@@ -42,13 +42,13 @@
         </a-row>
         <a-spin style="margin:50px auto;" v-if="loading"/>
         <a-empty v-if="!loading && datasource.length==0"/>
-        <a-button v-if="!loading && datasource.length>0" class="load-more" type="dash" @click="getData">加载更多……</a-button>
+        <a-button v-if="!loading && datasource.length>0 && page>-1" class="load-more" type="dash" @click="getData">加载更多……</a-button>
       </div>
 
       <j-modal 
       :visible="showCourseDetail" 
       :title="currentCourse.courseName"
-      :width="800"
+      :width="500"
       @cancel="showCourseDetail=false"
       @ok="toCourse"
       okText="去上课"
@@ -124,9 +124,8 @@ export default {
         this.loading = false
         if (res.success) {
           this.datasource = this.datasource.concat(res.result.records)
-          console.log(this.datasource)
-          if (res.result.records.length == 0 && this.page > 1) {
-            this.$message.info('已加载完啦！')
+           if(this.datasource.length >= res.result.total){
+            this.page = -1
           }
         }
       })
@@ -138,7 +137,7 @@ export default {
       
     },
     toCourse(){
-      this.$router.push('/teaching/mineCourse/courseUnitCard?id=' + this.showCourseDetail.id)
+      this.$router.push('/teaching/mineCourse/courseUnitCard?id=' + this.currentCourse.id)
     },
     _isMobile() {
       return (
@@ -157,6 +156,7 @@ export default {
     margin: 30px 0;
   }
   .panel-title {
+    margin-top: 24px;
     font-size: 26px;
     color: #333;
   }

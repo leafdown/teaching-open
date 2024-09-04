@@ -37,11 +37,11 @@
               </template>
               <a-rate v-if="work.score" :disabled="true" :value="work.score" />
             </a-tooltip>
-            <a-button v-if="work.workDocumentUrl != null" @click="openWorkFile(work.workDocumentUrl_url)">作业资料</a-button>
-            <a-divider v-if="work.workDocumentUrl != null" type="vertical" />
+            <a-button v-if="work.workDocumentUrl" @click="openWorkFile(work.workDocumentUrl_url)">作业资料</a-button>
+            <!-- <a-divider v-if="work.workDocumentUrl != null" type="vertical" /> -->
             <a-button type="primary" :disabled="work.mineWorkStatus > 1" @click="toAdditionalWork(work, false)"> {{work.mineWorkStatus==null?'去做作业':'修改作业'}} </a-button>
-            <a-divider v-if="work.mineWorkStatus == 0" type="vertical" />
-            <a-button type="primary" v-if="work.mineWorkStatus == 0" @click="toAdditionalWork(work, true)"> 重做 </a-button>
+            <a-divider v-if="work.mineWorkStatus != null && work.mineWorkStatus < 2" type="vertical" />
+            <a-button type="primary" v-if="work.mineWorkStatus != null && work.mineWorkStatus < 2" @click="toAdditionalWork(work, true)"> 重做 </a-button>
           </div>
         </a-list-item>
       </a-list>
@@ -126,7 +126,12 @@ export default {
             item.workName
           break
         case 3:
-          workUrl = '/scratchjr/editor.html?scene=additional&mode=edit'
+          workUrl = '/scratchjr/editor.html?scene=additional&mode=edit&additionalId='+
+            item.additionalWorkId +
+            '&departId=' +
+            item.departId +
+            '&workName=' +
+            item.workName
           break
         case 4:
           workUrl =
@@ -135,8 +140,7 @@ export default {
             '&departId=' +
             item.departId +
             '&workName=' +
-            item.workName +
-            '&url=' + item.workUrl_url
+            item.workName
           break
         default:
           //workUrl = item.workUrl_url
@@ -150,7 +154,7 @@ export default {
       }
 
       if(!reset && item.mineWorkUrl){
-        workUrl += "&workFile=" + item.mineWorkUrl_url;
+        workUrl += "&workFile=" + item.mineWorkUrl;
       }else{
           workUrl += "&workFile=" + item.workUrl_url;
       }

@@ -65,6 +65,9 @@ Vue.use(JeecgComponents);
 Vue.use(VueAreaLinkage);
 Vue.use(LazyLoading)
 Vue.use(VueAwesomeSwiper, /* { default options with global component } */)
+//颜色选择器
+import vcolorpicker from 'vcolorpicker'
+Vue.use(vcolorpicker)
 
 let cacheTime = 1800000 //缓存时间
 
