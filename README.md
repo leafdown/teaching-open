@@ -1,6 +1,5 @@
 # Teaching 在线教学平台 v2.8
 
-===============
 
 ## 项目介绍
 
@@ -64,37 +63,29 @@ Teaching针对机构、学校提供STEAM在线教育解决方案， 提供一个
 
 - [Blockly](https://github.com/google/blockly)
   
-## 技术架构
+## Docker一键部署体验
 
-后端技术： SpringBoot_2.1.3.RELEASE + Mybatis-plus_3.1.2 + Shiro_1.4.0 + Jwt_3.7.0 + Swagger-ui + Redis 
+1. 安装docker和docker compose（可以使用宝塔面板一键安装）
+2. 上传deploy文件夹到服务器，进入该文件夹运行docker compose up -d
 
-前端技术： Ant-design-vue + Vue + Webpack
+- 服务器最低配置建议：2核4G，宽带按量计费100M
+- 服务器不要安装MySQL、Redis、Nginx，否则会因为端口占用无法启动
+- 如果想使用其他数据库、云存储，请先修改api.env
+- 
+## 手动编译和部署教程
 
-其他技术： Druid（数据库连接池）、Logback（日志工具） 、poi（Excel工具）、Quartz（定时任务）、lombok（简化代码）、七牛云存储、Scratch二次开发
-
-项目构建： Maven、Jdk8、npm或yarn
-
-## 编译和部署教程
-
-### [点击查看宝塔面板部署教程](https://www.213.name/%e5%ae%9d%e5%a1%94%e9%9d%a2%e6%9d%bf%e5%bf%ab%e9%80%9f%e9%83%a8%e7%bd%b2teaching%e5%bc%80%e6%ba%90%e6%95%99%e5%ad%a6%e5%b9%b3%e5%8f%b0/)
+### [点击查看宝塔面板手动部署教程](https://www.213.name/%e5%ae%9d%e5%a1%94%e9%9d%a2%e6%9d%bf%e5%bf%ab%e9%80%9f%e9%83%a8%e7%bd%b2teaching%e5%bc%80%e6%ba%90%e6%95%99%e5%ad%a6%e5%b9%b3%e5%8f%b0/)
 
 ### 环境准备
 
 以CentOS服务器为例，其他系统操作流程基本一样。
 
-#### 安装mysql5.6
+#### 安装mysql8
 
-1. 略
-
-2. 设置数据库表名忽略大小写（重要）
-
-   `lower_case_table_names=1`
-
-3. 导入api/db文件夹的sql文件。如果是升级，需要依次按版本号执行升级sql。
+1. 导入api/db文件夹的teachingopen2.8.sql和qrtzUpcase.sql文件。
+2. 如果是升级，需要依次按版本号执行升级update_xxx.sql。
 
 #### 安装 redis 6.0
-
-略
 
 #### 安装Java
 
@@ -103,12 +94,10 @@ CentOS系统可执行命令一键安装
 
 #### 安装Nginx
 
-略
-
 #### 注册配置七牛云
 
 - 登录 www.qiniu.com 注册后实名认证
-- 新建对象存储Kodo，访问控制设为：开放，记录bucket名字和存储区域以备后续配置
+- 新建对象存储Kodo，访问控制设为：公开，记录bucket名字和存储区域以备后续配置
 - 绑定域名（免费分配的测试域名一个月后过期）
 - 获取accessKey，secretKey以备后续配置
 
@@ -149,7 +138,7 @@ qiniu:
 
 配置文件可以编译后修改，推荐将.yml配置文件放到jar包同级目录，java将优先使用同级目录的配置，这样方便后续升级。
 
-#### 编译项目（若使用已编译好的jar文件，本步骤可以跳过）
+#### 编译项目
 
 配置maven源
 
@@ -168,8 +157,7 @@ qiniu:
 
 `mvn clean package`
 
-编译成功后得到jar文件：\target\teaching-open-xxx.jar
-(xxx为版本号)
+编译成功后得到jar文件：`\target\teaching-open-xxx.jar` (xxx为版本号)
 
 - 上传jar文件到服务器，建议同时将yml配置文件也上传到jar同级目录
 
@@ -181,9 +169,9 @@ qiniu:
   `bash start-teaching.sh`
 
 
-### 前端编译（若使用已编译好的前端，本步骤可以跳过）
+### 前端编译
 
-- 安装nodejs版本v12
+- 安装nodejs版本v16
   
 - 安装依赖
   `npm install` 或 `yarn install`
@@ -238,6 +226,7 @@ server
 - admin —— 超级管理员
 - teacher —— 老师
 - student —— 学生
+  
 默认密码均为123456
 
 ## 常见问题

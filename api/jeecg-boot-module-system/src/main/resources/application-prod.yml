@@ -133,10 +133,10 @@ spring:
         connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
       datasource:
         master:
-          url: jdbc:mysql://127.0.0.1:3306/teachingopen?characterEncoding=UTF-8&useUnicode=true&useSSL=false&tinyInt1isBit=false
-          username: teachingopen
-          password: teachingopen
-          driver-class-name: com.mysql.jdbc.Driver
+          url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:teachingopen}?characterEncoding=UTF-8&useUnicode=true&useSSL=false&tinyInt1isBit=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+          username: ${SPRING_DATASOURCE_USERNAME:teachingopen}
+          password: ${SPRING_DATASOURCE_PASSWORD:teachingopen}
+          driver-class-name: com.mysql.cj.jdbc.Driver
           # 多数据源配置
           #multi-datasource1:
           #url: jdbc:mysql://localhost:3306/jeecg-boot2?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true
@@ -145,8 +145,8 @@ spring:
           #driver-class-name: com.mysql.jdbc.Driver
   #redis 配置
   redis:
-    database: 1
-    host: 127.0.0.1
+    database: ${REDIS_DATABASE:1}
+    host: ${REDIS_HOST:127.0.0.1}
     lettuce:
       pool:
         max-active: 8   #最大连接数据库连接数,设 0 为没有限制
@@ -154,8 +154,8 @@ spring:
         max-wait: -1ms  #最大建立连接等待时间。如果超过此时间将接到异常。设为-1表示无限制。
         min-idle: 0     #最小等待连接中的数量,设 0 为没有限制
       shutdown-timeout: 100ms
-    password: ''
-    port: 6379
+    password: ${REDIS_PASSWORD:}
+    port: ${REDIS_PORT:6379}
 #mybatis plus 设置
 mybatis-plus:
   mapper-locations: classpath*:org/jeecg/modules/**/xml/*Mapper.xml
@@ -175,16 +175,16 @@ mybatis-plus:
 #jeecg专用配置
 jeecg :
   # 是否允许多端登录
-  multiLogin: false
+  multiLogin: ${JEECG_MULTI_LOGIN:false}
   # 站点域名
-  domain: http://open.teaching.vip
+  domain: ${JEECG_DOMAIN:http://open.teaching.vip}
   # 本地：local 七牛云：qiniu
-  uploadType: qiniu
+  uploadType: ${UPLOAD_TYPE:qiniu}
   path :
     #文件上传根目录 设置
-    upload: D://opt//upFiles
+    upload: /opt/upFiles
     #webapp文件路径
-    webapp: D://opt//webapp
+    webapp: /opt/webapp
     # 文件访问地址
     staticDomain: /api/sys/common/static
   # 文件预览服务 local ow365 officeapps kkfileview
@@ -208,12 +208,12 @@ jeecg :
     staticDomain: ??
   #七牛云存储配置
   qiniu:
-    accessKey: ??
-    secretKey: ??
-    bucketName: teaching-open
-    staticDomain: //qn.open.teaching.vip
+    accessKey: ${QINIU_ACCESS_KEY:??}
+    secretKey: ${QINIU_SECRET_KEY:??}
+    bucketName: ${QINIU_BUCKET:teaching-open}
+    staticDomain: ${QINIU_STATICDOMAIN://qn.open.teaching.vip}
     # 七牛存储区域 z0：华东 z1：华北 z2：华南 na0：北美 as0：东南亚 cn-east-2：华东-浙江2
-    area: z0
+    area: ${QINIU_AREA:z0}
   # ElasticSearch 设置
   elasticsearch:
     cluster-name: jeecg-ES
@@ -234,9 +234,9 @@ jeecg :
 #Mybatis输出sql日志
 logging:
   level:
-    org.jeecg.modules.system.mapper : debug
-    org.jeecg.modules.teaching.mapper: debug
-    org.jeecg.modules.wechat.mapper: debug
+    org.jeecg.modules.system.mapper : error
+    org.jeecg.modules.teaching.mapper: error
+    org.jeecg.modules.wechat.mapper: error
 
 
 #cas单点登录
