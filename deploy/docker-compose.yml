@@ -2,7 +2,7 @@ version: "3"
 
 services:
   db:
-    image: mysql:8.0
+    image: registry.cn-shanghai.aliyuncs.com/goodat/teaching-open-db:latest
     container_name: teachingopen_db
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-teachingopen}
@@ -11,34 +11,28 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-teachingopen}
     volumes:
       - ./data/mysql:/var/lib/mysql
-      - ./sql:/docker-entrypoint-initdb.d:ro
-    ports:
-      - "3306:3306"
+    # ports:
+    #   - "3306:3306"
     restart: unless-stopped
 
   redis:
-    image: redis:6-alpine
+    image: registry.cn-shanghai.aliyuncs.com/goodathub/redis:6-alpine
     container_name: teachingopen_redis
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - ./data/redis:/data
-    ports:
-      - "6379:6379"
+    # ports:
+    #   - "6379:6379"
     restart: unless-stopped
 
   api:
-    # build:
-    #   context: ../api
-    #   dockerfile: Dockerfile
     image: registry.cn-shanghai.aliyuncs.com/goodat/teaching-open-api:latest
+    container_name: teachingopen_api
     env_file:
-      - ./api.env
-    ports:
-      - "8080:8080"
+      - ./.env
     environment:
       - JAVA_OPTS=-Xms1g -Xmx1g
       - SPRING_PROFILES_ACTIVE=prod
-      - ARGS=-spring.profiles.active=prod
     volumes:
       - ./data/upload:/opt/upFiles
     depends_on:
@@ -47,10 +41,8 @@ services:
     restart: unless-stopped
 
   web:
-    # build:
-    #   context: ../web
-    #   dockerfile: Dockerfile
     image: registry.cn-shanghai.aliyuncs.com/goodat/teaching-open-web:latest
+    container_name: teachingopen_web
     ports:
       - "80:80"
     depends_on:

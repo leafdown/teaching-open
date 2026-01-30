@@ -1,17 +1,27 @@
 # Teaching 在线教学平台 v2.8
 
-
 ## 项目介绍
 
 Teaching针对机构、学校提供STEAM在线教育解决方案， 提供一个低成本试错的机会。
 
 平台集成CRM系统、教务系统、作业系统、题库系统、赛事系统、社区系统、文章系统。并封装了常用的工具，如各种工具类、微信生态对接、支付对接等等。
 
-[前往官网](http://teaching.vip)
+[前往官网](https://teaching.vip)
 
-[查看本开源版DEMO](http://open.teaching.vip)
 
-## QQ交流群 ：  191723983
+### 在线体验
+
+[查看本开源版DEMO](https://open.teaching.vip)
+
+体验账号
+
+- admin —— 超级管理员
+- teacher —— 老师
+- student —— 学生
+  
+默认密码为123456
+
+### QQ交流群 ：  `191723983`
 
 ## 开源版功能
 
@@ -63,16 +73,23 @@ Teaching针对机构、学校提供STEAM在线教育解决方案， 提供一个
 
 - [Blockly](https://github.com/google/blockly)
   
-## Docker一键部署体验
+## 使用Docker快速部署体验
 
-1. 安装docker和docker compose（可以使用宝塔面板一键安装）
+### 宝塔部署
+
+Docker > 容器编排 > 添加容器编排 > 复制docker-compose.yml和.env文件的内容 > 确定后等待几分钟完成
+
+### 命令行部署
+
+1. 安装docker和docker compose
 2. 上传deploy文件夹到服务器，进入该文件夹运行docker compose up -d
 
-- 服务器最低配置建议：2核4G，宽带按量计费100M
-- 服务器不要安装MySQL、Redis、Nginx，否则会因为端口占用无法启动
-- 如果想使用其他数据库、云存储，请先修改api.env
-- 
+- 服务器配置建议：2核4G以上，宽带按量计费100M
+- 服务器不要安装Nginx，否则会因为80端口占用无法启动，或自行修改端口配置。
+- 如果想使用其他数据库、云存储，请先修改.env配置
+
 ## 手动编译和部署教程
+
 
 ### [点击查看宝塔面板手动部署教程](https://www.213.name/%e5%ae%9d%e5%a1%94%e9%9d%a2%e6%9d%bf%e5%bf%ab%e9%80%9f%e9%83%a8%e7%bd%b2teaching%e5%bc%80%e6%ba%90%e6%95%99%e5%ad%a6%e5%b9%b3%e5%8f%b0/)
 
@@ -221,13 +238,7 @@ server
 }
 ```
 
-### 测试账号
-
-- admin —— 超级管理员
-- teacher —— 老师
-- student —— 学生
-  
-默认密码均为123456
+、
 
 ## 常见问题
 
