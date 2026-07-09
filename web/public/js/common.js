@@ -1,3 +1,4 @@
+window.version = 'TO2.8'
 window.urlParams = function (paramName) {
   var reg = new RegExp('[?&]' + paramName + '=([^&]*)[&]?', 'i')
   var paramVal = window.location.search.match(reg)
@@ -308,7 +309,7 @@ window.isFullscreen = function(){
          document.webkitFullscreenElement || false;
 }
 
-console.log("蓝趣编程课堂 v2.6");
+console.log("蓝趣编程课堂 v2.8");
 
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
@@ -319,6 +320,6 @@ var _hmt = _hmt || [];
 (function() {
   var hm = document.createElement("script");
   hm.src = "https://hm.baidu.com/hm.js?50e7486025ea62b7c0e8198e0436f80e";
-  var s = document.getElementsByTagName("script")[0]; 
+  var s = document.getElementsByTagName("script")[0];
   s.parentNode.insertBefore(hm, s);
 })();

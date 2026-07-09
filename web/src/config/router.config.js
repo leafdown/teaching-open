@@ -1,5 +1,6 @@
 import { UserLayout, TabLayout, RouteView, BlankLayout, PageView } from '@/components/layouts'
-import HomeLayout from '@/views/home/HomeLayout'
+import HomeLayout from '@/views/home/layouts/HomeLayout'
+import WorkLayout from '@/views/home/layouts/WorkLayout'
 import store from '@/store/'
 
 /**
@@ -81,13 +82,35 @@ export const constantRouterMap = [
         path: 'courseList',
         name: 'courseList',
         component:() => import(/* webpackChunkName: "home" */ '@/views/home/CourseList')
-      }
+      },
+      {
+        path: 'newsList',
+        name: 'newsList',
+        component:() => import(/* webpackChunkName: "home" */ '@/views/home/NewsList')
+      },
+      {
+        path: '/news-detail',
+        name: 'newsDetail',
+        component: () => import(/* webpackChunkName: "home" */ '@/views/home/NewsDetail')
+      },
     ]
   },
   {
-    path: '/work-detail',
-    name: 'workDetail',
-    component: () => import(/* webpackChunkName: "home" */ '@/views/home/WorkDetail')
+    path: '/',
+    component: WorkLayout,
+    meta: {title: '社区'},
+    children: [
+      {
+        path: '/friend-detail',
+        name: 'friendDetail',
+        component: () => import(/* webpackChunkName: "home" */ '@/views/home/FriendDetail')
+      },
+      {
+        path: '/work-detail',
+        name: 'workDetail',
+        component: () => import(/* webpackChunkName: "home" */ '@/views/home/WorkDetail')
+      },
+    ]
   },
   {
     path: '/404',

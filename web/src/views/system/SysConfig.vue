@@ -26,7 +26,6 @@
                 <p>背景图</p>
                 <j-upload
                   v-decorator="['file_homeBg']"
-                  :uploadTarget="'qiniu'"
                   :fileType="'image'"
                   :number="1"
                   :trigger-change="true"
@@ -120,6 +119,22 @@
 
         <a-tab-pane key="func" tab="功能配置" style="min-height: 200px" forceRender>
           <a-row>
+            <a-col :span="6">
+              <a-form-item
+                label="开放作品评论"
+                :labelCol="{ xs: { span: 12 }, sm: { span: 10 } }"
+                :wrapperCol="{ xs: { span: 12 }, sm: { span: 14 } }"
+              >
+                <j-dict-select-tag
+                  type="radioButton"
+                  v-decorator="['allowComment', { initialValue: '0' }]"
+                  :trigger-change="true"
+                  @change="(v) => (model.allowComment = v.target.value)"
+                  dictCode="yn"
+                  placeholder="请选择是否开放评论"
+                />
+              </a-form-item>
+            </a-col>
             <a-col :span="6">
               <a-form-item
                 label="开放注册"

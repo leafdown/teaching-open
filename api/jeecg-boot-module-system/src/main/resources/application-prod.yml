@@ -14,7 +14,13 @@ management:
     web:
       exposure:
         include: metrics,httptrace
-
+springfox:
+  documentation:
+    # 总开关（同时设置auto-startup=false，否则/v3/api-docs等接口仍能继续访问）
+    enabled: false
+    auto-startup: false
+    swagger-ui:
+      enabled: false
 spring:
   servlet:
     multipart:
@@ -180,6 +186,12 @@ jeecg :
     #webapp文件路径
     webapp: /webapp
     staticDomain: /api/sys/common/static
+  # 文件预览服务 local ow365 officeapps kkfileview
+  filePreview: local
+  ow365:
+    id: ??
+    key: ??
+    iv: ??
   #短信秘钥
   sms:
     accessKeyId: ??
@@ -230,4 +242,4 @@ cas:
   prefixUrl: http://cas.example.org:8443/cas
 #enable swagger
 swagger:
-  enable: true
+  enable: false
