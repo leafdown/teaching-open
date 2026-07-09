@@ -27,13 +27,7 @@
     var scene = urlParams("scene") || 'create' //来源
     var userInfo = getUserInfo();
     var qn_token = getQiniuToken();
-<<<<<<< HEAD
-    var workStatus = 0;
-=======
-    var userToken = getUserToken();
-    var workStatus = 0
->>>>>>> upstream/master
-    setInterval(function () {
+    var workStatus = 0;;    setInterval(function () {
       qn_token = getQiniuToken();
     }, 600 * 1000)
 

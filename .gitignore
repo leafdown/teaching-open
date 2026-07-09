@@ -15,3 +15,6 @@ teaching-open.code-workspace
 dist/
 sample/
 *.DS_Store
+
+## data
+deploy/data
