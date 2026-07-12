@@ -1,7 +1,7 @@
 const path = require('path')
-const CompressionPlugin = require("compression-webpack-plugin")
+const CompressionPlugin = require('compression-webpack-plugin')
 
-function resolve (dir) {
+function resolve(dir) {
   return path.join(__dirname, dir)
 }
 
@@ -15,7 +15,6 @@ module.exports = {
   // 如果你不需要生产环境的 source map，可以将其设置为 false 以加速生产环境构建。
   productionSourceMap: false,
 
-
   //打包app时放开该配置
   //publicPath:'./',
   configureWebpack: config => {
@@ -24,7 +23,7 @@ module.exports = {
       config.optimization.minimizer[0].options.terserOptions.compress.drop_console = true
     }
   },
-  chainWebpack: (config) => {
+  chainWebpack: config => {
     config.resolve.alias
       .set('@$', resolve('src'))
       .set('@api', resolve('src/api'))
@@ -37,11 +36,13 @@ module.exports = {
 
     //生产环境，开启js\css压缩
     if (process.env.NODE_ENV === 'production') {
-        config.plugin('compressionPlugin').use(new CompressionPlugin({
+      config.plugin('compressionPlugin').use(
+        new CompressionPlugin({
           test: /\.js$|.\css|.\less/, // 匹配文件名
           threshold: 10240, // 对超过10k的数据压缩
           deleteOriginalAssets: false // 不删除源文件
-        }))
+        })
+      )
     }
 
     // 配置 webpack 识别 markdown 为普通的文件
@@ -71,10 +72,18 @@ module.exports = {
     port: 443,
     proxy: {
       '/api': {
-        target: 'https://teacher.lanqu.vip', 
+        target: 'https://teacher.lanqu.vip',
         ws: false,
         changeOrigin: true
       },
+      // Local-dev CORS bypass: route storage CDN through the dev server so that
+      // .sb3 project files and asset fetches don't hit cross-origin limits.
+      // loadProject rewrites storage.lanqu.vip -> /storage-cdn/.
+      '/storage-cdn': {
+        target: 'https://storage.lanqu.vip',
+        changeOrigin: true,
+        pathRewrite: { '^/storage-cdn': '' }
+      }
     }
   },
 
