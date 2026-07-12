@@ -25,7 +25,7 @@ def generate_sprites():
         sprites = json.load(f)
 
         for s in sprites:
-            s["assetsHost"] = "https://local.lanqu.vip:8334"
+            s["assetsHost"] = "https://home.leafdown.com:8334"
     #sprites.sort(key=lambda x:x["name"])
     for i in sprites:
         name = i['name']
@@ -50,7 +50,7 @@ def generate_costumes():
         costumes = json.load(f)
 
         for s in costumes:
-            s["assetsHost"] = "https://local.lanqu.vip:8334"
+            s["assetsHost"] = "https://home.leafdown.com:8334"
 
     for i in costumes:
         name = i['name']
@@ -77,7 +77,7 @@ def generate_backdrops():
         backdrops = json.load(f)
 
         for s in backdrops:
-            s["assetsHost"] = "https://local.lanqu.vip:8334"
+            s["assetsHost"] = "https://home.leafdown.com:8334"
     """
     for i in backdrops:
         if ".svg" in i['md5ext']:

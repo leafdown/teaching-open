@@ -65,7 +65,7 @@
 
     window.scratchConfig = {
       session: {
-        token: userToken,
+        token: getUserToken(),
         username: userInfo.realname || userInfo.username || '',
         //avatar: getQiniuUrl(userInfo.avatar) || './static/avatar.png',
       },
@@ -150,7 +150,7 @@
         },
         //教程按钮
         helpButton:{
-          show: true,
+          show: false,
           handleBefore: ()=>{return true}
         },
          //我的物品按钮
@@ -338,7 +338,7 @@
         dataType: 'json',
         contentType: 'application/json',
         beforeSend: function (request) {
-          request.setRequestHeader('X-Access-Token', userToken)
+          request.setRequestHeader('X-Access-Token', getUserToken())
         },
         data: JSON.stringify({
           courseId: unitId,
@@ -447,7 +447,7 @@
   </div>
 
 </body>
-<script type="text/javascript" src="lib.min.js"></script>
+<!-- lib.min.js removed: react bundled in chunks/gui.js -->
 <script type="text/javascript" src="chunks/gui.js"></script>
 <script>
   $('.fault-code').on('click', function () {
