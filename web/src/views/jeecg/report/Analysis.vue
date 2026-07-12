@@ -459,7 +459,7 @@
         return filterObj(param);
       },
       formatRespectiveHoldCert(value){
-        return (value=="1"||eval(value))?"是":"否"
+        return (value==="1"||value===true||value==="true")?"是":"否"
       },
       formatCertFormat(value){
         if(value=="1"){

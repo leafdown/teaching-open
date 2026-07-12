@@ -172,6 +172,11 @@ const user = {
         Vue.ls.remove(UI_CACHE_DB_DICT_DATA)
         Vue.ls.remove(USER_NAME)
         Vue.ls.remove(USER_INFO)
+        Vue.ls.remove(USER_ROLE)
+        Vue.ls.remove(SYS_CONFIG)
+        // 清除 sessionStorage 中的权限数据，避免换账号登录后残留前一个用户的权限
+        sessionStorage.removeItem(USER_AUTH)
+        sessionStorage.removeItem(SYS_BUTTON_AUTH)
         //console.log('logoutToken: '+ logoutToken)
         logout(logoutToken).then(() => {
           //let sevice = "http://"+window.location.host+"/";

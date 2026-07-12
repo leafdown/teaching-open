@@ -110,8 +110,12 @@ function  generateChildRouters (data) {
        component = "views/"+item.component;
     }
 
-    // eslint-disable-next-line
-    let URL = (item.meta.url|| '').replace(/{{([^}}]+)?}}/g, (s1, s2) => eval(s2)) // URL支持{{ window.xxx }}占位符变量
+    // URL 支持 {{ window.xxx }} 占位符变量。只允许读取 window 上的属性路径
+    // (如 window.location.host)，不执行任意 JS，避免菜单数据被注入时 RCE。
+    let URL = (item.meta.url || '').replace(/{{\s*window\.([^}\s]+)\s*}}/g, (s, path) => {
+      const val = path.split('.').reduce((obj, key) => (obj ? obj[key] : undefined), window)
+      return val !== undefined ? String(val) : ''
+    })
     if (isURL(URL)) {
       item.meta.url = URL;
     }

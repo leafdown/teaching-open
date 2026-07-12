@@ -230,12 +230,12 @@
         let url = window._CONFIG['domianURL']+`/thirdLogin/render/${source}`
         window.open(url, `login ${source}`, 'height=500, width=500, top=0, left=0, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=n o, status=no')
         let that = this;
+        // 只信任后端域名（与 domianURL 同源）发来的 token，防止任意页面伪造
+        const allowedOrigin = new URL(window._CONFIG['domianURL']).origin;
         let receiveMessage = function(event){
-          var origin = event.origin
-          console.log("origin",origin);
-
+          if (event.origin !== allowedOrigin) return; // 校验来源
           let token = event.data
-          console.log("event.data",token)
+          if (!token || typeof token !== 'string') return;
           that.ThirdLogin(token).then(res=>{
             if(res.success){
               that.loginSuccess()
@@ -243,6 +243,7 @@
               that.requestFailed(res);
             }
           })
+          window.removeEventListener("message", receiveMessage, false); // 登录后移除
         }
         window.addEventListener("message", receiveMessage, false);
       },
@@ -269,10 +270,8 @@
           that.form.validateFields([ 'username', 'password','inputCode', 'rememberMe' ], { force: true }, (err, values) => {
             if (!err) {
               loginParams.username = values.username
-              // update-begin- --- author:scott ------ date:20190805 ---- for:密码加密逻辑暂时注释掉，有点问题
-              //loginParams.password = md5(values.password)
-              //loginParams.password = encryption(values.password,that.encryptedString.key,that.encryptedString.iv)
-              loginParams.password = values.password
+              // 密码 AES 加密传输，避免明文
+              loginParams.password = encryption(values.password, that.encryptedString.key, that.encryptedString.iv)
               loginParams.remember_me = values.rememberMe
               // update-begin- --- author:scott ------ date:20190805 ---- for:密码加密逻辑暂时注释掉，有点问题
               loginParams.captcha = that.inputCodeContent

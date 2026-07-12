@@ -689,7 +689,7 @@ export default {
     // <!---- author:os_chengtgen -- date:20190827 --  for:切换父子勾选模式 =======------>
     changeURLStatic(name, value) {
       var url = location.href
-      var reg = eval('/([?|&]' + name + '=)[^&]*/gi')
+      var reg = new RegExp('([?|&]' + name + '=)[^&]*', 'gi')
       value = value.toString().replace(/(^\s*)|(\s*$)/g, '') //移除首尾空格
       if (!value) {
         var url2 = url.replace(reg, '') //正则替换
