@@ -270,8 +270,8 @@
           that.form.validateFields([ 'username', 'password','inputCode', 'rememberMe' ], { force: true }, (err, values) => {
             if (!err) {
               loginParams.username = values.username
-              // 密码 AES 加密传输，避免明文
-              loginParams.password = encryption(values.password, that.encryptedString.key, that.encryptedString.iv)
+              // 密码明文传输（后端未启用 AES 解密）。依赖 HTTPS 保护传输层安全。
+              loginParams.password = values.password
               loginParams.remember_me = values.rememberMe
               // update-begin- --- author:scott ------ date:20190805 ---- for:密码加密逻辑暂时注释掉，有点问题
               loginParams.captcha = that.inputCodeContent
