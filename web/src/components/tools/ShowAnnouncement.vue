@@ -17,7 +17,7 @@
         :description="'发布人：'+record.sender + ' 发布时间： ' + record.sendTime">
       </a-card-meta>
       <a-divider />
-      <span v-html="record.msgContent" class="article-content"></span>
+      <span v-safe-html="record.msgContent" class="article-content"></span>
     </a-card>
   </j-modal>
 </template>
