@@ -1,139 +1,129 @@
 <template>
-  <div>
-    <a-row :gutter="[24,24]" class="editor-nav">
-      <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-        <div class="editor-card editor-sjr" style="background: #2563EB;">
-          <a-row type="flex" justify="space-around" align="middle">
-            <a-col :span="10">
-              <img src="@assets/sjr.png" alt="">
-            </a-col>
-            <a-col :span="14">
-              <h2>ScratchJr编辑器</h2>
-              <a-button size="large" @click="toEditor(2)">开始创作</a-button>
-            </a-col>
-          </a-row>
-        </div>
-      </a-col>
-      <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-        <div class="editor-card editor-sc" style="background: #EAB308;">
-          <a-row type="flex" justify="space-around" align="middle">
-            <a-col :span="10">
-              <img src="@assets/scratch.png" alt="">
-            </a-col>
-            <a-col :span="14">
-              <h2>Scratch编辑器</h2>
-              <a-button size="large" @click="toEditor(1)">开始创作</a-button>
-            </a-col>
-          </a-row>
-        </div>
-      </a-col>
-      <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-        <div class="editor-card editor-py" style="background: #DC2626;">
-          <a-row type="flex" justify="space-around" align="middle">
-            <a-col :span="10">
-              <img src="@assets/python.png" alt="">
-            </a-col>
-            <a-col :span="14">
-              <h2>Python编辑器</h2>
-              <a-button size="large" @click="toEditor(3)">开始创作</a-button>
-            </a-col>
-          </a-row>
-        </div>
-      </a-col>
-    </a-row>
-    <div class="panel-works" v-if="greatLeaderboard.length>0">
-      <h1 class="panel-title">
-        <a-icon type="star" theme="twoTone" two-tone-color="#ffd81b" />
-        精选作品
-      </h1>
-      <a-row type="flex" justify="start" :gutter="[24, 24]">
-        <a-col v-for="(item, index) in greatLeaderboard" :key="index" :xs="24" :sm="12" :md="12" :lg="8" :xl="6">
-          <a-card class="work-card">
-            <a @click="toDetail(item.id)" target="_blank">
-              <img class="work-cover" v-if="item.coverFileKey_url" :src="item.coverFileKey_url" />
-              <img v-if="item.workType == 4 || item.workType == 10" src="@/assets/code.png" alt="" />
-            </a>
-            <div class="work-info">
-              <a-row type="flex" justify="space-between">
-                <a-col :span="10"> 
-                  <a-icon type="eye" /> {{ item.viewNum }} 
-                  <a-divider type="vertical"></a-divider>
-                  <a-icon type="like" /> {{ item.starNum }}
-                </a-col>
-                <a-col :span="10"> <a-tag color="orange">{{ item.workType_dictText }}</a-tag> </a-col>
-              </a-row>
-              <p>{{ item.workName }}</p>
-              <a-row class="work-author">
-                <a-col :span="6">
-                  <a-avatar shape="square" class="avatar" :size="40" :src="item.avatar_url" @click="toFriend(item.userId)"/>
-                </a-col>
-                <a-col :span="18">
-                  <span @click="toFriend(item.userId)">{{ item.realname || item.username }}</span>
-                </a-col>
-              </a-row>
+  <div class="home-content">
+    <!-- 编辑器入口：水平滚动卡片（非 3 等栏） -->
+    <section class="editor-section">
+      <div class="section-header">
+        <h2 class="section-title">开始创作</h2>
+        <p class="section-subtitle">选择一个编辑器，开启你的编程之旅</p>
+      </div>
+      <div class="editor-scroll">
+        <div class="editor-card editor-sjr" @click="toEditor(2)">
+          <div class="editor-card-inner">
+            <div class="editor-icon"><img src="@assets/sjr.png" alt="ScratchJr"></div>
+            <div class="editor-info">
+              <h3>ScratchJr</h3>
+              <span class="editor-tag">启蒙编程</span>
             </div>
-          </a-card>
-        </a-col>
-      </a-row>
-      <router-link v-if="page.greatLeaderboard>-1"  class="load-more" :to="{path:'/workList?type=3'}" >查看更多...</router-link>
-    </div>
+          </div>
+          <div class="editor-arrow"><a-icon type="arrow-right" /></div>
+        </div>
+        <div class="editor-card editor-sc" @click="toEditor(1)">
+          <div class="editor-card-inner">
+            <div class="editor-icon"><img src="@assets/scratch.png" alt="Scratch"></div>
+            <div class="editor-info">
+              <h3>Scratch 3.0</h3>
+              <span class="editor-tag">图形化编程</span>
+            </div>
+          </div>
+          <div class="editor-arrow"><a-icon type="arrow-right" /></div>
+        </div>
+        <div class="editor-card editor-py" @click="toEditor(3)">
+          <div class="editor-card-inner">
+            <div class="editor-icon"><img src="@assets/python.png" alt="Python"></div>
+            <div class="editor-info">
+              <h3>Python</h3>
+              <span class="editor-tag">代码编程</span>
+            </div>
+          </div>
+          <div class="editor-arrow"><a-icon type="arrow-right" /></div>
+        </div>
+      </div>
+    </section>
 
-    <div class="panel-works" v-if="courseLeaderboard.length>0">
-      <h1 class="panel-title">
-        <a-icon type="calculator" theme="twoTone" two-tone-color="#eb2f96" />
-        推荐课程
-      </h1>
-      <a-row type="flex" justify="start" :gutter="[24, 24]">
-        <a-col v-for="(item, index) in courseLeaderboard" :key="index" :xs="24" :sm="12" :md="12" :lg="8" :xl="6">
-          <a-card class="work-card">
-              <a @click="toCourseDetail(item.id)" target="_blank">
-                <img class="work-cover" :src="item.courseCover_url" />
-              </a>
-              <div class="work-info">
-                <p>{{ item.courseName }}</p>
+    <!-- 精选作品 -->
+    <section class="panel-works" v-if="greatLeaderboard.length > 0">
+      <div class="section-header">
+        <div class="title-bar"></div>
+        <h2 class="section-title">精选作品</h2>
+        <router-link v-if="page.greatLeaderboard > -1" class="see-all" :to="{ path: '/workList?type=3' }">查看全部</router-link>
+      </div>
+      <a-row type="flex" justify="start" :gutter="[20, 20]">
+        <a-col v-for="(item, index) in greatLeaderboard" :key="index" :xs="24" :sm="12" :md="8" :lg="6" :xl="6">
+          <div class="work-card" @click="toDetail(item.id)">
+            <div class="work-cover-wrap">
+              <img class="work-cover" v-if="item.coverFileKey_url" :src="item.coverFileKey_url" />
+              <img v-else-if="item.workType == 4 || item.workType == 10" src="@/assets/code.png" alt="" />
+              <div class="work-overlay">
+                <a-icon type="eye" /> {{ item.viewNum }}
+                <a-divider type="vertical" />
+                <a-icon type="like" /> {{ item.starNum }}
               </div>
-            </a-card>
-        </a-col>
-      </a-row>
-      <router-link v-if="page.courseLeaderboard>-1" class="load-more" :to="{path:'/courseList'}" >查看更多...</router-link>
-    </div>
-
-    <div class="panel-works">
-      <h1 class="panel-title">
-        <a-icon type="like" theme="twoTone" two-tone-color="#52c41a" />
-        最赞作品
-      </h1>
-      <a-row type="flex" justify="start" :gutter="[24, 24]">
-        <a-col v-for="(item, index) in starLeaderboard" :key="index" :xs="24" :sm="12" :md="12" :lg="8" :xl="6">
-          <a-card class="work-card">
-            <a @click="toDetail(item.id)" target="_blank">
-              <img class="work-cover" v-if="item.coverFileKey_url" :src="item.coverFileKey_url" />
-              <img v-if="item.workType == 4 || item.workType == 10" src="@/assets/code.png" alt="" />
-            </a>
-            <div class="work-info">
-              <a-row type="flex" justify="space-between">
-                <a-col :span="10"> 
-                  <a-icon type="eye" /> {{ item.viewNum }} 
-                  <a-divider type="vertical"></a-divider>
-                  <a-icon type="like" /> {{ item.starNum }}
-                </a-col>
-                <a-col :span="10"> <a-tag color="orange">{{ item.workType_dictText }}</a-tag> </a-col>
-              </a-row>
-              <p>{{ item.workName }}</p>
-              <a-row class="work-author">
-                <a-col :span="6">
-                  <a-avatar shape="square" class="avatar" :size="40" :src="item.avatar_url" @click="toFriend(item.userId)"/>
-                </a-col>
-                <a-col :span="18">
-                  <span @click="toFriend(item.userId)">{{ item.realname || item.username }}</span>
-                </a-col>
-              </a-row>
             </div>
-          </a-card>
+            <div class="work-info">
+              <p class="work-name">{{ item.workName }}</p>
+              <div class="work-meta">
+                <a-avatar shape="circle" :size="24" :src="item.avatar_url" @click.stop="toFriend(item.userId)" />
+                <span class="work-author" @click.stop="toFriend(item.userId)">{{ item.realname || item.username }}</span>
+                <a-tag class="work-type">{{ item.workType_dictText }}</a-tag>
+              </div>
+            </div>
+          </div>
         </a-col>
       </a-row>
-      <router-link v-if="page.starLeaderboard>-1" class="load-more" :to="{path:'/workList?type=2'}" >查看更多...</router-link>
-    </div>
+    </section>
+
+    <!-- 推荐课程 -->
+    <section class="panel-works" v-if="courseLeaderboard.length > 0">
+      <div class="section-header">
+        <div class="title-bar"></div>
+        <h2 class="section-title">推荐课程</h2>
+        <router-link v-if="page.courseLeaderboard > -1" class="see-all" :to="{ path: '/courseList' }">查看全部</router-link>
+      </div>
+      <a-row type="flex" justify="start" :gutter="[20, 20]">
+        <a-col v-for="(item, index) in courseLeaderboard" :key="index" :xs="24" :sm="12" :md="8" :lg="6" :xl="6">
+          <div class="work-card" @click="toCourseDetail(item.id)">
+            <div class="work-cover-wrap">
+              <img class="work-cover" :src="item.courseCover_url" />
+            </div>
+            <div class="work-info">
+              <p class="work-name">{{ item.courseName }}</p>
+            </div>
+          </div>
+        </a-col>
+      </a-row>
+    </section>
+
+    <!-- 最赞作品 -->
+    <section class="panel-works">
+      <div class="section-header">
+        <div class="title-bar"></div>
+        <h2 class="section-title">最赞作品</h2>
+        <router-link v-if="page.starLeaderboard > -1" class="see-all" :to="{ path: '/workList?type=2' }">查看全部</router-link>
+      </div>
+      <a-row type="flex" justify="start" :gutter="[20, 20]">
+        <a-col v-for="(item, index) in starLeaderboard" :key="index" :xs="24" :sm="12" :md="8" :lg="6" :xl="6">
+          <div class="work-card" @click="toDetail(item.id)">
+            <div class="work-cover-wrap">
+              <img class="work-cover" v-if="item.coverFileKey_url" :src="item.coverFileKey_url" />
+              <img v-else-if="item.workType == 4 || item.workType == 10" src="@/assets/code.png" alt="" />
+              <div class="work-overlay">
+                <a-icon type="eye" /> {{ item.viewNum }}
+                <a-divider type="vertical" />
+                <a-icon type="like" /> {{ item.starNum }}
+              </div>
+            </div>
+            <div class="work-info">
+              <p class="work-name">{{ item.workName }}</p>
+              <div class="work-meta">
+                <a-avatar shape="circle" :size="24" :src="item.avatar_url" @click.stop="toFriend(item.userId)" />
+                <span class="work-author" @click.stop="toFriend(item.userId)">{{ item.realname || item.username }}</span>
+                <a-tag class="work-type">{{ item.workType_dictText }}</a-tag>
+              </div>
+            </div>
+          </div>
+        </a-col>
+      </a-row>
+    </section>
   </div>
 </template>
 
@@ -142,21 +132,9 @@ import Vue from 'vue'
 import { getAction, getFileAccessHttpUrl } from '@/api/manage'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { mapActions, mapGetters } from 'vuex'
-import Header from './modules/Header'
-import Banner from './modules/Banner'
-import Footer from './modules/Footer'
-import UserEnter from './modules/UserEnter'
-import QrCode from '@/components/tools/QrCode'
 
 export default {
   name: 'PublicWorkList',
-  components: {
-    qrcode: QrCode,
-    Header,
-    Footer,
-    UserEnter,
-    Banner,
-  },
   data() {
     return {
       brandName: this.$store.getters.sysConfig.brandName,
@@ -183,231 +161,299 @@ export default {
     }
     this.getGreatLeaderboard()
     this.getStarLeaderboard()
-    // this.getCourseLeaderboard()
   },
   methods: {
     getFileAccessHttpUrl,
     ...mapActions(['Logout']),
     ...mapGetters(['nickname', 'avatar', 'userInfo']),
     enter(type) {
-      switch(type){
-        case 0:this.$router.push('/user/login');break;
-        case 1:this.$router.push('/account/center');break;
-        case 2:this.$router.push('/teaching/mineCourse/cardList');break;
-        default:this.$router.push('/account/center');break;
+      switch (type) {
+        case 0: this.$router.push('/user/login'); break
+        case 1: this.$router.push('/account/center'); break
+        case 2: this.$router.push('/teaching/mineCourse/cardList'); break
+        default: this.$router.push('/account/center'); break
       }
     },
-    changeAccount(){
+    changeAccount() {
       const that = this
       this.$confirm({
         title: '提示',
         content: '确定要退出当前账号并登录新的账号吗 ?',
         onOk() {
           return that.Logout({}).then(() => {
-            window.location.href="/user/login";
+            window.location.href = '/user/login'
           }).catch(err => {
-            that.$message.error({
-              title: '错误',
-              description: err.message
-            })
+            that.$message.error({ title: '错误', description: err.message })
           })
         },
-        onCancel() {
-        },
-      });
+        onCancel() {},
+      })
     },
-    //获取精选作品
     getGreatLeaderboard() {
       this.page.greatLeaderboard += 1
       getAction('/teaching/teachingWork/leaderboard', {
-        orderBy: 'create_time',
-        workStatus: 4,
-        pageSize: 4,
-        pageNo: this.page.greatLeaderboard,
+        orderBy: 'create_time', workStatus: 4, pageSize: 4, pageNo: this.page.greatLeaderboard,
       }).then((res) => {
         if (res.success) {
           this.greatLeaderboard = this.greatLeaderboard.concat(res.result.records)
-          if(this.greatLeaderboard.length >= res.result.total){
-            this.page.greatLeaderboard = -1
-          }
+          if (this.greatLeaderboard.length >= res.result.total) this.page.greatLeaderboard = -1
         }
       })
     },
-    //获取点赞排行
     getStarLeaderboard() {
       this.page.starLeaderboard += 1
       getAction('/teaching/teachingWork/leaderboard', {
-        orderBy: 'star',
-        pageSize: 8,
-        pageNo: this.page.starLeaderboard,
+        orderBy: 'star', pageSize: 8, pageNo: this.page.starLeaderboard,
       }).then((res) => {
         if (res.success) {
           this.starLeaderboard = this.starLeaderboard.concat(res.result.records)
-          if(this.starLeaderboard.length >= res.result.total){
-            this.page.starLeaderboard = -1
-          }
+          if (this.starLeaderboard.length >= res.result.total) this.page.starLeaderboard = -1
         }
       })
     },
-    //获取推荐课程
     getCourseLeaderboard() {
       this.page.courseLeaderboard += 1
       getAction('/teaching/teachingCourse/getHomeCourse', {
-        pageSize: 4,
-        pageNo: this.page.courseLeaderboard,
+        pageSize: 4, pageNo: this.page.courseLeaderboard,
       }).then((res) => {
         if (res.success) {
           this.courseLeaderboard = this.courseLeaderboard.concat(res.result.records)
-          if(this.courseLeaderboard.length >= res.result.total){
-            this.page.courseLeaderboard = -1
-          }
+          if (this.courseLeaderboard.length >= res.result.total) this.page.courseLeaderboard = -1
         }
       })
     },
     toDetail(id) {
-      let route = this.$router.resolve({
-        path: "/work-detail",
-        query: {
-          id: id,
-        },
-      });
-      window.open(route.href, '_blank');
+      let route = this.$router.resolve({ path: '/work-detail', query: { id: id } })
+      window.open(route.href, '_blank')
     },
-    toFriend(id){
-      let route = this.$router.resolve({
-        path: "/friend-detail",
-        query: {
-          id: id,
-        },
-      });
-      window.open(route.href, '_blank');
+    toFriend(id) {
+      let route = this.$router.resolve({ path: '/friend-detail', query: { id: id } })
+      window.open(route.href, '_blank')
     },
-    toCourseDetail(id){
+    toCourseDetail(id) {
       this.$router.push('/teaching/mineCourse/courseUnitCard?id=' + id)
     },
-    toEditor(type){
-      switch(type){
-        case 1:
-          window.open("/scratch3/index.html?scene=create")
-          break;
-        case 2:
-          window.open("/scratchjr/home.html")
-          break;
-        case 3:
-          window.open("/python/index.html")
-          break;
+    toEditor(type) {
+      switch (type) {
+        case 1: window.open('/scratch3/index.html?scene=create'); break
+        case 2: window.open('/scratchjr/home.html'); break
+        case 3: window.open('/python/index.html'); break
       }
-    },
-    _isMobile() {
-      return (
-        navigator.userAgent.match(
-          /(phone|pad|pod|iPhone|iPod|ios|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
-        ) != null
-      )
     },
   },
 }
 </script>
 
 <style lang="less" scoped>
-  .editor-nav {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 16px;
-  }
-  .editor-card{
-    width: 100%;
-    height: 200px;
-    margin: 24px auto;
-    padding: 24px;
-    background: #2563EB;
-    border-radius: 12px;
-    transition: box-shadow 0.2s, transform 0.2s;
-    &:hover {
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-      transform: translateY(-2px);
-    }
-    .ant-row-flex{
-      height: 100%;
-    }
-    img{
-      width: auto;
-      height: 100px;
-    }
-    h2{
-      color: #FFFFFF;
-      text-align: center;
-      font-weight: 600;
-      font-size: 1.25rem;
-    }
-    .ant-btn{
-      border-radius: 8px;
-      display: block;
-      margin: 12px auto;
-      border: none;
-      background: rgba(255,255,255,0.9);
-      color: #18181B;
-      font-weight: 500;
-      &:hover {
-        background: #FFFFFF;
-      }
-    }
-  }
-  .panel-works {
-    max-width: 1200px;
-    margin: 0 auto 40px;
-    padding: 0 16px;
-  }
-  .panel-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #18181B;
-    margin-bottom: 24px;
-    letter-spacing: -0.01em;
-  }
-  .work-card {
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid #E4E4E7;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    transition: box-shadow 0.2s, border-color 0.2s;
-    &:hover {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-      border-color: #D4D4D8;
-    }
-    /deep/.ant-card-body {
-      padding: 0px;
-    }
-    .work-cover {
-      width: 100%;
-      max-height: 150px;
-      object-fit: cover;
-    }
-    .work-info{
-      padding: 12px 16px;
-    }
-    .work-author {
-      span {
-        line-height: 40px;
-        cursor: pointer;
-        color: #71717A;
-        font-size: 0.875rem;
-      }
-    }
-    .ant-tag {
-      float: right;
-    }
-    > div {
-      padding: 10px;
-      margin: 10px;
-    }
-  }
-  .load-more {
-    display: block;
-    margin: 16px auto;
-    text-align: left;
-    color: #2563EB;
-    font-weight: 500;
-  }
+.home-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 16px 64px;
+}
 
+// --- 编辑器入口：水平滚动卡片 ---
+.editor-section {
+  margin-bottom: 56px;
+}
+
+.editor-scroll {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x mandatory;
+  &::-webkit-scrollbar { height: 4px; }
+  &::-webkit-scrollbar-thumb { background: #E4E4E7; border-radius: 2px; }
+}
+
+.editor-card {
+  flex: 0 0 320px;
+  height: 140px;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s;
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+  &.editor-sjr { background: #2563EB; }
+  &.editor-sc { background: #EAB308; }
+  &.editor-py { background: #DC2626; }
+}
+
+.editor-card-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.editor-icon img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.editor-info {
+  h3 {
+    color: #FFFFFF;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    line-height: 1.2;
+  }
+  .editor-tag {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.8125rem;
+  }
+}
+
+.editor-arrow {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.25rem;
+  transition: transform 0.2s, color 0.2s;
+  .editor-card:hover & {
+    color: #FFFFFF;
+    transform: translateX(4px);
+  }
+}
+
+// --- 区块通用 ---
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.title-bar {
+  width: 4px;
+  height: 24px;
+  border-radius: 2px;
+  background: #2563EB;
+  flex-shrink: 0;
+}
+
+.section-title {
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: #18181B;
+  letter-spacing: -0.01em;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.section-subtitle {
+  font-size: 0.875rem;
+  color: #71717A;
+  margin: 0;
+}
+
+.see-all {
+  color: #2563EB;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s;
+  &:hover { color: #1D4ED8; }
+}
+
+// --- 作品卡片 ---
+.panel-works {
+  margin-bottom: 56px;
+}
+
+.work-card {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #E4E4E7;
+  background: #FFFFFF;
+  cursor: pointer;
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+  &:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    border-color: #D4D4D8;
+    transform: translateY(-2px);
+    .work-overlay { opacity: 1; }
+  }
+}
+
+.work-cover-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #F4F4F5;
+}
+
+.work-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.work-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 12px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+  color: #FFFFFF;
+  font-size: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  .ant-divider { background: rgba(255, 255, 255, 0.3); }
+}
+
+.work-info {
+  padding: 12px 16px;
+}
+
+.work-name {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #18181B;
+  margin: 0 0 8px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.work-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.work-author {
+  font-size: 0.8125rem;
+  color: #71717A;
+  cursor: pointer;
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  &:hover { color: #2563EB; }
+}
+
+.work-type {
+  margin: 0;
+  margin-left: auto;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+}
+
+// --- 响应式 ---
+@media (max-width: 768px) {
+  .home-content { padding: 16px 12px 48px; }
+  .editor-card { flex: 0 0 280px; height: 120px; }
+  .panel-works { margin-bottom: 40px; }
+  .section-title { font-size: 1.125rem; }
+}
 </style>
