@@ -310,13 +310,23 @@ export default {
 </script>
 
 <style lang="less" scoped>
+  .editor-nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
   .editor-card{
     width: 100%;
     height: 200px;
-    margin: 30px auto;
-    padding: 20px;
+    margin: 24px auto;
+    padding: 24px;
     background: #2563EB;
     border-radius: 12px;
+    transition: box-shadow 0.2s, transform 0.2s;
+    &:hover {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
     .ant-row-flex{
       height: 100%;
     }
@@ -325,42 +335,63 @@ export default {
       height: 100px;
     }
     h2{
-      color: white;
+      color: #FFFFFF;
       text-align: center;
+      font-weight: 600;
+      font-size: 1.25rem;
     }
     .ant-btn{
-      border-radius: 50px;
+      border-radius: 8px;
       display: block;
-      margin: 10px auto;
+      margin: 12px auto;
+      border: none;
+      background: rgba(255,255,255,0.9);
+      color: #18181B;
+      font-weight: 500;
+      &:hover {
+        background: #FFFFFF;
+      }
     }
   }
   .panel-works {
-    margin-bottom: 30px;
+    max-width: 1200px;
+    margin: 0 auto 40px;
+    padding: 0 16px;
   }
   .panel-title {
-    font-size: 26px;
-    color: #333;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #18181B;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
   }
   .work-card {
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: rgb(218, 218, 218) 2px 2px 5px;
-    max-height: 300px;
-    min-width: 200px;
+    border: 1px solid #E4E4E7;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s, border-color 0.2s;
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      border-color: #D4D4D8;
+    }
     /deep/.ant-card-body {
       padding: 0px;
     }
     .work-cover {
       width: 100%;
       max-height: 150px;
+      object-fit: cover;
     }
     .work-info{
-      padding: 10px;
+      padding: 12px 16px;
     }
     .work-author {
       span {
         line-height: 40px;
         cursor: pointer;
+        color: #71717A;
+        font-size: 0.875rem;
       }
     }
     .ant-tag {
@@ -373,8 +404,10 @@ export default {
   }
   .load-more {
     display: block;
-    margin: 10px auto;
+    margin: 16px auto;
     text-align: left;
+    color: #2563EB;
+    font-weight: 500;
   }
 
 </style>
