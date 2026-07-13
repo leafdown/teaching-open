@@ -236,7 +236,7 @@ export default {
       color: black;
     }
     a:hover {
-      color: #1890ff;
+      color: #2563EB;
     }
     padding: 0 10px;
   }

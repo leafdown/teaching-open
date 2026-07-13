@@ -112,7 +112,7 @@
     </div>
     <div v-if="shareHtml" class="work-share-html">
       <a-divider></a-divider>
-      <div v-html="shareHtml"></div>
+      <div v-safe-html="shareHtml"></div>
     </div>
   </div>
 </template>
@@ -320,7 +320,7 @@ export default {
 <style lang="less" scoped>
 .container {
   background: url(/img/clipart-arrows-water-8.png) no-repeat;
-  background-color: #f6f6f6;
+  background-color: #F7F7F8;
   background-size: 100% 250px;
 }
 .ant-layout-header,

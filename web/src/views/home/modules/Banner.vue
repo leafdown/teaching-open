@@ -90,7 +90,7 @@ export default {
 <style lang="less" scoped>
 .carousel {
   height: 300px;
-  border-radius: 20px;
+  border-radius: 12px;
   img {
     width: 100%;
     height: 300px;

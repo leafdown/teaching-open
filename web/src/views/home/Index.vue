@@ -2,7 +2,7 @@
   <!-- <div id="IndexPage" :style="{ background: sysConfig.homeBgColor }"> -->
     <!-- <div :style="{ 'background-image': 'url(' + getFileAccessHttpUrl(sysConfig.file_homeBg) + ')', 'background-repeat': sysConfig.homeBgRepeat }"> -->
       <div class="boxBackground">
-        <div class="boxContent" v-html="sysConfig._homeHtml"></div>
+        <div class="boxContent" v-safe-html="sysConfig._homeHtml"></div>
       </div>
     <!-- </div> -->
   <!-- </div> -->
@@ -34,7 +34,7 @@ export default {
   height: 40px;
   line-height: 40px;
   width: 40px;
-  background: #364e799a;
+  background: rgba(37, 99, 235, 0.6);
   overflow: hidden;
   color: #fff;
   opacity: 0.5;
@@ -44,7 +44,7 @@ export default {
   }
 }
 .slick-arrow:hover {
-  background: #364e79;
+  background: #2563EB;
   color: #fff;
   opacity: 1;
 }

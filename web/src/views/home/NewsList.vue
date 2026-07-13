@@ -100,6 +100,6 @@ export default {
   font-weight: 700;
 }
 /deep/.title:hover {
-  color: #1890ff;
+  color: #2563EB;
 }
 </style>

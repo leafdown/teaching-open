@@ -157,7 +157,7 @@ export default {
 <style lang="less" scoped>
 .container {
   background: url(/img/bg_blue.png) no-repeat;
-  background-color: #f6f6f6;
+  background-color: #F7F7F8;
   background-size: 100% auto;
 }
 .ant-layout-header,
@@ -178,7 +178,7 @@ export default {
   margin-bottom: 10px;
   padding: 0;
   /deep/.banner {
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
   }
 }
@@ -198,8 +198,9 @@ export default {
   margin: 0 auto;
   .user-enter {
     background: #fff;
-    border: 1px solid #eee;
-    border-radius: 20px;
+    border: 1px solid #E4E4E7;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     width: 250px;
     min-height: 300px;
     text-align: center;

@@ -26,7 +26,7 @@
       :footer="null"
       @cancel="showCourseDetail=false"
       >
-        <div v-html="currentCourse.courseDesc"></div>
+        <div v-safe-html="currentCourse.courseDesc"></div>
       </j-modal>
   </div>
 </template>

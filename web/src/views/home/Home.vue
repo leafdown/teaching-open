@@ -2,7 +2,7 @@
   <div>
     <a-row :gutter="[24,24]" class="editor-nav">
       <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-        <div class="editor-card editor-sjr" style="background: linear-gradient(-30deg,#4fb5ff,#60bcff);">
+        <div class="editor-card editor-sjr" style="background: #2563EB;">
           <a-row type="flex" justify="space-around" align="middle">
             <a-col :span="10">
               <img src="@assets/sjr.png" alt="">
@@ -15,7 +15,7 @@
         </div>
       </a-col>
       <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-        <div class="editor-card editor-sc" style="background: linear-gradient(-60deg,#ffaa30,#ffbf35);">
+        <div class="editor-card editor-sc" style="background: #EAB308;">
           <a-row type="flex" justify="space-around" align="middle">
             <a-col :span="10">
               <img src="@assets/scratch.png" alt="">
@@ -28,7 +28,7 @@
         </div>
       </a-col>
       <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-        <div class="editor-card editor-py" style="background: linear-gradient(-30deg,#f35981,#fb7397);">
+        <div class="editor-card editor-py" style="background: #DC2626;">
           <a-row type="flex" justify="space-around" align="middle">
             <a-col :span="10">
               <img src="@assets/python.png" alt="">
@@ -315,8 +315,8 @@ export default {
     height: 200px;
     margin: 30px auto;
     padding: 20px;
-    background: linear-gradient(-30deg,#4fb5ff,#60bcff);
-    border-radius: 20px;
+    background: #2563EB;
+    border-radius: 12px;
     .ant-row-flex{
       height: 100%;
     }

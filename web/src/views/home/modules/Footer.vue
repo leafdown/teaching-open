@@ -1,5 +1,5 @@
 <template>
- <div class="footer" v-html="$store.getters.sysConfig.footer"></div>
+ <div class="footer" v-safe-html="$store.getters.sysConfig.footer"></div>
     
 </template>
 <script>

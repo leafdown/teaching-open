@@ -131,7 +131,9 @@ export default {
     z-index: 99;
     padding-bottom: 10px;
     width: 100%;
-    background: radial-gradient(ellipse at top left, #005dff 10%, #23aeffd9 67%);
+    background: #FFFFFF;
+    border-bottom: 1px solid #E4E4E7;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 .menu {
   display: inline-block;
@@ -141,15 +143,14 @@ export default {
   .ant-menu-submenu,
   /deep/.ant-menu-item > a,
   /deep/.ant-menu-submenu-title > a {
-    font-family: '微软雅黑 Bold', '微软雅黑 Regular', '微软雅黑', sans-serif;
     font-weight: 600;
     font-size: 16px;
-    color: white;
+    color: #18181B;
   }
   .ant-menu-submenu-active,
   .ant-menu-item-active {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 15px;
+    background: rgba(37, 99, 235, 0.06);
+    border-radius: 8px;
     border-bottom: none !important;
   }
 }
@@ -170,7 +171,7 @@ export default {
     max-height: 30px;
   }
   span {
-    color: #fff;
+    color: #18181B;
     font-weight: 700;
   }
 }

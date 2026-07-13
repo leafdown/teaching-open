@@ -9,7 +9,7 @@
 
     <a-divider></a-divider>
 
-    <div class="article-content" v-html="cmsInfo.newsContent"></div>
+    <div class="article-content" v-safe-html="cmsInfo.newsContent"></div>
   </div>
 </template>
 

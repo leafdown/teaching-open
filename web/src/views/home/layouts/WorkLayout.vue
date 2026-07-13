@@ -74,7 +74,7 @@
   <style lang="less" scoped>
   .container {
     background: url(/img/bg_blue.png) no-repeat;
-    background-color: #f6f6f6;
+    background-color: #F7F7F8;
     background-size: 100% 250px;
   }
   .ant-layout-header,

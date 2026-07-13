@@ -54,7 +54,7 @@
       okText="去上课"
       cancelText="关闭"
       >
-        <div v-html="currentCourse.courseDesc"></div>
+        <div v-safe-html="currentCourse.courseDesc"></div>
       </j-modal>
   </div>
 </template>
