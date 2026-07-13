@@ -1,21 +1,23 @@
 <template>
   <div id="userLayout" :class="['user-layout-wrapper', device]">
-    <div class="container">
-      <div class="top">
-        <div class="header">
-            <img :src="logo" class="logo" alt="logo">
-          <h3 class="title">{{brandName}}</h3>
-        </div>
-        <div class="desc">
-          {{brandDesc}}
+    <div class="split-container">
+      <!-- 左侧品牌视觉区 -->
+      <div class="brand-panel">
+        <div class="brand-content">
+          <img :src="logo" class="logo" alt="logo">
+          <h1 class="brand-name">{{brandName}}</h1>
+          <p class="brand-desc">{{brandDesc}}</p>
         </div>
       </div>
-
-      <route-view></route-view>
-
-      <div class="footer">
-        <div class="copyright">
-          Copyright &copy; 2019-2022 <a href="https://www.lanqu.vip" target="_blank">蓝趣编程课堂</a> 
+      <!-- 右侧表单区 -->
+      <div class="form-panel">
+        <div class="form-container">
+          <route-view></route-view>
+        </div>
+        <div class="footer">
+          <div class="copyright">
+            Copyright &copy; 2019-2022 <a href="https://www.lanqu.vip" target="_blank">蓝趣编程课堂</a>
+          </div>
         </div>
       </div>
     </div>
@@ -53,89 +55,93 @@
 
 <style lang="less" scoped>
   #userLayout.user-layout-wrapper {
-    height: 100%;
+    min-height: 100dvh;
 
-    &.mobile {
-      .container {
-        .main {
-          max-width: 368px;
-          width: 98%;
+    .split-container {
+      display: flex;
+      min-height: 100dvh;
+    }
+
+    // 左侧品牌视觉区
+    .brand-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #2563EB;
+      padding: 48px;
+
+      .brand-content {
+        text-align: center;
+        max-width: 400px;
+
+        .logo {
+          max-height: 72px;
+          margin-bottom: 24px;
+          border-style: none;
+        }
+
+        .brand-name {
+          font-size: clamp(1.75rem, 3vw, 2.25rem);
+          font-weight: 600;
+          color: #FFFFFF;
+          letter-spacing: -0.02em;
+          margin-bottom: 12px;
+        }
+
+        .brand-desc {
+          font-size: 1rem;
+          color: rgba(255, 255, 255, 0.8);
+          line-height: 1.6;
         }
       }
     }
 
-    .container {
-      width: 100%;
-      min-height: 100%;
-      background: #f0f2f5 url(~@/assets/background.svg) no-repeat 50%;
-      background-size: 100%;
-      padding: 50px 0 44px;
+    // 右侧表单区
+    .form-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #F7F7F8;
+      padding: 48px 24px;
       position: relative;
 
-      a {
-        text-decoration: none;
-      }
-
-      .top {
-        text-align: center;
-
-        .header {
-          max-height: 144px;
-          line-height: 44px;
-
-          .logo {
-            max-height: 88px;
-            vertical-align: top;
-            margin-right: 16px;
-            border-style: none;
-          }
-
-          .title {
-            font-size: 33px;
-            color: rgba(0, 0, 0, .85);
-            font-family: "Chinese Quote", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-            font-weight: 600;
-            position: relative;
-            top: 2px;
-          }
-        }
-        .desc {
-          font-size: 14px;
-          color: rgba(0, 0, 0, 0.45);
-          margin-top: 12px;
-          margin-bottom: 40px;
-        }
-      }
-
-      .main {
-        min-width: 260px;
-        width: 368px;
-        margin: 0 auto 60px;
+      .form-container {
+        width: 100%;
+        max-width: 400px;
       }
 
       .footer {
         position: absolute;
+        bottom: 24px;
         width: 100%;
-        bottom: 0;
-        padding: 0 16px;
-        margin: 48px 0 24px;
         text-align: center;
 
-        .links {
-          margin-bottom: 8px;
-          font-size: 14px;
+        .copyright {
+          color: #71717A;
+          font-size: 0.75rem;
+
           a {
-            color: rgba(0, 0, 0, 0.45);
-            transition: all 0.3s;
-            &:not(:last-child) {
-              margin-right: 40px;
+            color: #71717A;
+            text-decoration: none;
+            transition: color 0.15s;
+            &:hover {
+              color: #2563EB;
             }
           }
         }
-        .copyright {
-          color: rgba(0, 0, 0, 0.45);
-          font-size: 14px;
-        }
+      }
+    }
+
+    // 移动端：隐藏品牌区，只显示表单
+    &.mobile {
+      .brand-panel {
+        display: none;
+      }
+      .form-panel {
+        flex: 1;
       }
     }
   }
