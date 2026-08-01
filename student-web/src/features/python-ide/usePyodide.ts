@@ -163,6 +163,7 @@ class _Turtle:
         self._visible = True
         self._fillcolor = 'black'
         self._filling = False
+        self._fill_path = []
         self._delay = 0
     def _tx(self, x): return self._cx + x
     def _ty(self, y): return self._cy - y
@@ -174,6 +175,7 @@ class _Turtle:
         if self._pen_down:
             self._maybe_delay()
             _canvas_line(self._color, self._tx(self._x), self._ty(self._y), self._tx(nx), self._ty(ny), self._width)
+            if self._filling: self._fill_path.append((nx, ny))
         self._x, self._y = nx, ny
     def backward(self, d): self.forward(-d)
     def right(self, a): self._heading = (self._heading - a) % 360
@@ -185,6 +187,7 @@ class _Turtle:
         if self._pen_down:
             self._maybe_delay()
             _canvas_line(self._color, self._tx(self._x), self._ty(self._y), self._tx(x), self._ty(y), self._width)
+            if self._filling: self._fill_path.append((x, y))
         self._x, self._y = x, y
     def setpos(self, x, y): self.goto(x, y)
     def color(self, c): self._color = c
@@ -203,20 +206,22 @@ class _Turtle:
                 pass
     def circle(self, r, e=None):
         self._maybe_delay()
-        if e is None or abs(e) >= 360:
-            _canvas_circle(self._color, self._tx(self._x), self._ty(self._y - r), abs(r), 0)
-        else:
-            import math
-            steps = max(3, int(abs(e) / 3))
-            step_angle = math.radians(e / steps)
-            for _ in range(steps):
-                self._heading = (self._heading + e / steps) % 360
-                rad = math.radians(self._heading)
-                nx = self._x + r * math.cos(rad)
-                ny = self._y + r * math.sin(rad)
-                if self._pen_down:
-                    _canvas_line(self._color, self._tx(self._x), self._ty(self._y), self._tx(nx), self._ty(ny), self._width)
-                self._x, self._y = nx, ny
+        import math
+        extent = e if e is not None else 360
+        steps = max(24, int(abs(extent)))
+        step = extent / steps
+        # 圆弧圆心在 turtle 左侧 r 处 (r>0 左转, r<0 右转)
+        cx = self._x - r * math.sin(math.radians(self._heading))
+        cy = self._y + r * math.cos(math.radians(self._heading))
+        for _ in range(steps):
+            self._heading = (self._heading + step) % 360
+            rad = math.radians(self._heading)
+            nx = cx + r * math.sin(rad)
+            ny = cy - r * math.cos(rad)
+            if self._pen_down:
+                _canvas_line(self._color, self._tx(self._x), self._ty(self._y), self._tx(nx), self._ty(ny), self._width)
+                if self._filling: self._fill_path.append((nx, ny))
+            self._x, self._y = nx, ny
     def dot(self, s=1, c=None):
         _canvas_circle(c or self._color, self._tx(self._x), self._ty(self._y), s/2, 0)
     def write(self, t, move=False, align='left', font=('Arial',8,'normal')):
@@ -231,7 +236,9 @@ class _Turtle:
     def isdown(self): return self._pen_down
     def reset(self): self._x,self._y,self._heading,self._color,self._width,self._pen_down,self._fillcolor,self._filling = 0,0,0,'black',1,True,'black',False
     def clone(self): return _Turtle()
-    def begin_fill(self): self._filling = True
+    def begin_fill(self):
+        self._filling = True
+        self._fill_path = [(self._x, self._y)]
     def end_fill(self):
         self._filling = False
         # 绘制填充矩形, 半透明效果
@@ -381,7 +388,19 @@ sys.modules['turtle'] = _TurtleModule()
       if (!el) return; var ctx = el.getContext('2d'); if(!ctx) return
       ctx.strokeStyle = c; ctx.lineWidth = w||1; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke()
     },
-    flip: function() {}
+    flip: function() {},
+    fill: function(c: string, pts: number[][]) {
+      var el = this._el()
+      if (!el || pts.length < 3) return
+      var ctx = el.getContext('2d')
+      if (!ctx) return
+      ctx.fillStyle = c
+      ctx.beginPath()
+      ctx.moveTo(pts[0][0], pts[0][1])
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1])
+      ctx.closePath()
+      ctx.fill()
+    }
   })
   await pyodide.runPythonAsync([
     'import _lanqu_canvas',
@@ -390,6 +409,7 @@ sys.modules['turtle'] = _TurtleModule()
     'def _canvas_line(c,x1,y1,x2,y2,w=1): _lanqu_canvas.line(c,x1,y1,x2,y2,w)',
     'def _canvas_polygon(c,pts,width=0): pass',
     'def _canvas_flip(): _lanqu_canvas.flip()',
+    'def _canvas_fill(c,pts): _lanqu_canvas.fill(c,pts)',
   ].join('\n')).catch(function(){})
   onProgress?.(70)
   // 初始化 turtle 连接
