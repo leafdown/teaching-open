@@ -22,8 +22,8 @@ export default function WorkList() {
     setCorrect(record); setScore(record.teacherScore || 0); setComment(record.teacherComment || '')
     setComments([]); setCorrects([])
     // 拉评论 + 批改记录
-    try { const c = await getAction<Comment[]>('/teaching/teachingWork/queryTeachingWorkCommentByMainId', { mainId: record.id }); setComments(Array.isArray(c) ? c : []) } catch {}
-    try { const r = await getAction<Correct[]>('/teaching/teachingWork/queryTeachingWorkCorrectByMainId', { mainId: record.id }); setCorrects(Array.isArray(r) ? r : []) } catch {}
+    try { const c = await getAction<Comment[]>('/teaching/teachingWork/queryTeachingWorkCommentByMainId', { id: record.id }); setComments(Array.isArray(c) ? c : []) } catch {}
+    try { const r = await getAction<Correct[]>('/teaching/teachingWork/queryTeachingWorkCorrectByMainId', { id: record.id }); setCorrects(Array.isArray(r) ? r : []) } catch {}
   }
   const doCorrect = async () => {
     await postAction('/teaching/teachingWork/submit', { id: correct.id, workType: correct.workType, workStatus: correct.workStatus, teacherScore: score, teacherComment: comment, workScene: correct.workScene })
