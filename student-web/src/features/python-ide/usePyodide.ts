@@ -165,8 +165,16 @@ class _Turtle:
         self._filling = False
         self._fill_path = []
         self._delay = 0
-    def _tx(self, x): return self._cx + x
-    def _ty(self, y): return self._cy - y
+    def _tx(self, x):
+        import js as _js
+        _el = _js.document.getElementById('pygame-canvas') or _js.document.getElementById('turtleCanvas')
+        self._cx = (_el.width / 2) if _el else 190
+        return self._cx + x
+    def _ty(self, y):
+        import js as _js
+        _el = _js.document.getElementById('pygame-canvas') or _js.document.getElementById('turtleCanvas')
+        self._cy = (_el.height / 2) if _el else 180
+        return self._cy - y
     def forward(self, d):
         import math
         rad = math.radians(self._heading)
@@ -241,10 +249,10 @@ class _Turtle:
         self._fill_path = [(self._x, self._y)]
     def end_fill(self):
         self._filling = False
-        # 绘制填充矩形, 半透明效果
-        _canvas_rect(self._fillcolor or self._color, self._tx(self._x-15), self._ty(self._y-15), 30, 30, 0)
-        # fill 用简单矩形近似
-        _canvas_rect(self._fillcolor or self._color, self._x-10, self._y-10, 20, 20, 0)
+        if len(self._fill_path) > 2:
+            pts = [(self._tx(p[0]), self._ty(p[1])) for p in self._fill_path]
+            _canvas_fill(self._fillcolor or self._color, pts)
+        self._fill_path = []
     def fillcolor(self, c): self._fillcolor = c
     def setx(self, x): self._x = x
     def sety(self, y): self._y = y
