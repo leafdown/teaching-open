@@ -16,5 +16,10 @@ dist/
 sample/
 *.DS_Store
 
+## scratch static assets (vendored from web/public, not source)
+student-web/public/scratch3/
+student-web/public/scratchjr/
+
 ## data
 deploy/data
+.superpowers/sdd/
