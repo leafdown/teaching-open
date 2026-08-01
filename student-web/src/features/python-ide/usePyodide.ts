@@ -203,7 +203,20 @@ class _Turtle:
                 pass
     def circle(self, r, e=None):
         self._maybe_delay()
-        _canvas_circle(self._color, self._tx(self._x), self._ty(self._y - r), r, 0)
+        if e is None or abs(e) >= 360:
+            _canvas_circle(self._color, self._tx(self._x), self._ty(self._y - r), abs(r), 0)
+        else:
+            import math
+            steps = max(3, int(abs(e) / 3))
+            step_angle = math.radians(e / steps)
+            for _ in range(steps):
+                self._heading = (self._heading + e / steps) % 360
+                rad = math.radians(self._heading)
+                nx = self._x + r * math.cos(rad)
+                ny = self._y + r * math.sin(rad)
+                if self._pen_down:
+                    _canvas_line(self._color, self._tx(self._x), self._ty(self._y), self._tx(nx), self._ty(ny), self._width)
+                self._x, self._y = nx, ny
     def dot(self, s=1, c=None):
         _canvas_circle(c or self._color, self._tx(self._x), self._ty(self._y), s/2, 0)
     def write(self, t, move=False, align='left', font=('Arial',8,'normal')):
@@ -260,70 +273,89 @@ class _Screen:
     def bye(self): pass
 
 class _TurtleModule:
+    def __init__(self):
+        self._default = _Turtle()
     Turtle = _Turtle
     Screen = _Screen
     def done(self): pass
     def bye(self): pass
     def exitonclick(self): pass
-    def bgcolor(self, c): pass
+    def bgcolor(self, c): self._default._bg = c
     def delay(self, d): pass
     def tracer(self, *a): pass
     def update(self): pass
-    def clearscreen(self): pass
-    def resetscreen(self): pass
+    def clearscreen(self): self._default.reset()
+    def resetscreen(self): self._default.reset()
     def turtles(self): return []
     def getcanvas(self): return None
     def getscreen(self): return _Screen()
     def setup(self, *a):
         if a:
-            _ensure_floating_canvas(a[0], a[1] if len(a) > 1 else a[0], '🐢 Turtle')
+            _ensure_floating_canvas(a[0], a[1] if len(a) > 1 else a[0], '🐠 Turtle')
         else:
-            _ensure_floating_canvas(380, 380, '🐢 Turtle')
+            _ensure_floating_canvas(380, 380, '🐠 Turtle')
     def screensize(self, *a):
         if a:
-            _ensure_floating_canvas(a[0], a[1] if len(a) > 1 else a[0], '🐢 Turtle')
+            _ensure_floating_canvas(a[0], a[1] if len(a) > 1 else a[0], '🐠 Turtle')
     def numinput(self, *a): return None
     def textinput(self, *a): return None
     def addshape(self, *a): pass
     def registering(self, *a): pass
     def window_height(self): return 360
     def window_width(self): return 380
-    def fillcolor(self, *a): return 'black'
-    def pencolor(self, *a): return 'black'
-    def color(self, *a): return 'black'
-    def pensize(self, *a): return 1
-    def width(self, *a): return 1
-    def speed(self, *a): return 6
-    def forward(self, *a): pass
-    def backward(self, *a): pass
-    def right(self, *a): pass
-    def left(self, *a): pass
-    def goto(self, *a): pass
-    def setpos(self, *a): self.goto(*a)
-    def setheading(self, *a): pass
-    def penup(self): pass
-    def pendown(self): pass
-    def isdown(self): return True
-    def position(self): return (0,0)
-    def pos(self): return (0,0)
-    def xcor(self): return 0
-    def ycor(self): return 0
-    def heading(self): return 0
-    def circle(self, *a): pass
-    def dot(self, *a): pass
+    def fillcolor(self, *a): return self._default.fillcolor(*a) if a else self._default._fillcolor
+    def pencolor(self, *a): return self._default.pencolor(*a) if a else self._default._color
+    def color(self, *a): self._default.color(*a)
+    def pensize(self, *a): return self._default.pensize(*a) if a else self._default._width
+    def width(self, *a): return self._default.width(*a) if a else self._default._width
+    def speed(self, *a): return self._default.speed(*a) if a else self._default._speed_val
+    def forward(self, d): self._default.forward(d)
+    def fd(self, d): self._default.forward(d)
+    def backward(self, d): self._default.backward(d)
+    def bk(self, d): self._default.backward(d)
+    def right(self, a): self._default.right(a)
+    def rt(self, a): self._default.right(a)
+    def left(self, a): self._default.left(a)
+    def lt(self, a): self._default.left(a)
+    def goto(self, x, y=None):
+        if y is None: self._default.goto(x[0], x[1])
+        else: self._default.goto(x, y)
+    def setpos(self, x, y=None): self.goto(x, y)
+    def setposition(self, x, y=None): self.goto(x, y)
+    def setx(self, x): self._default._x = x
+    def sety(self, y): self._default._y = y
+    def setheading(self, a): self._default.setheading(a)
+    def seth(self, a): self._default.setheading(a)
+    def penup(self): self._default.penup()
+    def pu(self): self._default.penup()
+    def pendown(self): self._default.pendown()
+    def pd(self): self._default.pendown()
+    def isdown(self): return self._default.isdown()
+    def position(self): return self._default.position()
+    def pos(self): return self._default.position()
+    def xcor(self): return self._default.xcor()
+    def ycor(self): return self._default.ycor()
+    def heading(self): return self._default.heading()
+    def circle(self, r, e=None): self._default.circle(r, e)
+    def dot(self, *a): self._default.dot(*a)
     def stamp(self): return 0
     def clone(self): return _Turtle()
-    def hideturtle(self): pass
-    def showturtle(self): pass
+    def hideturtle(self): self._default.hideturtle()
+    def ht(self): self._default.hideturtle()
+    def showturtle(self): self._default.showturtle()
+    def st(self): self._default.showturtle()
     def shape(self, *a): pass
     def shapesize(self, *a): pass
-    def reset(self): pass
-    def clear(self): pass
-    def write(self, *a): pass
-    def begin_fill(self): pass
-    def end_fill(self): pass
-    def fill(self): return False
-    def isvisible(self): return True
+    def reset(self): self._default.reset()
+    def clear(self): self._default.clear()
+    def write(self, *a): self._default.write(*a)
+    def begin_fill(self): self._default.begin_fill()
+    def end_fill(self): self._default.end_fill()
+    def fill(self): return self._default.fill()
+    def isvisible(self): return self._default.isvisible()
+    def distance(self, x, y): return self._default.distance(x, y)
+    def towards(self, x, y): return self._default.towards(x, y)
+    def setundobuffer(self, *a): pass
 
 sys.modules['turtle'] = _TurtleModule()
 `)
