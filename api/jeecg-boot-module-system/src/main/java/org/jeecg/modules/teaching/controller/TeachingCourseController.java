@@ -17,6 +17,7 @@ import org.jeecg.modules.system.service.ISysFileService;
 import org.jeecg.modules.teaching.entity.TeachingCourse;
 import org.jeecg.modules.teaching.service.ITeachingCourseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -89,6 +90,7 @@ public class TeachingCourseController extends JeecgController<TeachingCourse, IT
 	@ApiOperation(value="课程-分页列表查询", notes="课程-分页列表查询")
 	@GetMapping(value = "/list")
 	@PermissionData
+	@RequiresPermissions("teaching:course:list")
 	public Result<?> queryPageList(TeachingCourse teachingCourse,
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
@@ -119,6 +121,7 @@ public class TeachingCourseController extends JeecgController<TeachingCourse, IT
 	@AutoLog(value = "课程-添加")
 	@ApiOperation(value="课程-添加", notes="课程-添加")
 	@PostMapping(value = "/add")
+	@RequiresPermissions("teaching:course:add")
 	public Result<?> add(@RequestBody TeachingCourse teachingCourse) {
 		teachingCourseService.save(teachingCourse);
 		return Result.ok("添加成功！");
@@ -133,6 +136,7 @@ public class TeachingCourseController extends JeecgController<TeachingCourse, IT
 	@AutoLog(value = "课程-编辑")
 	@ApiOperation(value="课程-编辑", notes="课程-编辑")
 	@PutMapping(value = "/edit")
+	@RequiresPermissions("teaching:course:edit")
 	public Result<?> edit(@RequestBody TeachingCourse teachingCourse) {
 		teachingCourseService.updateById(teachingCourse);
 		return Result.ok("编辑成功!");
@@ -147,6 +151,7 @@ public class TeachingCourseController extends JeecgController<TeachingCourse, IT
 	@AutoLog(value = "课程-通过id删除")
 	@ApiOperation(value="课程-通过id删除", notes="课程-通过id删除")
 	@DeleteMapping(value = "/delete")
+	@RequiresPermissions("teaching:course:delete")
 	public Result<?> delete(@RequestParam(name="id",required=true) String id) {
 		TeachingCourse course = this.teachingCourseService.getById(id);
 		if (course != null){
@@ -167,6 +172,7 @@ public class TeachingCourseController extends JeecgController<TeachingCourse, IT
 	@AutoLog(value = "课程-批量删除")
 	@ApiOperation(value="课程-批量删除", notes="课程-批量删除")
 	@DeleteMapping(value = "/deleteBatch")
+	@RequiresPermissions("teaching:course:delete")
 	public Result<?> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		List<String> idList = Arrays.asList(ids.split(","));
 		List<TeachingCourse> courseList = this.teachingCourseService.list(new QueryWrapper<TeachingCourse>().in("id", idList));
@@ -188,6 +194,7 @@ public class TeachingCourseController extends JeecgController<TeachingCourse, IT
 	@AutoLog(value = "课程-通过id查询")
 	@ApiOperation(value="课程-通过id查询", notes="课程-通过id查询")
 	@GetMapping(value = "/queryById")
+	@RequiresPermissions("teaching:course:query")
 	public Result<?> queryById(@RequestParam(name="id",required=true) String id) {
 		TeachingCourse teachingCourse = teachingCourseService.getById(id);
 		if(teachingCourse==null) {
@@ -203,6 +210,7 @@ public class TeachingCourseController extends JeecgController<TeachingCourse, IT
     * @param teachingCourse
     */
     @RequestMapping(value = "/exportXls")
+    @RequiresPermissions("teaching:course:export")
     public ModelAndView exportXls(HttpServletRequest request, TeachingCourse teachingCourse) {
         return super.exportXls(request, teachingCourse, TeachingCourse.class, "课程");
     }
@@ -215,6 +223,7 @@ public class TeachingCourseController extends JeecgController<TeachingCourse, IT
     * @return
     */
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
+    @RequiresPermissions("teaching:course:import")
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, TeachingCourse.class);
     }

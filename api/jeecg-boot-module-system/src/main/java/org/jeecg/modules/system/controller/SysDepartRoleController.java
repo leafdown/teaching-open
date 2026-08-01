@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
@@ -63,6 +64,7 @@ public class SysDepartRoleController extends JeecgController<SysDepartRole, ISys
 	 * @param req
 	 * @return
 	 */
+	@RequiresPermissions("sysDepartRole:list")
 	@ApiOperation(value="部门角色-分页列表查询", notes="部门角色-分页列表查询")
 	@GetMapping(value = "/list")
 	public Result<?> queryPageList(SysDepartRole sysDepartRole,
@@ -97,6 +99,7 @@ public class SysDepartRoleController extends JeecgController<SysDepartRole, ISys
 	 * @param sysDepartRole
 	 * @return
 	 */
+	@RequiresPermissions("sysDepartRole:add")
 	//@RequiresRoles({"admin"})
 	@ApiOperation(value="部门角色-添加", notes="部门角色-添加")
 	@PostMapping(value = "/add")
@@ -111,6 +114,7 @@ public class SysDepartRoleController extends JeecgController<SysDepartRole, ISys
 	 * @param sysDepartRole
 	 * @return
 	 */
+	@RequiresPermissions("sysDepartRole:edit")
 	//@RequiresRoles({"admin"})
 	@ApiOperation(value="部门角色-编辑", notes="部门角色-编辑")
 	@PutMapping(value = "/edit")
@@ -125,6 +129,7 @@ public class SysDepartRoleController extends JeecgController<SysDepartRole, ISys
 	 * @param id
 	 * @return
 	 */
+	@RequiresPermissions("sysDepartRole:delete")
 	//@RequiresRoles({"admin"})
 	@AutoLog(value = "部门角色-通过id删除")
 	@ApiOperation(value="部门角色-通过id删除", notes="部门角色-通过id删除")
@@ -140,6 +145,7 @@ public class SysDepartRoleController extends JeecgController<SysDepartRole, ISys
 	 * @param ids
 	 * @return
 	 */
+	@RequiresPermissions("sysDepartRole:delete")
 	//@RequiresRoles({"admin"})
 	@AutoLog(value = "部门角色-批量删除")
 	@ApiOperation(value="部门角色-批量删除", notes="部门角色-批量删除")
@@ -155,6 +161,7 @@ public class SysDepartRoleController extends JeecgController<SysDepartRole, ISys
 	 * @param id
 	 * @return
 	 */
+	@RequiresPermissions("sysDepartRole:query")
 	@ApiOperation(value="部门角色-通过id查询", notes="部门角色-通过id查询")
 	@GetMapping(value = "/queryById")
 	public Result<?> queryById(@RequestParam(name="id",required=true) String id) {
@@ -167,6 +174,7 @@ public class SysDepartRoleController extends JeecgController<SysDepartRole, ISys
 	  * @param departId
 	  * @return
 	  */
+	@RequiresPermissions("sysDepartRole:query")
 	@RequestMapping(value = "/getDeptRoleList", method = RequestMethod.GET)
 	public Result<List<SysDepartRole>> getDeptRoleList(@RequestParam(value = "departId") String departId,@RequestParam(value = "userId") String userId){
 		Result<List<SysDepartRole>> result = new Result<>();
@@ -183,6 +191,7 @@ public class SysDepartRoleController extends JeecgController<SysDepartRole, ISys
 	  * @param json
 	  * @return
 	  */
+	 @RequiresPermissions("sysDepartRole:edit")
 	 @RequestMapping(value = "/deptRoleUserAdd", method = RequestMethod.POST)
 	 public Result<?> deptRoleAdd(@RequestBody JSONObject json) {
 		 String newRoleId = json.getString("newRoleId");
@@ -197,6 +206,7 @@ public class SysDepartRoleController extends JeecgController<SysDepartRole, ISys
 	  * @param userId
 	  * @return
 	  */
+	 @RequiresPermissions("sysDepartRole:query")
 	 @RequestMapping(value = "/getDeptRoleByUserId", method = RequestMethod.GET)
 	 public Result<List<SysDepartRoleUser>> getDeptRoleByUserId(@RequestParam(value = "userId") String userId){
 		 Result<List<SysDepartRoleUser>> result = new Result<>();
@@ -209,6 +219,7 @@ public class SysDepartRoleController extends JeecgController<SysDepartRole, ISys
 	 /**
 	  * 查询数据规则数据
 	  */
+	 @RequiresPermissions("sysDepartRole:query")
 	 @GetMapping(value = "/datarule/{permissionId}/{departId}/{roleId}")
 	 public Result<?> loadDatarule(@PathVariable("permissionId") String permissionId,@PathVariable("departId") String departId,@PathVariable("roleId") String roleId) {
 		//查询已授权的部门规则
@@ -238,6 +249,7 @@ public class SysDepartRoleController extends JeecgController<SysDepartRole, ISys
 	 /**
 	  * 保存数据规则至角色菜单关联表
 	  */
+	 @RequiresPermissions("sysDepartRole:edit")
 	 @PostMapping(value = "/datarule")
 	 public Result<?> saveDatarule(@RequestBody JSONObject jsonObject) {
 		 try {
@@ -268,6 +280,7 @@ public class SysDepartRoleController extends JeecgController<SysDepartRole, ISys
    * @param request
    * @param sysDepartRole
    */
+  @RequiresPermissions("sysDepartRole:export")
   @RequestMapping(value = "/exportXls")
   public ModelAndView exportXls(HttpServletRequest request, SysDepartRole sysDepartRole) {
       return super.exportXls(request, sysDepartRole, SysDepartRole.class, "部门角色");
@@ -280,6 +293,7 @@ public class SysDepartRoleController extends JeecgController<SysDepartRole, ISys
    * @param response
    * @return
    */
+  @RequiresPermissions("sysDepartRole:import")
   @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
   public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
       return super.importExcel(request, response, SysDepartRole.class);

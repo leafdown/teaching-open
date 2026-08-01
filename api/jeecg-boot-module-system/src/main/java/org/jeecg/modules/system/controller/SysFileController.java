@@ -36,6 +36,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.aspect.annotation.AutoLog;
 
  /**
@@ -61,6 +62,7 @@ public class SysFileController extends JeecgController<SysFile, ISysFileService>
 	 * @param req
 	 * @return
 	 */
+	@RequiresPermissions("file:list")
 	@AutoLog(value = "文件管理-分页列表查询")
 	@ApiOperation(value="文件管理-分页列表查询", notes="文件管理-分页列表查询")
 	@GetMapping(value = "/list")
@@ -108,6 +110,7 @@ public class SysFileController extends JeecgController<SysFile, ISysFileService>
 	 * @param id
 	 * @return
 	 */
+	@RequiresPermissions("file:delete")
 	@AutoLog(value = "文件管理-通过id删除")
 	@ApiOperation(value="文件管理-通过id删除", notes="文件管理-通过id删除")
 	@DeleteMapping(value = "/delete")
@@ -122,6 +125,7 @@ public class SysFileController extends JeecgController<SysFile, ISysFileService>
 	  * @param filePath
 	  * @return
 	  */
+	 @RequiresPermissions("file:delete")
 	 @AutoLog(value = "文件管理-通过filePath删除")
 	 @ApiOperation(value="文件管理-通过filePath删除", notes="文件管理-通过filePath删除")
 	 @DeleteMapping(value = "/deleteByPath")
@@ -139,6 +143,7 @@ public class SysFileController extends JeecgController<SysFile, ISysFileService>
 	 * @param ids
 	 * @return
 	 */
+	@RequiresPermissions("file:delete")
 	@AutoLog(value = "文件管理-批量删除")
 	@ApiOperation(value="文件管理-批量删除", notes="文件管理-批量删除")
 	@DeleteMapping(value = "/deleteBatch")

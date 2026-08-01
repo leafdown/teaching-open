@@ -26,6 +26,8 @@ import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.jeecg.common.system.base.controller.JeecgController;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,7 +36,6 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.jeecg.common.aspect.annotation.AutoLog;
 
  /**
  * @Description: 资讯
@@ -88,6 +89,7 @@ public class TeachingNewsController extends JeecgController<TeachingNews, ITeach
 	@AutoLog(value = "资讯-分页列表查询")
 	@ApiOperation(value="资讯-分页列表查询", notes="资讯-分页列表查询")
 	@GetMapping(value = "/list")
+	@RequiresPermissions("teaching:news:list")
 	public Result<?> queryPageList(TeachingNews teachingNews,
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
@@ -107,6 +109,7 @@ public class TeachingNewsController extends JeecgController<TeachingNews, ITeach
 	@AutoLog(value = "资讯-添加")
 	@ApiOperation(value="资讯-添加", notes="资讯-添加")
 	@PostMapping(value = "/add")
+	@RequiresPermissions("teaching:news:add")
 	public Result<?> add(@RequestBody TeachingNews teachingNews) {
 		teachingNewsService.save(teachingNews);
 		return Result.ok("添加成功！");
@@ -121,6 +124,7 @@ public class TeachingNewsController extends JeecgController<TeachingNews, ITeach
 	@AutoLog(value = "资讯-编辑")
 	@ApiOperation(value="资讯-编辑", notes="资讯-编辑")
 	@PutMapping(value = "/edit")
+	@RequiresPermissions("teaching:news:edit")
 	public Result<?> edit(@RequestBody TeachingNews teachingNews) {
 		teachingNewsService.updateById(teachingNews);
 		return Result.ok("编辑成功!");
@@ -135,6 +139,7 @@ public class TeachingNewsController extends JeecgController<TeachingNews, ITeach
 	@AutoLog(value = "资讯-通过id删除")
 	@ApiOperation(value="资讯-通过id删除", notes="资讯-通过id删除")
 	@DeleteMapping(value = "/delete")
+	@RequiresPermissions("teaching:news:delete")
 	public Result<?> delete(@RequestParam(name="id",required=true) String id) {
 		teachingNewsService.removeById(id);
 		return Result.ok("删除成功!");
@@ -149,6 +154,7 @@ public class TeachingNewsController extends JeecgController<TeachingNews, ITeach
 	@AutoLog(value = "资讯-批量删除")
 	@ApiOperation(value="资讯-批量删除", notes="资讯-批量删除")
 	@DeleteMapping(value = "/deleteBatch")
+	@RequiresPermissions("teaching:news:delete")
 	public Result<?> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		this.teachingNewsService.removeByIds(Arrays.asList(ids.split(",")));
 		return Result.ok("批量删除成功!");
@@ -163,6 +169,7 @@ public class TeachingNewsController extends JeecgController<TeachingNews, ITeach
 	@AutoLog(value = "资讯-通过id查询")
 	@ApiOperation(value="资讯-通过id查询", notes="资讯-通过id查询")
 	@GetMapping(value = "/queryById")
+	@RequiresPermissions("teaching:news:query")
 	public Result<?> queryById(@RequestParam(name="id",required=true) String id) {
 		TeachingNews teachingNews = teachingNewsService.getById(id);
 		if(teachingNews==null) {
@@ -178,6 +185,7 @@ public class TeachingNewsController extends JeecgController<TeachingNews, ITeach
     * @param teachingNews
     */
     @RequestMapping(value = "/exportXls")
+    @RequiresPermissions("teaching:news:export")
     public ModelAndView exportXls(HttpServletRequest request, TeachingNews teachingNews) {
         return super.exportXls(request, teachingNews, TeachingNews.class, "资讯");
     }
@@ -190,6 +198,7 @@ public class TeachingNewsController extends JeecgController<TeachingNews, ITeach
     * @return
     */
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
+    @RequiresPermissions("teaching:news:import")
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, TeachingNews.class);
     }

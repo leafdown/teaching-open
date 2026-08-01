@@ -15,6 +15,7 @@ import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.RedisUtil;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.modules.teaching.entity.TeachingDepartDayLog;
 import org.jeecg.modules.teaching.enums.DepartDayLogType;
 import org.jeecg.modules.teaching.service.ITeachingCourseUnitService;
@@ -183,6 +184,7 @@ public class TeachingDepartDayLogController extends JeecgController<TeachingDepa
    @AutoLog(value = "班级每日教学记录-分页列表查询")
    @ApiOperation(value="班级每日教学记录-分页列表查询", notes="班级每日教学记录-分页列表查询")
    @GetMapping(value = "/list")
+   @RequiresPermissions("teaching:courseDept:list")
    public Result<?> queryPageList(TeachingDepartDayLog teachingDepartDayLog,
                                   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
                                   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
@@ -202,6 +204,7 @@ public class TeachingDepartDayLogController extends JeecgController<TeachingDepa
    @AutoLog(value = "班级每日教学记录-添加")
    @ApiOperation(value="班级每日教学记录-添加", notes="班级每日教学记录-添加")
    @PostMapping(value = "/add")
+   @RequiresPermissions("teaching:courseDept:add")
    public Result<?> add(@RequestBody TeachingDepartDayLog teachingDepartDayLog) {
        teachingDepartDayLogService.save(teachingDepartDayLog);
        return Result.ok("添加成功！");
@@ -216,6 +219,7 @@ public class TeachingDepartDayLogController extends JeecgController<TeachingDepa
    @AutoLog(value = "班级每日教学记录-编辑")
    @ApiOperation(value="班级每日教学记录-编辑", notes="班级每日教学记录-编辑")
    @PutMapping(value = "/edit")
+   @RequiresPermissions("teaching:courseDept:edit")
    public Result<?> edit(@RequestBody TeachingDepartDayLog teachingDepartDayLog) {
        teachingDepartDayLogService.updateById(teachingDepartDayLog);
        return Result.ok("编辑成功!");
@@ -230,6 +234,7 @@ public class TeachingDepartDayLogController extends JeecgController<TeachingDepa
    @AutoLog(value = "班级每日教学记录-通过id删除")
    @ApiOperation(value="班级每日教学记录-通过id删除", notes="班级每日教学记录-通过id删除")
    @DeleteMapping(value = "/delete")
+   @RequiresPermissions("teaching:courseDept:delete")
    public Result<?> delete(@RequestParam(name="id",required=true) String id) {
        teachingDepartDayLogService.removeById(id);
        return Result.ok("删除成功!");
@@ -244,6 +249,7 @@ public class TeachingDepartDayLogController extends JeecgController<TeachingDepa
    @AutoLog(value = "班级每日教学记录-批量删除")
    @ApiOperation(value="班级每日教学记录-批量删除", notes="班级每日教学记录-批量删除")
    @DeleteMapping(value = "/deleteBatch")
+   @RequiresPermissions("teaching:courseDept:delete")
    public Result<?> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
        this.teachingDepartDayLogService.removeByIds(Arrays.asList(ids.split(",")));
        return Result.ok("批量删除成功!");
@@ -258,6 +264,7 @@ public class TeachingDepartDayLogController extends JeecgController<TeachingDepa
    @AutoLog(value = "班级每日教学记录-通过id查询")
    @ApiOperation(value="班级每日教学记录-通过id查询", notes="班级每日教学记录-通过id查询")
    @GetMapping(value = "/queryById")
+   @RequiresPermissions("teaching:courseDept:query")
    public Result<?> queryById(@RequestParam(name="id",required=true) String id) {
        TeachingDepartDayLog teachingDepartDayLog = teachingDepartDayLogService.getById(id);
        if(teachingDepartDayLog==null) {
@@ -273,7 +280,8 @@ public class TeachingDepartDayLogController extends JeecgController<TeachingDepa
    * @param teachingDepartDayLog
    */
    @RequestMapping(value = "/exportXls")
-   public ModelAndView exportXls(HttpServletRequest request, TeachingDepartDayLog teachingDepartDayLog) {
+   @RequiresPermissions("teaching:courseDept:export")
+    public ModelAndView exportXls(HttpServletRequest request, TeachingDepartDayLog teachingDepartDayLog) {
        return super.exportXls(request, teachingDepartDayLog, TeachingDepartDayLog.class, "班级每日教学记录");
    }
 
@@ -285,7 +293,8 @@ public class TeachingDepartDayLogController extends JeecgController<TeachingDepa
    * @return
    */
    @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
-   public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+   @RequiresPermissions("teaching:courseDept:import")
+    public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
        return super.importExcel(request, response, TeachingDepartDayLog.class);
    }
 

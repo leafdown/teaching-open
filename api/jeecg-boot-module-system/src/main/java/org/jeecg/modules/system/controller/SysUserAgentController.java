@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.LoginUser;
@@ -71,6 +72,7 @@ public class SysUserAgentController {
 	 * @return
 	 */
 	@GetMapping(value = "/list")
+	@RequiresPermissions("sysUserAgent:list")
 	public Result<IPage<SysUserAgent>> queryPageList(SysUserAgent sysUserAgent,
 									  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
@@ -90,6 +92,7 @@ public class SysUserAgentController {
 	 * @return
 	 */
 	@PostMapping(value = "/add")
+	@RequiresPermissions("sysUserAgent:add")
 	public Result<SysUserAgent> add(@RequestBody SysUserAgent sysUserAgent) {
 		Result<SysUserAgent> result = new Result<SysUserAgent>();
 		try {
@@ -108,6 +111,7 @@ public class SysUserAgentController {
 	 * @return
 	 */
 	@PutMapping(value = "/edit")
+	@RequiresPermissions("sysUserAgent:edit")
 	public Result<SysUserAgent> edit(@RequestBody SysUserAgent sysUserAgent) {
 		Result<SysUserAgent> result = new Result<SysUserAgent>();
 		SysUserAgent sysUserAgentEntity = sysUserAgentService.getById(sysUserAgent.getId());
@@ -130,6 +134,7 @@ public class SysUserAgentController {
 	 * @return
 	 */
 	@DeleteMapping(value = "/delete")
+	@RequiresPermissions("sysUserAgent:delete")
 	public Result<SysUserAgent> delete(@RequestParam(name="id",required=true) String id) {
 		Result<SysUserAgent> result = new Result<SysUserAgent>();
 		SysUserAgent sysUserAgent = sysUserAgentService.getById(id);
@@ -151,6 +156,7 @@ public class SysUserAgentController {
 	 * @return
 	 */
 	@DeleteMapping(value = "/deleteBatch")
+	@RequiresPermissions("sysUserAgent:delete")
 	public Result<SysUserAgent> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		Result<SysUserAgent> result = new Result<SysUserAgent>();
 		if(ids==null || "".equals(ids.trim())) {
@@ -168,6 +174,7 @@ public class SysUserAgentController {
 	 * @return
 	 */
 	@GetMapping(value = "/queryById")
+	@RequiresPermissions("sysUserAgent:query")
 	public Result<SysUserAgent> queryById(@RequestParam(name="id",required=true) String id) {
 		Result<SysUserAgent> result = new Result<SysUserAgent>();
 		SysUserAgent sysUserAgent = sysUserAgentService.getById(id);
@@ -207,6 +214,7 @@ public class SysUserAgentController {
    * @param request
    */
   @RequestMapping(value = "/exportXls")
+  @RequiresPermissions("sysUserAgent:export")
   public ModelAndView exportXls(SysUserAgent sysUserAgent,HttpServletRequest request) {
       // Step.1 组装查询条件
       QueryWrapper<SysUserAgent> queryWrapper = QueryGenerator.initQueryWrapper(sysUserAgent, request.getParameterMap());
@@ -232,6 +240,7 @@ public class SysUserAgentController {
    * @return
    */
   @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
+  @RequiresPermissions("sysUserAgent:import")
   public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
       MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
       Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
@@ -55,6 +56,7 @@ public class SysPermissionController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions("permission:list")
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public Result<List<SysPermissionTree>> list() {
         long start = System.currentTimeMillis();
@@ -246,7 +248,7 @@ public class SysPermissionController {
 	 * @param permission
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+	@RequiresPermissions("permission:add")
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public Result<SysPermission> add(@RequestBody SysPermission permission) {
 		Result<SysPermission> result = new Result<SysPermission>();
@@ -266,7 +268,7 @@ public class SysPermissionController {
 	 * @param permission
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+	@RequiresPermissions("permission:edit")
 	@RequestMapping(value = "/edit", method = { RequestMethod.PUT, RequestMethod.POST })
 	public Result<SysPermission> edit(@RequestBody SysPermission permission) {
 		Result<SysPermission> result = new Result<>();
@@ -286,7 +288,7 @@ public class SysPermissionController {
 	 * @param id
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+	@RequiresPermissions("permission:delete")
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public Result<SysPermission> delete(@RequestParam(name = "id", required = true) String id) {
 		Result<SysPermission> result = new Result<>();
@@ -305,7 +307,7 @@ public class SysPermissionController {
 	 * @param ids
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+	@RequiresPermissions("permission:delete")
 	@RequestMapping(value = "/deleteBatch", method = RequestMethod.DELETE)
 	public Result<SysPermission> deleteBatch(@RequestParam(name = "ids", required = true) String ids) {
 		Result<SysPermission> result = new Result<>();
@@ -329,6 +331,7 @@ public class SysPermissionController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions("permission:query")
 	@RequestMapping(value = "/queryTreeList", method = RequestMethod.GET)
 	public Result<Map<String, Object>> queryTreeList() {
 		Result<Map<String, Object>> result = new Result<>();
@@ -361,6 +364,7 @@ public class SysPermissionController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions("permission:list")
 	@RequestMapping(value = "/queryListAsync", method = RequestMethod.GET)
 	public Result<List<TreeModel>> queryAsync(@RequestParam(name = "pid", required = false) String parentId) {
 		Result<List<TreeModel>> result = new Result<>();
@@ -384,6 +388,7 @@ public class SysPermissionController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions("permission:query")
 	@RequestMapping(value = "/queryRolePermission", method = RequestMethod.GET)
 	public Result<List<String>> queryRolePermission(@RequestParam(name = "roleId", required = true) String roleId) {
 		Result<List<String>> result = new Result<>();
@@ -402,8 +407,8 @@ public class SysPermissionController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions("permission:edit")
 	@RequestMapping(value = "/saveRolePermission", method = RequestMethod.POST)
-	//@RequiresRoles({"admin"})
 	public Result<String> saveRolePermission(@RequestBody JSONObject json) {
 		long start = System.currentTimeMillis();
 		Result<String> result = new Result<>();
@@ -668,6 +673,7 @@ public class SysPermissionController {
 	 * @param sysPermissionDataRule
 	 * @return
 	 */
+	@RequiresPermissions("permission:query")
 	@RequestMapping(value = "/getPermRuleListByPermId", method = RequestMethod.GET)
 	public Result<List<SysPermissionDataRule>> getPermRuleListByPermId(SysPermissionDataRule sysPermissionDataRule) {
 		List<SysPermissionDataRule> permRuleList = sysPermissionDataRuleService.getPermRuleListByPermId(sysPermissionDataRule.getPermissionId());
@@ -683,6 +689,7 @@ public class SysPermissionController {
 	 * @param sysPermissionDataRule
 	 * @return
 	 */
+	@RequiresPermissions("permission:add")
 	@RequestMapping(value = "/addPermissionRule", method = RequestMethod.POST)
 	public Result<SysPermissionDataRule> addPermissionRule(@RequestBody SysPermissionDataRule sysPermissionDataRule) {
 		Result<SysPermissionDataRule> result = new Result<SysPermissionDataRule>();
@@ -697,6 +704,7 @@ public class SysPermissionController {
 		return result;
 	}
 
+	@RequiresPermissions("permission:edit")
 	@RequestMapping(value = "/editPermissionRule", method = { RequestMethod.PUT, RequestMethod.POST })
 	public Result<SysPermissionDataRule> editPermissionRule(@RequestBody SysPermissionDataRule sysPermissionDataRule) {
 		Result<SysPermissionDataRule> result = new Result<SysPermissionDataRule>();
@@ -716,6 +724,7 @@ public class SysPermissionController {
 	 * @param sysPermissionDataRule
 	 * @return
 	 */
+	@RequiresPermissions("permission:delete")
 	@RequestMapping(value = "/deletePermissionRule", method = RequestMethod.DELETE)
 	public Result<SysPermissionDataRule> deletePermissionRule(@RequestParam(name = "id", required = true) String id) {
 		Result<SysPermissionDataRule> result = new Result<SysPermissionDataRule>();
@@ -735,6 +744,7 @@ public class SysPermissionController {
 	 * @param sysPermissionDataRule
 	 * @return
 	 */
+	@RequiresPermissions("permission:query")
 	@RequestMapping(value = "/queryPermissionRule", method = RequestMethod.GET)
 	public Result<List<SysPermissionDataRule>> queryPermissionRule(SysPermissionDataRule sysPermissionDataRule) {
 		Result<List<SysPermissionDataRule>> result = new Result<>();
@@ -754,6 +764,7 @@ public class SysPermissionController {
 	 * @param departId
 	 * @return
 	 */
+	@RequiresPermissions("permission:query")
 	@RequestMapping(value = "/queryDepartPermission", method = RequestMethod.GET)
 	public Result<List<String>> queryDepartPermission(@RequestParam(name = "departId", required = true) String departId) {
 		Result<List<String>> result = new Result<>();
@@ -772,8 +783,8 @@ public class SysPermissionController {
 	 *
 	 * @return
 	 */
+	@RequiresPermissions("permission:edit")
 	@RequestMapping(value = "/saveDepartPermission", method = RequestMethod.POST)
-	//@RequiresRoles({"admin"})
 	public Result<String> saveDepartPermission(@RequestBody JSONObject json) {
 		long start = System.currentTimeMillis();
 		Result<String> result = new Result<>();

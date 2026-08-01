@@ -6,6 +6,7 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.vo.LoginUser;
@@ -55,6 +56,7 @@ public class SysAnnouncementSendController {
 	 * @return
 	 */
 	@GetMapping(value = "/list")
+	@RequiresPermissions("announcementSend:list")
 	public Result<IPage<SysAnnouncementSend>> queryPageList(SysAnnouncementSend sysAnnouncementSend,
 									  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
@@ -88,6 +90,7 @@ public class SysAnnouncementSendController {
 	 * @return
 	 */
 	@PostMapping(value = "/add")
+	@RequiresPermissions("announcementSend:add")
 	public Result<SysAnnouncementSend> add(@RequestBody SysAnnouncementSend sysAnnouncementSend) {
 		Result<SysAnnouncementSend> result = new Result<SysAnnouncementSend>();
 		try {
@@ -106,6 +109,7 @@ public class SysAnnouncementSendController {
 	 * @return
 	 */
 	@PutMapping(value = "/edit")
+	@RequiresPermissions("announcementSend:edit")
 	public Result<SysAnnouncementSend> eidt(@RequestBody SysAnnouncementSend sysAnnouncementSend) {
 		Result<SysAnnouncementSend> result = new Result<SysAnnouncementSend>();
 		SysAnnouncementSend sysAnnouncementSendEntity = sysAnnouncementSendService.getById(sysAnnouncementSend.getId());
@@ -128,6 +132,7 @@ public class SysAnnouncementSendController {
 	 * @return
 	 */
 	@DeleteMapping(value = "/delete")
+	@RequiresPermissions("announcementSend:delete")
 	public Result<SysAnnouncementSend> delete(@RequestParam(name="id",required=true) String id) {
 		Result<SysAnnouncementSend> result = new Result<SysAnnouncementSend>();
 		SysAnnouncementSend sysAnnouncementSend = sysAnnouncementSendService.getById(id);
@@ -149,6 +154,7 @@ public class SysAnnouncementSendController {
 	 * @return
 	 */
 	@DeleteMapping(value = "/deleteBatch")
+	@RequiresPermissions("announcementSend:delete")
 	public Result<SysAnnouncementSend> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		Result<SysAnnouncementSend> result = new Result<SysAnnouncementSend>();
 		if(ids==null || "".equals(ids.trim())) {
@@ -166,6 +172,7 @@ public class SysAnnouncementSendController {
 	 * @return
 	 */
 	@GetMapping(value = "/queryById")
+	@RequiresPermissions("announcementSend:query")
 	public Result<SysAnnouncementSend> queryById(@RequestParam(name="id",required=true) String id) {
 		Result<SysAnnouncementSend> result = new Result<SysAnnouncementSend>();
 		SysAnnouncementSend sysAnnouncementSend = sysAnnouncementSendService.getById(id);

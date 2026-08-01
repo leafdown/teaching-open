@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.poi.ss.formula.functions.T;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -64,6 +65,7 @@ public class SysPositionController {
      */
     @AutoLog(value = "职务表-分页列表查询")
     @ApiOperation(value = "职务表-分页列表查询", notes = "职务表-分页列表查询")
+    @RequiresPermissions("sysPosition:list")
     @GetMapping(value = "/list")
     public Result<IPage<SysPosition>> queryPageList(SysPosition sysPosition,
                                                     @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
@@ -86,6 +88,7 @@ public class SysPositionController {
      */
     @AutoLog(value = "职务表-添加")
     @ApiOperation(value = "职务表-添加", notes = "职务表-添加")
+    @RequiresPermissions("sysPosition:add")
     @PostMapping(value = "/add")
     public Result<SysPosition> add(@RequestBody SysPosition sysPosition) {
         Result<SysPosition> result = new Result<SysPosition>();
@@ -107,6 +110,7 @@ public class SysPositionController {
      */
     @AutoLog(value = "职务表-编辑")
     @ApiOperation(value = "职务表-编辑", notes = "职务表-编辑")
+    @RequiresPermissions("sysPosition:edit")
     @PutMapping(value = "/edit")
     public Result<SysPosition> edit(@RequestBody SysPosition sysPosition) {
         Result<SysPosition> result = new Result<SysPosition>();
@@ -132,6 +136,7 @@ public class SysPositionController {
      */
     @AutoLog(value = "职务表-通过id删除")
     @ApiOperation(value = "职务表-通过id删除", notes = "职务表-通过id删除")
+    @RequiresPermissions("sysPosition:delete")
     @DeleteMapping(value = "/delete")
     public Result<?> delete(@RequestParam(name = "id", required = true) String id) {
         try {
@@ -151,6 +156,7 @@ public class SysPositionController {
      */
     @AutoLog(value = "职务表-批量删除")
     @ApiOperation(value = "职务表-批量删除", notes = "职务表-批量删除")
+    @RequiresPermissions("sysPosition:delete")
     @DeleteMapping(value = "/deleteBatch")
     public Result<SysPosition> deleteBatch(@RequestParam(name = "ids", required = true) String ids) {
         Result<SysPosition> result = new Result<SysPosition>();
@@ -171,6 +177,7 @@ public class SysPositionController {
      */
     @AutoLog(value = "职务表-通过id查询")
     @ApiOperation(value = "职务表-通过id查询", notes = "职务表-通过id查询")
+    @RequiresPermissions("sysPosition:query")
     @GetMapping(value = "/queryById")
     public Result<SysPosition> queryById(@RequestParam(name = "id", required = true) String id) {
         Result<SysPosition> result = new Result<SysPosition>();
@@ -191,6 +198,7 @@ public class SysPositionController {
      * @param response
      */
     @RequestMapping(value = "/exportXls")
+    @RequiresPermissions("sysPosition:export")
     public ModelAndView exportXls(HttpServletRequest request, HttpServletResponse response) {
         // Step.1 组装查询条件
         QueryWrapper<SysPosition> queryWrapper = null;
@@ -224,6 +232,7 @@ public class SysPositionController {
      * @return
      */
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
+    @RequiresPermissions("sysPosition:import")
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response)throws IOException {
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();

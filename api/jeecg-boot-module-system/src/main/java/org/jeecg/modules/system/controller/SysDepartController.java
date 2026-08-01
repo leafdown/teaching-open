@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -116,6 +117,7 @@ public class SysDepartController extends BaseController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions("depart:list")
 	@RequestMapping(value = "/queryTreeList", method = RequestMethod.GET)
 	public Result<List<SysDepartTreeModel>> queryTreeList() {
 		Result<List<SysDepartTreeModel>> result = new Result<>();
@@ -140,7 +142,7 @@ public class SysDepartController extends BaseController {
 	 * @param sysDepart
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+	@RequiresPermissions("depart:add")
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@CacheEvict(value= {CacheConstant.SYS_DEPARTS_CACHE,CacheConstant.SYS_DEPART_IDS_CACHE}, allEntries=true)
 	public Result<SysDepart> add(@RequestBody SysDepart sysDepart, HttpServletRequest request) {
@@ -166,7 +168,7 @@ public class SysDepartController extends BaseController {
 	 * @param sysDepart
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+	@RequiresPermissions("depart:edit")
 	@RequestMapping(value = "/edit", method = RequestMethod.PUT)
 	@CacheEvict(value= {CacheConstant.SYS_DEPARTS_CACHE,CacheConstant.SYS_DEPART_IDS_CACHE}, allEntries=true)
 	public Result<SysDepart> edit(@RequestBody SysDepart sysDepart, HttpServletRequest request) {
@@ -204,7 +206,7 @@ public class SysDepartController extends BaseController {
     * @param id
     * @return
     */
-	//@RequiresRoles({"admin"})
+	@RequiresPermissions("depart:delete")
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	@CacheEvict(value= {CacheConstant.SYS_DEPARTS_CACHE,CacheConstant.SYS_DEPART_IDS_CACHE}, allEntries=true)
    public Result<SysDepart> delete(@RequestParam(name="id",required=true) String id) {
@@ -232,7 +234,7 @@ public class SysDepartController extends BaseController {
 	 * @param ids
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+	@RequiresPermissions("depart:delete")
 	@RequestMapping(value = "/deleteBatch", method = RequestMethod.DELETE)
 	@CacheEvict(value= {CacheConstant.SYS_DEPARTS_CACHE,CacheConstant.SYS_DEPART_IDS_CACHE}, allEntries=true)
 	public Result<SysDepart> deleteBatch(@RequestParam(name = "ids", required = true) String ids) {
@@ -252,6 +254,7 @@ public class SysDepartController extends BaseController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions("depart:list")
 	@RequestMapping(value = "/queryIdTree", method = RequestMethod.GET)
 	public Result<List<DepartIdModel>> queryIdTree() {
 		Result<List<DepartIdModel>> result = new Result<>();
@@ -298,6 +301,7 @@ public class SysDepartController extends BaseController {
      *
      * @param request
      */
+    @RequiresPermissions("depart:export")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(SysDepart sysDepart,HttpServletRequest request) {
 		LoginUser user = (LoginUser) SecurityUtils.getSubject().getPrincipal();
@@ -336,7 +340,7 @@ public class SysDepartController extends BaseController {
      * @param response
      * @return
      */
-    //@RequiresRoles({"admin"})
+    @RequiresPermissions("depart:import")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
 	@CacheEvict(value= {CacheConstant.SYS_DEPARTS_CACHE,CacheConstant.SYS_DEPART_IDS_CACHE}, allEntries=true)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {

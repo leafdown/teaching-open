@@ -2,6 +2,7 @@ package org.jeecg.modules.system.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.config.QiniuConfig;
@@ -44,6 +45,7 @@ public class SysConfigController {
 
     //保存配置
     @PostMapping("saveTenantConfig")
+    @RequiresPermissions("sysConfig:edit")
     @RequiresRoles("admin")
     public Result<?> saveTenantConfig(@RequestBody JSONObject param){
         for (Map.Entry entry : param.entrySet()) {
@@ -55,6 +57,7 @@ public class SysConfigController {
 
     //获取所有的配置
     @GetMapping("getAllConfigList")
+    @RequiresPermissions("sysConfig:list")
     public Result<List<SysConfig>> getAllConfigList(){
         Result<List<SysConfig>> result = new Result();
         List<SysConfig> list = sysConfigService.getConfigList();
@@ -64,6 +67,7 @@ public class SysConfigController {
 
     //获取所有的配置Map
     @GetMapping("getAllConfigMap")
+    @RequiresPermissions("sysConfig:list")
     public Result<Map<String, Object>> getAllConfigMap(){
         Result<Map<String, Object>> result = new Result();
         Map<String, Object> list = sysConfigService.getConfigMap();

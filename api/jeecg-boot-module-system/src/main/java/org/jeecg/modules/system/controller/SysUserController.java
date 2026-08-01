@@ -89,6 +89,7 @@ public class SysUserController extends BaseController {
     @Value("${jeecg.path.upload}")
     private String upLoadPath;
 
+    @RequiresPermissions("user:list")
     @PermissionData(pageComponent = "system/UserList")
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public Result<IPage<SysUser>> queryPageList(SysUser user, @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
@@ -166,8 +167,8 @@ public class SysUserController extends BaseController {
 		return result;
 	}
 
+	@RequiresPermissions("user:add")
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
-    //@RequiresPermissions("user:add")
 	public Result<SysUser> add(@RequestBody JSONObject jsonObject) {
 		Result<SysUser> result = new Result<SysUser>();
 		String selectedRoles = jsonObject.getString("selectedroles");
@@ -209,9 +210,8 @@ public class SysUserController extends BaseController {
 		return result;
 	}
 
+	@RequiresPermissions("user:edit")
 	@RequestMapping(value = "/edit", method = RequestMethod.PUT)
-    //@RequiresRoles({"admin"})
-    //@RequiresPermissions("user:edit")
 	public Result<SysUser> edit(@RequestBody JSONObject jsonObject) {
 		Result<SysUser> result = new Result<SysUser>();
 		try {
@@ -264,7 +264,7 @@ public class SysUserController extends BaseController {
 	/**
 	 * 删除用户
 	 */
-	//@RequiresRoles({"admin"})
+	@RequiresPermissions("user:delete")
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public Result<?> delete(@RequestParam(name="id",required=true) String id) {
 		sysBaseAPI.addLog("删除用户，id： " +id ,CommonConstant.LOG_TYPE_2, 3);
@@ -278,7 +278,7 @@ public class SysUserController extends BaseController {
 	/**
 	 * 批量删除用户
 	 */
-	//@RequiresRoles({"admin"})
+	@RequiresPermissions("user:delete")
 	@RequestMapping(value = "/deleteBatch", method = RequestMethod.DELETE)
 	public Result<?> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		sysBaseAPI.addLog("批量删除用户， ids： " +ids ,CommonConstant.LOG_TYPE_2, 3);
@@ -323,6 +323,7 @@ public class SysUserController extends BaseController {
 
     }
 
+    @RequiresPermissions("user:query")
     @RequestMapping(value = "/queryById", method = RequestMethod.GET)
     public Result<SysUser> queryById(@RequestParam(name = "id", required = true) String id) {
         Result<SysUser> result = new Result<SysUser>();
@@ -489,6 +490,7 @@ public class SysUserController extends BaseController {
      *
      * @param request
      */
+    @RequiresPermissions("user:export")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(SysUserModel sysUser,HttpServletRequest request) {
         // Step.1 组装查询条件
@@ -571,7 +573,7 @@ public class SysUserController extends BaseController {
      * @param response
      * @return
      */
-    //@RequiresPermissions("user:import")
+    @RequiresPermissions("user:import")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;

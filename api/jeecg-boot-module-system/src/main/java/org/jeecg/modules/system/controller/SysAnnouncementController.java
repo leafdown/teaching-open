@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.CommonSendStatus;
@@ -76,6 +77,7 @@ public class SysAnnouncementController {
 	 * @param req
 	 * @return
 	 */
+	@RequiresPermissions("announcement:list")
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public Result<IPage<SysAnnouncement>> queryPageList(SysAnnouncement sysAnnouncement,
 									  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
@@ -110,6 +112,7 @@ public class SysAnnouncementController {
 	 * @param sysAnnouncement
 	 * @return
 	 */
+	@RequiresPermissions("announcement:add")
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public Result<SysAnnouncement> add(@RequestBody SysAnnouncement sysAnnouncement) {
 		Result<SysAnnouncement> result = new Result<SysAnnouncement>();
@@ -130,6 +133,7 @@ public class SysAnnouncementController {
 	 * @param sysAnnouncement
 	 * @return
 	 */
+	@RequiresPermissions("announcement:edit")
 	@RequestMapping(value = "/edit", method = RequestMethod.PUT)
 	public Result<SysAnnouncement> eidt(@RequestBody SysAnnouncement sysAnnouncement) {
 		Result<SysAnnouncement> result = new Result<SysAnnouncement>();
@@ -152,6 +156,7 @@ public class SysAnnouncementController {
 	 * @param id
 	 * @return
 	 */
+	@RequiresPermissions("announcement:delete")
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public Result<SysAnnouncement> delete(@RequestParam(name="id",required=true) String id) {
 		Result<SysAnnouncement> result = new Result<SysAnnouncement>();
@@ -174,6 +179,7 @@ public class SysAnnouncementController {
 	 * @param ids
 	 * @return
 	 */
+	@RequiresPermissions("announcement:delete")
 	@RequestMapping(value = "/deleteBatch", method = RequestMethod.DELETE)
 	public Result<SysAnnouncement> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		Result<SysAnnouncement> result = new Result<SysAnnouncement>();
@@ -196,6 +202,7 @@ public class SysAnnouncementController {
 	 * @param id
 	 * @return
 	 */
+	@RequiresPermissions("announcement:query")
 	@RequestMapping(value = "/queryById", method = RequestMethod.GET)
 	public Result<SysAnnouncement> queryById(@RequestParam(name="id",required=true) String id) {
 		Result<SysAnnouncement> result = new Result<SysAnnouncement>();
@@ -214,6 +221,7 @@ public class SysAnnouncementController {
 	 * @param id
 	 * @return
 	 */
+	@RequiresPermissions("announcement:edit")
 	@RequestMapping(value = "/doReleaseData", method = RequestMethod.GET)
 	public Result<SysAnnouncement> doReleaseData(@RequestParam(name="id",required=true) String id, HttpServletRequest request) {
 		Result<SysAnnouncement> result = new Result<SysAnnouncement>();
@@ -257,6 +265,7 @@ public class SysAnnouncementController {
 	 * @param id
 	 * @return
 	 */
+	@RequiresPermissions("announcement:edit")
 	@RequestMapping(value = "/doReovkeData", method = RequestMethod.GET)
 	public Result<SysAnnouncement> doReovkeData(@RequestParam(name="id",required=true) String id, HttpServletRequest request) {
 		Result<SysAnnouncement> result = new Result<SysAnnouncement>();
@@ -325,6 +334,7 @@ public class SysAnnouncementController {
      *
      * @param request
      */
+    @RequiresPermissions("announcement:export")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(SysAnnouncement sysAnnouncement,HttpServletRequest request) {
         // Step.1 组装查询条件
@@ -348,6 +358,7 @@ public class SysAnnouncementController {
      * @param response
      * @return
      */
+    @RequiresPermissions("announcement:import")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;

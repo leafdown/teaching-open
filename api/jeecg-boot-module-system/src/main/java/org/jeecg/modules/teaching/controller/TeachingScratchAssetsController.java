@@ -15,6 +15,7 @@ import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.modules.system.service.ISysFileService;
 import org.jeecg.modules.teaching.entity.TeachingScratchAssets;
 import org.jeecg.modules.teaching.service.ITeachingScratchAssetsService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -66,6 +67,7 @@ public class TeachingScratchAssetsController extends JeecgController<TeachingScr
    @AutoLog(value = "Scratch素材库-分页列表查询")
    @ApiOperation(value="Scratch素材库-分页列表查询", notes="Scratch素材库-分页列表查询")
    @GetMapping(value = "/list")
+   @RequiresPermissions("teaching:scratchAssets:list")
    public Result<?> queryPageList(TeachingScratchAssets teachingScratchAssets,
                                   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
                                   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
@@ -85,6 +87,7 @@ public class TeachingScratchAssetsController extends JeecgController<TeachingScr
    @AutoLog(value = "Scratch素材库-添加")
    @ApiOperation(value="Scratch素材库-添加", notes="Scratch素材库-添加")
    @PostMapping(value = "/add")
+   @RequiresPermissions("teaching:scratchAssets:add")
    public Result<?> add(@RequestBody TeachingScratchAssets teachingScratchAssets) {
        teachingScratchAssetsService.save(teachingScratchAssets);
        return Result.ok("添加成功！");
@@ -99,6 +102,7 @@ public class TeachingScratchAssetsController extends JeecgController<TeachingScr
    @AutoLog(value = "Scratch素材库-编辑")
    @ApiOperation(value="Scratch素材库-编辑", notes="Scratch素材库-编辑")
    @PutMapping(value = "/edit")
+   @RequiresPermissions("teaching:scratchAssets:edit")
    public Result<?> edit(@RequestBody TeachingScratchAssets teachingScratchAssets) {
        teachingScratchAssetsService.updateById(teachingScratchAssets);
        return Result.ok("编辑成功!");
@@ -113,6 +117,7 @@ public class TeachingScratchAssetsController extends JeecgController<TeachingScr
    @AutoLog(value = "Scratch素材库-通过id删除")
    @ApiOperation(value="Scratch素材库-通过id删除", notes="Scratch素材库-通过id删除")
    @DeleteMapping(value = "/delete")
+   @RequiresPermissions("teaching:scratchAssets:delete")
    public Result<?> delete(@RequestParam(name="id",required=true) String id) {
        TeachingScratchAssets assets = teachingScratchAssetsService.getById(id);
        if (assets != null){
@@ -135,6 +140,7 @@ public class TeachingScratchAssetsController extends JeecgController<TeachingScr
    @AutoLog(value = "Scratch素材库-批量删除")
    @ApiOperation(value="Scratch素材库-批量删除", notes="Scratch素材库-批量删除")
    @DeleteMapping(value = "/deleteBatch")
+   @RequiresPermissions("teaching:scratchAssets:delete")
    public Result<?> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
        List<String> idList = Arrays.asList(ids.split(","));
        List<TeachingScratchAssets> list = teachingScratchAssetsService.list(new QueryWrapper<TeachingScratchAssets>().in("id", idList));
@@ -158,6 +164,7 @@ public class TeachingScratchAssetsController extends JeecgController<TeachingScr
    @AutoLog(value = "Scratch素材库-通过id查询")
    @ApiOperation(value="Scratch素材库-通过id查询", notes="Scratch素材库-通过id查询")
    @GetMapping(value = "/queryById")
+   @RequiresPermissions("teaching:scratchAssets:query")
    public Result<?> queryById(@RequestParam(name="id",required=true) String id) {
        TeachingScratchAssets teachingScratchAssets = teachingScratchAssetsService.getById(id);
        if(teachingScratchAssets==null) {
@@ -173,6 +180,7 @@ public class TeachingScratchAssetsController extends JeecgController<TeachingScr
    * @param teachingScratchAssets
    */
    @RequestMapping(value = "/exportXls")
+   @RequiresPermissions("teaching:scratchAssets:export")
    public ModelAndView exportXls(HttpServletRequest request, TeachingScratchAssets teachingScratchAssets) {
        return super.exportXls(request, teachingScratchAssets, TeachingScratchAssets.class, "Scratch素材库");
    }
@@ -185,6 +193,7 @@ public class TeachingScratchAssetsController extends JeecgController<TeachingScr
    * @return
    */
    @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
+   @RequiresPermissions("teaching:scratchAssets:import")
    public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
        return super.importExcel(request, response, TeachingScratchAssets.class);
    }

@@ -12,6 +12,7 @@ import org.jeecg.modules.teaching.entity.TeachingMenu;
 import org.jeecg.modules.teaching.model.TeachingMenuTree;
 import org.jeecg.modules.teaching.model.TreeModel;
 import org.jeecg.modules.teaching.service.ITeachingMenuService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,6 +53,7 @@ public class TeachingMenuController {
 	 * @return
 	 */
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@RequiresPermissions("teaching:menu:list")
 	public Result<List<TeachingMenuTree>> list() {
         long start = System.currentTimeMillis();
 		Result<List<TeachingMenuTree>> result = new Result<>();
@@ -168,6 +170,7 @@ public class TeachingMenuController {
 	 * @return
 	 */
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
+	@RequiresPermissions("teaching:menu:add")
 	public Result<TeachingMenu> add(@RequestBody TeachingMenu permission) {
 		Result<TeachingMenu> result = new Result<TeachingMenu>();
 		try {
@@ -187,6 +190,7 @@ public class TeachingMenuController {
 	 * @return
 	 */
 	@RequestMapping(value = "/edit", method = { RequestMethod.PUT, RequestMethod.POST })
+	@RequiresPermissions("teaching:menu:edit")
 	public Result<TeachingMenu> edit(@RequestBody TeachingMenu permission) {
 		Result<TeachingMenu> result = new Result<>();
 		try {
@@ -206,6 +210,7 @@ public class TeachingMenuController {
 	 * @return
 	 */
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+	@RequiresPermissions("teaching:menu:delete")
 	public Result<TeachingMenu> delete(@RequestParam(name = "id", required = true) String id) {
 		Result<TeachingMenu> result = new Result<>();
 		try {
@@ -224,6 +229,7 @@ public class TeachingMenuController {
 	 * @return
 	 */
 	@RequestMapping(value = "/deleteBatch", method = RequestMethod.DELETE)
+	@RequiresPermissions("teaching:menu:delete")
 	public Result<TeachingMenu> deleteBatch(@RequestParam(name = "ids", required = true) String ids) {
 		Result<TeachingMenu> result = new Result<>();
 		try {
@@ -247,6 +253,7 @@ public class TeachingMenuController {
 	 * @return
 	 */
 	@RequestMapping(value = "/queryTreeList", method = RequestMethod.GET)
+	@RequiresPermissions("teaching:menu:list")
 	public Result<Map<String, Object>> queryTreeList() {
 		Result<Map<String, Object>> result = new Result<>();
 		// 全部权限ids
@@ -279,6 +286,7 @@ public class TeachingMenuController {
 	 * @return
 	 */
 	@RequestMapping(value = "/queryListAsync", method = RequestMethod.GET)
+	@RequiresPermissions("teaching:menu:list")
 	public Result<List<TreeModel>> queryAsync(@RequestParam(name = "pid", required = false) String parentId) {
 		Result<List<TreeModel>> result = new Result<>();
 		try {

@@ -6,6 +6,7 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CacheConstant;
@@ -52,6 +53,7 @@ public class SysDictItemController {
 	 * @return
 	 */
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@RequiresPermissions("dict:list")
 	public Result<IPage<SysDictItem>> queryPageList(SysDictItem sysDictItem,@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,HttpServletRequest req) {
 		Result<IPage<SysDictItem>> result = new Result<IPage<SysDictItem>>();
@@ -69,6 +71,7 @@ public class SysDictItemController {
 	 * @return
 	 */
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
+	@RequiresPermissions("dict:add")
 	@CacheEvict(value= CacheConstant.SYS_DICT_CACHE, allEntries=true)
 	public Result<SysDictItem> add(@RequestBody SysDictItem sysDictItem) {
 		Result<SysDictItem> result = new Result<SysDictItem>();
@@ -89,6 +92,7 @@ public class SysDictItemController {
 	 * @return
 	 */
 	@RequestMapping(value = "/edit", method = RequestMethod.PUT)
+	@RequiresPermissions("dict:edit")
 	@CacheEvict(value=CacheConstant.SYS_DICT_CACHE, allEntries=true)
 	public Result<SysDictItem> edit(@RequestBody SysDictItem sysDictItem) {
 		Result<SysDictItem> result = new Result<SysDictItem>();
@@ -112,6 +116,7 @@ public class SysDictItemController {
 	 * @return
 	 */
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+	@RequiresPermissions("dict:delete")
 	@CacheEvict(value=CacheConstant.SYS_DICT_CACHE, allEntries=true)
 	public Result<SysDictItem> delete(@RequestParam(name="id",required=true) String id) {
 		Result<SysDictItem> result = new Result<SysDictItem>();
@@ -133,6 +138,7 @@ public class SysDictItemController {
 	 * @return
 	 */
 	@RequestMapping(value = "/deleteBatch", method = RequestMethod.DELETE)
+	@RequiresPermissions("dict:delete")
 	@CacheEvict(value=CacheConstant.SYS_DICT_CACHE, allEntries=true)
 	public Result<SysDictItem> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		Result<SysDictItem> result = new Result<SysDictItem>();

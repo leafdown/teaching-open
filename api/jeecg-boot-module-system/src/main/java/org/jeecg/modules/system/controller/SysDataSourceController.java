@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.common.system.base.controller.JeecgController;
@@ -50,6 +51,7 @@ public class SysDataSourceController extends JeecgController<SysDataSource, ISys
      */
     @AutoLog(value = "多数据源管理-分页列表查询")
     @ApiOperation(value = "多数据源管理-分页列表查询", notes = "多数据源管理-分页列表查询")
+    @RequiresPermissions("sysDataSource:list")
     @GetMapping(value = "/list")
     public Result<?> queryPageList(
             SysDataSource sysDataSource,
@@ -86,6 +88,7 @@ public class SysDataSourceController extends JeecgController<SysDataSource, ISys
      */
     @AutoLog(value = "多数据源管理-添加")
     @ApiOperation(value = "多数据源管理-添加", notes = "多数据源管理-添加")
+    @RequiresPermissions("sysDataSource:add")
     @PostMapping(value = "/add")
     public Result<?> add(@RequestBody SysDataSource sysDataSource) {
         sysDataSourceService.save(sysDataSource);
@@ -100,6 +103,7 @@ public class SysDataSourceController extends JeecgController<SysDataSource, ISys
      */
     @AutoLog(value = "多数据源管理-编辑")
     @ApiOperation(value = "多数据源管理-编辑", notes = "多数据源管理-编辑")
+    @RequiresPermissions("sysDataSource:edit")
     @PutMapping(value = "/edit")
     public Result<?> edit(@RequestBody SysDataSource sysDataSource) {
         SysDataSource d = sysDataSourceService.getById(sysDataSource.getId());
@@ -116,6 +120,7 @@ public class SysDataSourceController extends JeecgController<SysDataSource, ISys
      */
     @AutoLog(value = "多数据源管理-通过id删除")
     @ApiOperation(value = "多数据源管理-通过id删除", notes = "多数据源管理-通过id删除")
+    @RequiresPermissions("sysDataSource:delete")
     @DeleteMapping(value = "/delete")
     public Result<?> delete(@RequestParam(name = "id") String id) {
         SysDataSource sysDataSource = sysDataSourceService.getById(id);
@@ -132,6 +137,7 @@ public class SysDataSourceController extends JeecgController<SysDataSource, ISys
      */
     @AutoLog(value = "多数据源管理-批量删除")
     @ApiOperation(value = "多数据源管理-批量删除", notes = "多数据源管理-批量删除")
+    @RequiresPermissions("sysDataSource:delete")
     @DeleteMapping(value = "/deleteBatch")
     public Result<?> deleteBatch(@RequestParam(name = "ids") String ids) {
         List<String> idList = Arrays.asList(ids.split(","));
@@ -151,6 +157,7 @@ public class SysDataSourceController extends JeecgController<SysDataSource, ISys
      */
     @AutoLog(value = "多数据源管理-通过id查询")
     @ApiOperation(value = "多数据源管理-通过id查询", notes = "多数据源管理-通过id查询")
+    @RequiresPermissions("sysDataSource:query")
     @GetMapping(value = "/queryById")
     public Result<?> queryById(@RequestParam(name = "id") String id) {
         SysDataSource sysDataSource = sysDataSourceService.getById(id);
@@ -163,6 +170,7 @@ public class SysDataSourceController extends JeecgController<SysDataSource, ISys
      * @param request
      * @param sysDataSource
      */
+    @RequiresPermissions("sysDataSource:export")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, SysDataSource sysDataSource) {
         return super.exportXls(request, sysDataSource, SysDataSource.class, "多数据源管理");
@@ -175,6 +183,7 @@ public class SysDataSourceController extends JeecgController<SysDataSource, ISys
      * @param response
      * @return
      */
+    @RequiresPermissions("sysDataSource:import")
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, SysDataSource.class);

@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CacheConstant;
@@ -81,6 +82,7 @@ public class SysDictController {
 		return result;
 	}
 
+	@RequiresPermissions("dict:list")
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public Result<IPage<SysDict>> queryPageList(SysDict sysDict,@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,HttpServletRequest req) {
@@ -106,6 +108,7 @@ public class SysDictController {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
+	@RequiresPermissions("dict:list")
 	@RequestMapping(value = "/treeList", method = RequestMethod.GET)
 	public Result<List<SysDictTree>> treeList(SysDict sysDict,@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,HttpServletRequest req) {
@@ -326,7 +329,7 @@ public class SysDictController {
 	 * @param sysDict
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+	@RequiresPermissions("dict:add")
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public Result<SysDict> add(@RequestBody SysDict sysDict) {
 		Result<SysDict> result = new Result<SysDict>();
@@ -347,7 +350,7 @@ public class SysDictController {
 	 * @param sysDict
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+	@RequiresPermissions("dict:edit")
 	@RequestMapping(value = "/edit", method = RequestMethod.PUT)
 	public Result<SysDict> edit(@RequestBody SysDict sysDict) {
 		Result<SysDict> result = new Result<SysDict>();
@@ -369,7 +372,7 @@ public class SysDictController {
 	 * @param id
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+	@RequiresPermissions("dict:delete")
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	@CacheEvict(value=CacheConstant.SYS_DICT_CACHE, allEntries=true)
 	public Result<SysDict> delete(@RequestParam(name="id",required=true) String id) {
@@ -388,7 +391,7 @@ public class SysDictController {
 	 * @param ids
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+	@RequiresPermissions("dict:delete")
 	@RequestMapping(value = "/deleteBatch", method = RequestMethod.DELETE)
 	@CacheEvict(value= CacheConstant.SYS_DICT_CACHE, allEntries=true)
 	public Result<SysDict> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
@@ -426,6 +429,7 @@ public class SysDictController {
 	 *
 	 * @param request
 	 */
+	@RequiresPermissions("dict:export")
 	@RequestMapping(value = "/exportXls")
 	public ModelAndView exportXls(SysDict sysDict,HttpServletRequest request) {
 		// Step.1 组装查询条件
@@ -463,6 +467,7 @@ public class SysDictController {
 	 * @param
 	 * @return
 	 */
+	@RequiresPermissions("dict:import")
 	@RequestMapping(value = "/importExcel", method = RequestMethod.POST)
 	public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
  		MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
@@ -517,6 +522,7 @@ public class SysDictController {
 	 * 查询被删除的列表
 	 * @return
 	 */
+	@RequiresPermissions("dict:list")
 	@RequestMapping(value = "/deleteList", method = RequestMethod.GET)
 	public Result<List<SysDict>> deleteList() {
 		Result<List<SysDict>> result = new Result<List<SysDict>>();
@@ -531,6 +537,7 @@ public class SysDictController {
 	 * @param id
 	 * @return
 	 */
+	@RequiresPermissions("dict:delete")
 	@RequestMapping(value = "/deletePhysic/{id}", method = RequestMethod.DELETE)
 	public Result<?> deletePhysic(@PathVariable String id) {
 		try {
@@ -547,6 +554,7 @@ public class SysDictController {
 	 * @param id
 	 * @return
 	 */
+	@RequiresPermissions("dict:edit")
 	@RequestMapping(value = "/back/{id}", method = RequestMethod.PUT)
 	public Result<?> back(@PathVariable String id) {
 		try {

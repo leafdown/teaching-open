@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
@@ -47,6 +48,7 @@ public class SysLogController {
 	 * @param req
 	 * @return
 	 */
+	@RequiresPermissions("log:list")
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public Result<IPage<SysLog>> queryPageList(SysLog syslog,@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,HttpServletRequest req) {
@@ -77,6 +79,7 @@ public class SysLogController {
 	 * @param id
 	 * @return
 	 */
+	@RequiresPermissions("log:delete")
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public Result<SysLog> delete(@RequestParam(name="id",required=true) String id) {
 		Result<SysLog> result = new Result<SysLog>();
@@ -97,6 +100,7 @@ public class SysLogController {
 	 * @param ids
 	 * @return
 	 */
+	@RequiresPermissions("log:delete")
 	@RequestMapping(value = "/deleteBatch", method = RequestMethod.DELETE)
 	public Result<SysRole> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		Result<SysRole> result = new Result<SysRole>();

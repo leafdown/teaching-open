@@ -8,7 +8,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.DictResult;
 import org.jeecg.common.api.vo.Result;
@@ -18,6 +17,7 @@ import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.IPUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.util.RedisUtil;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.config.QiniuConfig;
@@ -287,6 +287,7 @@ public class TeachingWorkController extends BaseController {
 	@ApiOperation(value="作业列表-分页列表查询", notes="作业列表-分页列表查询")
 	@GetMapping(value = "/list")
 	@PermissionData(pageComponent = "teaching/TeachingWorkList")
+	@RequiresPermissions("teaching:work:list")
 	public Result<?> queryPageList(StudentWorkModel studentWorkModel,
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
@@ -372,12 +373,14 @@ public class TeachingWorkController extends BaseController {
 									  @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
 									  @RequestParam(required = false, defaultValue = "view") String orderBy, //排序
 									  @RequestParam(required = false) Integer workStatus, //状态
+									  @RequestParam(required = false) Integer workType, //作品类型筛选 1/2=scratch3 3=scratchjr 4=python 10=blockly
 									  @RequestParam(required = false) String userId, //用户ID
 									  HttpServletRequest request) {
 		 QueryWrapper<StudentWorkModel> queryWrapper = new QueryWrapper<StudentWorkModel>();
 		 queryWrapper.ge("teaching_work.work_status", 3);
 		 queryWrapper.eq(StringUtils.isNotBlank(userId), "teaching_work.user_id", userId);
 		 queryWrapper.eq(workStatus!=null, "teaching_work.work_status", workStatus);
+		 queryWrapper.eq(workType!=null, "teaching_work.work_type", workType);
 		 switch (orderBy){
 			 case "view":
 				 queryWrapper.orderByDesc("teaching_work.view_num");
@@ -387,6 +390,9 @@ public class TeachingWorkController extends BaseController {
 				break;
 			 case "star":
 				 queryWrapper.orderByDesc("teaching_work.star_num");
+				 break;
+			 case "random":
+				 queryWrapper.last("ORDER BY RAND()");
 				 break;
 		 }
 
@@ -503,6 +509,7 @@ public class TeachingWorkController extends BaseController {
 	@AutoLog(value = "作业列表-添加")
 	@ApiOperation(value="作业列表-添加", notes="作业列表-添加")
 	@PostMapping(value = "/add")
+	@RequiresPermissions("teaching:work:add")
 	public Result<?> add(@RequestBody TeachingWorkPage teachingWorkPage) {
 		TeachingWork teachingWork = new TeachingWork();
 		BeanUtils.copyProperties(teachingWorkPage, teachingWork);
@@ -519,6 +526,7 @@ public class TeachingWorkController extends BaseController {
 	@AutoLog(value = "作业列表-编辑")
 	@ApiOperation(value="作业列表-编辑", notes="作业列表-编辑")
 	@PutMapping(value = "/edit")
+	@RequiresPermissions("teaching:work:edit")
 	public Result<?> edit(@RequestBody TeachingWorkPage teachingWorkPage) {
 		TeachingWork teachingWork = new TeachingWork();
 		BeanUtils.copyProperties(teachingWorkPage, teachingWork);
@@ -555,6 +563,7 @@ public class TeachingWorkController extends BaseController {
 	@AutoLog(value = "作业列表-通过id删除")
 	@ApiOperation(value="作业列表-通过id删除", notes="作业列表-通过id删除")
 	@DeleteMapping(value = "/delete")
+	@RequiresPermissions("teaching:work:delete")
 	public Result<?> delete(@RequestParam(name="id",required=true) String id) {
 		TeachingWork work = this.teachingWorkService.getById(id);
 		if (work != null){
@@ -574,6 +583,7 @@ public class TeachingWorkController extends BaseController {
 	@AutoLog(value = "作业列表-批量删除")
 	@ApiOperation(value="作业列表-批量删除", notes="作业列表-批量删除")
 	@DeleteMapping(value = "/deleteBatch")
+	@RequiresPermissions("teaching:work:delete")
 	public Result<?> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		List<String> idList = Arrays.asList(ids.split(","));
 		List<TeachingWork> workList = this.teachingWorkService.list(new QueryWrapper<TeachingWork>().in("id", idList));
@@ -594,6 +604,7 @@ public class TeachingWorkController extends BaseController {
 	@AutoLog(value = "作业列表-通过id查询")
 	@ApiOperation(value="作业列表-通过id查询", notes="作业列表-通过id查询")
 	@GetMapping(value = "/queryById")
+	@RequiresPermissions("teaching:work:query")
 	public Result<?> queryById(@RequestParam(name="id",required=true) String id) {
 		TeachingWork teachingWork = teachingWorkService.getById(id);
 		if(teachingWork==null) {
@@ -612,6 +623,7 @@ public class TeachingWorkController extends BaseController {
 	@AutoLog(value = "作业批改集合-通过id查询")
 	@ApiOperation(value="作业批改集合-通过id查询", notes="作业批改-通过id查询")
 	@GetMapping(value = "/queryTeachingWorkCorrectByMainId")
+	@RequiresPermissions("teaching:work:query")
 	public Result<?> queryTeachingWorkCorrectListByMainId(@RequestParam(name="id",required=true) String id) {
 		List<TeachingWorkCorrect> teachingWorkCorrectList = teachingWorkCorrectService.selectByMainId(id);
 		return Result.ok(teachingWorkCorrectList);
@@ -625,6 +637,7 @@ public class TeachingWorkController extends BaseController {
 	@AutoLog(value = "作品评论集合-通过id查询")
 	@ApiOperation(value="作品评论集合-通过id查询", notes="作品评论-通过id查询")
 	@GetMapping(value = "/queryTeachingWorkCommentByMainId")
+	@RequiresPermissions("teaching:work:query")
 	public Result<?> queryTeachingWorkCommentListByMainId(@RequestParam(name="id",required=true) String id) {
 		List<TeachingWorkComment> teachingWorkCommentList = teachingWorkCommentService.selectByMainId(id);
 		return Result.ok(teachingWorkCommentList);
@@ -637,6 +650,7 @@ public class TeachingWorkController extends BaseController {
     * @param teachingWork
     */
     @RequestMapping(value = "/exportXls")
+    @RequiresPermissions("teaching:work:export")
     public ModelAndView exportXls(HttpServletRequest request, TeachingWork teachingWork) {
       // Step.1 组装查询条件查询数据
       QueryWrapper<TeachingWork> queryWrapper = QueryGenerator.initQueryWrapper(teachingWork, request.getParameterMap());
@@ -683,6 +697,7 @@ public class TeachingWorkController extends BaseController {
     * @return
     */
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
+    @RequiresPermissions("teaching:work:import")
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
       MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
       Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();

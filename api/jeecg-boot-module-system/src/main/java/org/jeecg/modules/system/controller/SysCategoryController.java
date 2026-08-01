@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.DictModel;
@@ -60,6 +61,7 @@ public class SysCategoryController {
 	 * @param req
 	 * @return
 	 */
+	@RequiresPermissions("sysCategory:list")
 	@GetMapping(value = "/rootList")
 	public Result<IPage<SysCategory>> queryPageList(SysCategory sysCategory,
 									  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
@@ -86,6 +88,7 @@ public class SysCategoryController {
 		return result;
 	}
 	
+	@RequiresPermissions("sysCategory:list")
 	@GetMapping(value = "/childList")
 	public Result<List<SysCategory>> queryPageList(SysCategory sysCategory,HttpServletRequest req) {
 		if(oConvertUtils.isNotEmpty(sysCategory.getPid())){
@@ -105,6 +108,7 @@ public class SysCategoryController {
 	 * @param sysCategory
 	 * @return
 	 */
+	@RequiresPermissions("sysCategory:add")
 	@PostMapping(value = "/add")
 	public Result<SysCategory> add(@RequestBody SysCategory sysCategory) {
 		Result<SysCategory> result = new Result<SysCategory>();
@@ -123,6 +127,7 @@ public class SysCategoryController {
 	 * @param sysCategory
 	 * @return
 	 */
+	@RequiresPermissions("sysCategory:edit")
 	@PutMapping(value = "/edit")
 	public Result<SysCategory> edit(@RequestBody SysCategory sysCategory) {
 		Result<SysCategory> result = new Result<SysCategory>();
@@ -141,6 +146,7 @@ public class SysCategoryController {
 	 * @param id
 	 * @return
 	 */
+	@RequiresPermissions("sysCategory:delete")
 	@DeleteMapping(value = "/delete")
 	public Result<SysCategory> delete(@RequestParam(name="id",required=true) String id) {
 		Result<SysCategory> result = new Result<SysCategory>();
@@ -162,6 +168,7 @@ public class SysCategoryController {
 	 * @param ids
 	 * @return
 	 */
+	@RequiresPermissions("sysCategory:delete")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<SysCategory> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		Result<SysCategory> result = new Result<SysCategory>();
@@ -179,6 +186,7 @@ public class SysCategoryController {
 	 * @param id
 	 * @return
 	 */
+	@RequiresPermissions("sysCategory:query")
 	@GetMapping(value = "/queryById")
 	public Result<SysCategory> queryById(@RequestParam(name="id",required=true) String id) {
 		Result<SysCategory> result = new Result<SysCategory>();
@@ -197,6 +205,7 @@ public class SysCategoryController {
    *
    * @param request
    */
+  @RequiresPermissions("sysCategory:export")
   @RequestMapping(value = "/exportXls")
   public ModelAndView exportXls(HttpServletRequest request, SysCategory sysCategory) {
       // Step.1 组装查询条件查询数据
@@ -228,6 +237,7 @@ public class SysCategoryController {
    * @param response
    * @return
    */
+  @RequiresPermissions("sysCategory:import")
   @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
   public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
       MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;

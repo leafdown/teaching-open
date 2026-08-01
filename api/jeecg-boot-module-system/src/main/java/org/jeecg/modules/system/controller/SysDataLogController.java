@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
@@ -29,6 +30,7 @@ public class SysDataLogController {
 	@Autowired
 	private ISysDataLogService service;
 	
+	@RequiresPermissions("sysDataLog:list")
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public Result<IPage<SysDataLog>> queryPageList(SysDataLog dataLog,@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,HttpServletRequest req) {
@@ -50,6 +52,7 @@ public class SysDataLogController {
 	 * @param req
 	 * @return
 	 */
+	@RequiresPermissions("sysDataLog:list")
 	@RequestMapping(value = "/queryCompareList", method = RequestMethod.GET)
 	public Result<List<SysDataLog>> queryCompareList(HttpServletRequest req) {
 		Result<List<SysDataLog>> result = new Result<>();
@@ -73,6 +76,7 @@ public class SysDataLogController {
 	 * @param req
 	 * @return
 	 */
+	@RequiresPermissions("sysDataLog:list")
 	@RequestMapping(value = "/queryDataVerList", method = RequestMethod.GET)
 	public Result<List<SysDataLog>> queryDataVerList(HttpServletRequest req) {
 		Result<List<SysDataLog>> result = new Result<>();

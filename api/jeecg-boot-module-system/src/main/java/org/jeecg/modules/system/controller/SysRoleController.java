@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CacheConstant;
@@ -85,6 +86,7 @@ public class SysRoleController {
 	 * @param req
 	 * @return
 	 */
+	@RequiresPermissions("role:list")
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public Result<IPage<SysRole>> queryPageList(SysRole role,
 									  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
@@ -178,6 +180,7 @@ public class SysRoleController {
 	 * @param id
 	 * @return
 	 */
+	@RequiresPermissions("role:query")
 	@RequestMapping(value = "/queryById", method = RequestMethod.GET)
 	public Result<SysRole> queryById(@RequestParam(name="id",required=true) String id) {
 		Result<SysRole> result = new Result<SysRole>();
@@ -191,6 +194,7 @@ public class SysRoleController {
 		return result;
 	}
 	
+	@RequiresPermissions("role:list")
 	@RequestMapping(value = "/queryall", method = RequestMethod.GET)
 	public Result<List<SysRole>> queryall() {
 		Result<List<SysRole>> result = new Result<>();
@@ -205,6 +209,7 @@ public class SysRoleController {
 	}
 
 	//获取我可以管理的角色
+	@RequiresPermissions("role:query")
 	@RequestMapping(value = "/queryMySubRole", method = RequestMethod.GET)
 	public Result<List<SysRole>> queryMySubRole() {
 		LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
@@ -229,6 +234,7 @@ public class SysRoleController {
 	/**
 	  * 校验角色编码唯一
 	 */
+	@RequiresPermissions("role:query")
 	@RequestMapping(value = "/checkRoleCode", method = RequestMethod.GET)
 	public Result<Boolean> checkUsername(String id,String roleCode) {
 		Result<Boolean> result = new Result<>();
@@ -268,6 +274,7 @@ public class SysRoleController {
 	 * 导出excel
 	 * @param request
 	 */
+	@RequiresPermissions("role:export")
 	@RequestMapping(value = "/exportXls")
 	public ModelAndView exportXls(SysRole sysRole,HttpServletRequest request) {
 		// Step.1 组装查询条件
@@ -320,6 +327,7 @@ public class SysRoleController {
 	/**
 	 * 查询数据规则数据
 	 */
+	@RequiresPermissions("role:query")
 	@GetMapping(value = "/datarule/{permissionId}/{roleId}")
 	public Result<?> loadDatarule(@PathVariable("permissionId") String permissionId,@PathVariable("roleId") String roleId) {
 		List<SysPermissionDataRule> list = sysPermissionDataRuleService.getPermRuleListByPermId(permissionId);
@@ -349,6 +357,7 @@ public class SysRoleController {
 	/**
 	 * 保存数据规则至角色菜单关联表
 	 */
+	@RequiresPermissions("role:edit")
 	@PostMapping(value = "/datarule")
 	public Result<?> saveDatarule(@RequestBody JSONObject jsonObject) {
 		try {
@@ -379,6 +388,7 @@ public class SysRoleController {
 	 * @param request
 	 * @return
 	 */
+	@RequiresPermissions("role:query")
 	@RequestMapping(value = "/queryTreeList", method = RequestMethod.GET)
 	public Result<Map<String,Object>> queryTreeList(HttpServletRequest request) {
 		Result<Map<String,Object>> result = new Result<>();

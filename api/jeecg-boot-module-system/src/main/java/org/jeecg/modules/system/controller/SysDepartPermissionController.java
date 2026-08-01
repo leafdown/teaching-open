@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.query.QueryGenerator;
@@ -65,6 +66,7 @@ public class SysDepartPermissionController extends JeecgController<SysDepartPerm
 	 * @param req
 	 * @return
 	 */
+	@RequiresPermissions("sysDepartPermission:list")
 	@ApiOperation(value="部门权限表-分页列表查询", notes="部门权限表-分页列表查询")
 	@GetMapping(value = "/list")
 	public Result<?> queryPageList(SysDepartPermission sysDepartPermission,
@@ -83,6 +85,7 @@ public class SysDepartPermissionController extends JeecgController<SysDepartPerm
 	 * @param sysDepartPermission
 	 * @return
 	 */
+	@RequiresPermissions("sysDepartPermission:add")
 	@ApiOperation(value="部门权限表-添加", notes="部门权限表-添加")
 	@PostMapping(value = "/add")
 	public Result<?> add(@RequestBody SysDepartPermission sysDepartPermission) {
@@ -96,6 +99,7 @@ public class SysDepartPermissionController extends JeecgController<SysDepartPerm
 	 * @param sysDepartPermission
 	 * @return
 	 */
+	@RequiresPermissions("sysDepartPermission:edit")
 	@ApiOperation(value="部门权限表-编辑", notes="部门权限表-编辑")
 	@PutMapping(value = "/edit")
 	public Result<?> edit(@RequestBody SysDepartPermission sysDepartPermission) {
@@ -109,6 +113,7 @@ public class SysDepartPermissionController extends JeecgController<SysDepartPerm
 	 * @param id
 	 * @return
 	 */
+	@RequiresPermissions("sysDepartPermission:delete")
 	@ApiOperation(value="部门权限表-通过id删除", notes="部门权限表-通过id删除")
 	@DeleteMapping(value = "/delete")
 	public Result<?> delete(@RequestParam(name="id",required=true) String id) {
@@ -122,6 +127,7 @@ public class SysDepartPermissionController extends JeecgController<SysDepartPerm
 	 * @param ids
 	 * @return
 	 */
+	@RequiresPermissions("sysDepartPermission:delete")
 	@ApiOperation(value="部门权限表-批量删除", notes="部门权限表-批量删除")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<?> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
@@ -135,6 +141,7 @@ public class SysDepartPermissionController extends JeecgController<SysDepartPerm
 	 * @param id
 	 * @return
 	 */
+	@RequiresPermissions("sysDepartPermission:query")
 	@ApiOperation(value="部门权限表-通过id查询", notes="部门权限表-通过id查询")
 	@GetMapping(value = "/queryById")
 	public Result<?> queryById(@RequestParam(name="id",required=true) String id) {
@@ -148,6 +155,7 @@ public class SysDepartPermissionController extends JeecgController<SysDepartPerm
 	* @param request
 	* @param sysDepartPermission
 	*/
+	@RequiresPermissions("sysDepartPermission:export")
 	@RequestMapping(value = "/exportXls")
 	public ModelAndView exportXls(HttpServletRequest request, SysDepartPermission sysDepartPermission) {
 	  return super.exportXls(request, sysDepartPermission, SysDepartPermission.class, "部门权限表");
@@ -160,6 +168,7 @@ public class SysDepartPermissionController extends JeecgController<SysDepartPerm
 	* @param response
 	* @return
 	*/
+	@RequiresPermissions("sysDepartPermission:import")
 	@RequestMapping(value = "/importExcel", method = RequestMethod.POST)
 	public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
 	  return super.importExcel(request, response, SysDepartPermission.class);
@@ -168,6 +177,7 @@ public class SysDepartPermissionController extends JeecgController<SysDepartPerm
 	/**
 	* 部门管理授权查询数据规则数据
 	*/
+	@RequiresPermissions("sysDepartPermission:query")
 	@GetMapping(value = "/datarule/{permissionId}/{departId}")
 	public Result<?> loadDatarule(@PathVariable("permissionId") String permissionId,@PathVariable("departId") String departId) {
 		List<SysPermissionDataRule> list = sysPermissionDataRuleService.getPermRuleListByPermId(permissionId);
@@ -196,6 +206,7 @@ public class SysDepartPermissionController extends JeecgController<SysDepartPerm
 	/**
 	* 保存数据规则至部门菜单关联表
 	*/
+	@RequiresPermissions("sysDepartPermission:edit")
 	@PostMapping(value = "/datarule")
 	public Result<?> saveDatarule(@RequestBody JSONObject jsonObject) {
 		try {
@@ -225,6 +236,7 @@ public class SysDepartPermissionController extends JeecgController<SysDepartPerm
 	  *
 	  * @return
 	  */
+	 @RequiresPermissions("sysDepartPermission:query")
 	 @RequestMapping(value = "/queryDeptRolePermission", method = RequestMethod.GET)
 	 public Result<List<String>> queryDeptRolePermission(@RequestParam(name = "roleId", required = true) String roleId) {
 		 Result<List<String>> result = new Result<>();
@@ -243,6 +255,7 @@ public class SysDepartPermissionController extends JeecgController<SysDepartPerm
 	  *
 	  * @return
 	  */
+	 @RequiresPermissions("sysDepartPermission:edit")
 	 @RequestMapping(value = "/saveDeptRolePermission", method = RequestMethod.POST)
 	 public Result<String> saveDeptRolePermission(@RequestBody JSONObject json) {
 		 long start = System.currentTimeMillis();
@@ -266,6 +279,7 @@ public class SysDepartPermissionController extends JeecgController<SysDepartPerm
 	  * @param request
 	  * @return
 	  */
+	 @RequiresPermissions("sysDepartPermission:query")
 	 @RequestMapping(value = "/queryTreeListForDeptRole", method = RequestMethod.GET)
 	 public Result<Map<String,Object>> queryTreeListForDeptRole(@RequestParam(name="departId",required=true) String departId,HttpServletRequest request) {
 		 Result<Map<String,Object>> result = new Result<>();
