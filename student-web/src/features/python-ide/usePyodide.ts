@@ -216,20 +216,25 @@ class _Turtle:
         self._maybe_delay()
         import math
         extent = e if e is not None else 360
-        steps = max(24, int(abs(extent)))
-        step = extent / steps
-        # 圆弧圆心在 turtle 左侧 r 处 (r>0 左转, r<0 右转)
-        cx = self._x - r * math.sin(math.radians(self._heading))
-        cy = self._y + r * math.cos(math.radians(self._heading))
-        for _ in range(steps):
-            self._heading = (self._heading + step) % 360
-            rad = math.radians(self._heading)
-            nx = cx + r * math.sin(rad)
-            ny = cy - r * math.cos(rad)
+        steps = max(48, int(abs(extent) * 2))
+        step_rad = math.radians(extent / steps)
+        # 圆心在海龟左侧 r 处 (r>0 左弧, r<0 右弧)
+        heading_rad = math.radians(self._heading)
+        cx = self._x - r * math.sin(heading_rad)
+        cy = self._y + r * math.cos(heading_rad)
+        # 起始角度(圆心到海龟的向量角度)
+        start_angle = math.atan2(self._y - cy, self._x - cx)
+        for i in range(steps):
+            a = start_angle + step_rad * (i + 1)
+            nx = cx + r * math.cos(a)
+            ny = cy + r * math.sin(a)
             if self._pen_down:
                 _canvas_line(self._color, self._tx(self._x), self._ty(self._y), self._tx(nx), self._ty(ny), self._width)
                 if self._filling: self._fill_path.append((nx, ny))
             self._x, self._y = nx, ny
+        # 更新海龟朝向为圆弧终点切线方向
+        end_angle = start_angle + math.radians(extent) + math.pi / 2
+        self._heading = math.degrees(math.atan2(math.sin(end_angle), math.cos(end_angle)))
     def dot(self, s=1, c=None):
         _canvas_circle(c or self._color, self._tx(self._x), self._ty(self._y), s/2, 0)
     def write(self, t, move=False, align='left', font=('Arial',8,'normal')):
