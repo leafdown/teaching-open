@@ -27,22 +27,22 @@ async function waitForPyodide() {
 // 初始化 Pyodide - 支持多个 CDN 源
 async function initPyodide() {
     const cdnUrls = [
-        'https://cdn.jsdelivr.net/npm/pyodide@0.29.0/pyodide.min.js',
+        'https://cdn.jsdelivr.net/npm/pyodide@0.29.0/',
     ];
-    
+
     let lastError = null;
-    
-    for (const cdnUrl of cdnUrls) {
+
+    for (const indexURL of cdnUrls) {
         try {
-            console.log(`📍 尝试使用 CDN: ${cdnUrl}`);
+            console.log(`📍 尝试使用 CDN: ${indexURL}`);
             const loadPyodideFn = await waitForPyodide();
-            
+
             if (!loadPyodideFn) {
                 throw new Error('loadPyodide 未定义');
             }
-            
+
             pyodide = await loadPyodideFn({
-                indexURL: cdnUrl
+                indexURL
             });
             
             isPyodideReady = true;
@@ -51,7 +51,7 @@ async function initPyodide() {
             return;
             
         } catch (error) {
-            console.warn(`⚠️  CDN 失败 ${cdnUrl}:`, error.message);
+            console.warn(`⚠️  CDN 失败 ${indexURL}:`, error.message);
             lastError = error;
             // 继续尝试下一个 CDN
             continue;
@@ -89,9 +89,24 @@ async function runCode() {
     
     try {
         addOutput('\n▶️ 执行代码...', 'info');
-        
+
+        // 设置 stdout/stderr 实时输出到 IDE 面板
+        pyodide.setStdout({
+            batched: (text) => { addOutput(text, 'log'); }
+        });
+        pyodide.setStderr({
+            batched: (text) => { addOutput(text, 'error'); }
+        });
+
+        // 设置 stdin: 用 window.prompt 弹窗接收用户输入
+        // setStdout({batched}) 确保了 input() 之前的 print 已实时输出到面板,
+        // 因此 prompt 弹窗时用户已看到完整上下文,不再乱序
+        pyodide.setStdin(() => {
+            return prompt('Python 程序需要输入:') || '';
+        });
+
         // 捕获输出
-        const output = await pyodide.runPythonAsync(code);
+        await pyodide.runPythonAsync(code);
         
         const endTime = performance.now();
         const duration = ((endTime - startTime) / 1000).toFixed(3);

@@ -288,6 +288,42 @@ class _TurtleModule:
     def registering(self, *a): pass
     def window_height(self): return 360
     def window_width(self): return 380
+    def fillcolor(self, *a): return 'black'
+    def pencolor(self, *a): return 'black'
+    def color(self, *a): return 'black'
+    def pensize(self, *a): return 1
+    def width(self, *a): return 1
+    def speed(self, *a): return 6
+    def forward(self, *a): pass
+    def backward(self, *a): pass
+    def right(self, *a): pass
+    def left(self, *a): pass
+    def goto(self, *a): pass
+    def setpos(self, *a): self.goto(*a)
+    def setheading(self, *a): pass
+    def penup(self): pass
+    def pendown(self): pass
+    def isdown(self): return True
+    def position(self): return (0,0)
+    def pos(self): return (0,0)
+    def xcor(self): return 0
+    def ycor(self): return 0
+    def heading(self): return 0
+    def circle(self, *a): pass
+    def dot(self, *a): pass
+    def stamp(self): return 0
+    def clone(self): return _Turtle()
+    def hideturtle(self): pass
+    def showturtle(self): pass
+    def shape(self, *a): pass
+    def shapesize(self, *a): pass
+    def reset(self): pass
+    def clear(self): pass
+    def write(self, *a): pass
+    def begin_fill(self): pass
+    def end_fill(self): pass
+    def fill(self): return False
+    def isvisible(self): return True
 
 sys.modules['turtle'] = _TurtleModule()
 `)
@@ -353,9 +389,10 @@ sys.modules['turtle'] = _TurtleModule()
     }
   }
   await pyodide.runPythonAsync(`import _lanqu_input_builtin,builtins
-import pyodide.ffi
+import sys, pyodide.ffi
 def _input_builtin(p=""):
     print(p,end="")
+    sys.stdout.flush()  # 确保 input() 的提示文本在弹窗前输出到面板
     try:
         return pyodide.ffi.run_sync(_lanqu_input_builtin.input(p))
     except:
