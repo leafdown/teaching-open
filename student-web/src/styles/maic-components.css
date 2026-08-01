@@ -1,0 +1,284 @@
+/* =============================
+   Flip Card (3D)
+   ============================= */
+
+.card-flip-container {
+  perspective: 900px;
+}
+
+.card-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.card-flip-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-front,
+.card-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+  border-radius: var(--card-radius, 14px);
+}
+
+.card-back {
+  transform: rotateY(180deg);
+}
+
+/* =============================
+   Gradient Border (padding trick)
+   ============================= */
+
+.card-gradient-border {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(160deg, #6366f1, #a855f7, #6366f1);
+}
+
+/* =============================
+   Card Body
+   ============================= */
+
+.card-body {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: calc(var(--card-radius, 14px) - 2px);
+  background: var(--card-bg, #ffffff);
+}
+
+.card-body.dark {
+  background: linear-gradient(145deg, #1e1b4b 0%, #312e81 40%, #1e1b4b 100%);
+}
+
+.card-back-body {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: calc(var(--card-radius, 14px) - 2px);
+  background: linear-gradient(145deg, #1e1b4b 0%, #312e81 40%, #1e1b4b 100%);
+}
+
+/* =============================
+   Top Gradient Band
+   ============================= */
+
+.card-top-band {
+  position: relative;
+  flex-shrink: 0;
+  height: 56px;
+  overflow: hidden;
+}
+
+.card-top-band-fill {
+  position: absolute;
+  inset: 0;
+}
+
+.card-top-band-noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.card-band-accent {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 64px;
+  height: 64px;
+  color: rgba(255, 255, 255, 0.06);
+}
+
+/* =============================
+   Avatar
+   ============================= */
+
+.card-avatar {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  margin-top: -28px;
+}
+
+.card-avatar-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 9999px;
+  border: 2.5px solid;
+  background: #f8f8fc;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.card-avatar-circle img {
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  object-fit: cover;
+}
+
+/* =============================
+   Close Button
+   ============================= */
+
+.card-close-btn {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  border: none;
+  background: rgba(0, 0, 0, 0.05);
+  color: #71717a;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.card-close-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #3f3f46;
+}
+
+/* =============================
+   Glow Button
+   ============================= */
+
+.glow-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  border-radius: var(--glow-btn-radius, 8px);
+  background: var(--glow-btn-color, linear-gradient(135deg, #6366f1, #a855f7));
+  color: var(--glow-btn-text, #ffffff);
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  overflow: hidden;
+
+  /* Size variants */
+  padding: 5px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  height: 30px;
+}
+
+.glow-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  filter: blur(12px);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: -1;
+}
+
+.glow-btn:hover::before,
+.glow-btn:focus-visible::before {
+  opacity: 0.6;
+}
+
+.glow-btn:hover {
+  filter: brightness(1.08);
+}
+
+.glow-btn:active {
+  filter: brightness(0.94);
+}
+
+.glow-btn:focus-visible {
+  outline: 2px solid var(--maic-indigo, #6366f1);
+  outline-offset: 2px;
+}
+
+/* Block width */
+.glow-btn.block {
+  display: flex;
+  width: 100%;
+}
+
+/* Disabled state */
+.glow-btn:disabled,
+.glow-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: none;
+  pointer-events: none;
+}
+
+/* Size: small */
+.glow-btn.size-small {
+  padding: 2px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  height: 24px;
+}
+
+/* Size: large */
+.glow-btn.size-large {
+  padding: 8px 20px;
+  font-size: 15px;
+  line-height: 1.6;
+  height: 38px;
+}
+
+/* Loading spinner */
+.glow-btn .glow-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: glow-spin 0.6s linear infinite;
+}
+
+.glow-btn.size-small .glow-spinner {
+  width: 11px;
+  height: 11px;
+  border-width: 1.5px;
+}
+
+.glow-btn.size-large .glow-spinner {
+  width: 17px;
+  height: 17px;
+  border-width: 2.5px;
+}
+
+@keyframes glow-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

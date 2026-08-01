@@ -6,6 +6,8 @@ import { logout as apiLogout } from '@/api/auth.api'
 import { useConfig } from '@/stores/config.store'
 import { coverUrl } from '@/api/common.api'
 import { SafeHtml } from '@/utils/safe-html'
+import MobileMenu from '@/components/MobileMenu'
+import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint'
 
 const { Header, Content } = Layout
 
@@ -28,6 +30,9 @@ export default function StudentLayout() {
     nav('/login', { replace: true })
   }
 
+  const screens = useBreakpoint()
+  const isMobile = !(screens.md ?? false)
+
   const userMenu = {
     items: [
       { key: 'settings', icon: <SettingOutlined />, label: '个人设置', onClick: () => nav('/settings') },
@@ -44,26 +49,32 @@ export default function StudentLayout() {
 
   return (
     <Layout style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Header style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', background: '#fff', borderBottom: '1px solid #f0f0f0', padding: '0 24px' }}>
-        <div style={{ fontWeight: 600, fontSize: 18, marginRight: 32, color: '#1890ff', cursor: 'pointer' }} onClick={() => nav('/')}>{brandName}</div>
-        <Menu mode="horizontal" selectedKeys={[current]} style={{ flex: 1, borderBottom: 'none' }} items={[
-          { key: 'home', icon: <HomeOutlined />, label: '社区', onClick: () => nav('/home') },
-          { key: 'create', icon: <RocketOutlined />, label: (
-            <Dropdown menu={{ items: [
-              { key: 'scratch3', label: 'Scratch3 创作', onClick: () => window.open('/scratch3/index.html?scene=create', '_blank') },
-              { key: 'scratchjr', label: 'ScratchJr 创作', onClick: () => window.open('/scratchjr/home.html', '_blank') },
-              { key: 'python', label: 'Python 创作', onClick: () => window.open('/ide?workType=4', '_blank') },
-            ] }}>
-              <span>创作 <DownOutlined /></span>
-            </Dropdown>
-          ) },
-          { key: 'courses', icon: <ReadOutlined />, label: '公开课程', onClick: () => nav('/courses') },
-          { key: 'course', icon: <BookOutlined />, label: '我的课程', onClick: () => nav('/home') },
-          { key: 'center', icon: <FolderOpenOutlined />, label: '个人中心', onClick: () => nav('/center') },
-          { key: 'news', icon: <FileTextOutlined />, label: '资讯', onClick: () => nav('/news') },
-          { key: 'contest', label: '赛事', onClick: () => nav('/contest') },
-          ...(isAdmin ? [{ key: 'admin', label: '管理后台', onClick: () => nav('/admin') }] : []),
-        ]} />
+      <Header style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', background: '#fff', borderBottom: '1px solid #f0f0f0', padding: isMobile ? '0 12px' : '0 24px' }}>
+        <div style={{ fontWeight: 600, fontSize: 18, marginRight: isMobile ? 12 : 32, color: '#1890ff', cursor: 'pointer', whiteSpace: 'nowrap' }} onClick={() => nav('/')}>{brandName}</div>
+        {isMobile ? (
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+            <MobileMenu isAdmin={isAdmin} />
+          </div>
+        ) : (
+          <Menu mode="horizontal" selectedKeys={[current]} style={{ flex: 1, borderBottom: 'none' }} items={[
+            { key: 'home', icon: <HomeOutlined />, label: '社区', onClick: () => nav('/home') },
+            { key: 'create', icon: <RocketOutlined />, label: (
+              <Dropdown menu={{ items: [
+                { key: 'scratch3', label: 'Scratch3 创作', onClick: () => window.open('/scratch3/index.html?scene=create', '_blank') },
+                { key: 'scratchjr', label: 'ScratchJr 创作', onClick: () => window.open('/scratchjr/home.html', '_blank') },
+                { key: 'python', label: 'Python 创作', onClick: () => window.open('/ide?workType=4', '_blank') },
+              ] }}>
+                <span>创作 <DownOutlined /></span>
+              </Dropdown>
+            ) },
+            { key: 'courses', icon: <ReadOutlined />, label: '公开课程', onClick: () => nav('/courses') },
+            { key: 'course', icon: <BookOutlined />, label: '我的课程', onClick: () => nav('/home') },
+            { key: 'center', icon: <FolderOpenOutlined />, label: '个人中心', onClick: () => nav('/center') },
+            { key: 'news', icon: <FileTextOutlined />, label: '资讯', onClick: () => nav('/news') },
+            { key: 'contest', label: '赛事', onClick: () => nav('/contest') },
+            ...(isAdmin ? [{ key: 'admin', label: '管理后台', onClick: () => nav('/admin') }] : []),
+          ]} />
+        )}
         {userInfo ? (
           <Dropdown menu={userMenu}>
             <Space style={{ cursor: 'pointer' }}>
@@ -81,7 +92,7 @@ export default function StudentLayout() {
       <Content style={{ flex: '1 0 auto', background: '#f5f6f8' }}>
         <Outlet />
       </Content>
-      <Layout.Footer style={{ flex: '0 0 auto', background: '#001529', color: 'rgba(255,255,255,.65)', textAlign: 'center', padding: '16px 24px' }}>
+      <Layout.Footer style={{ flex: '0 0 auto', background: '#001529', color: 'rgba(255,255,255,.65)', textAlign: 'center', padding: isMobile ? '12px 16px' : '16px 24px' }}>
         <SafeHtml html={footer || `© ${new Date().getFullYear()} ${brandName}`} />
       </Layout.Footer>
     </Layout>

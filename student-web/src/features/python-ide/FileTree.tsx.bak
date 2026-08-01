@@ -1,0 +1,241 @@
+// 文件树侧栏 — 支持多级目录结构
+import { useState, ReactNode } from 'react'
+import { Input, Modal } from 'antd'
+import {
+  FileOutlined, PlusOutlined, FolderOpenOutlined, FolderAddOutlined,
+  CloseOutlined, DeleteOutlined, EditOutlined, FolderFilled,
+  PictureOutlined, SoundOutlined, CodeOutlined,
+} from '@ant-design/icons'
+
+interface Props {
+  files: string[]
+  activeFile: string
+  onSelect: (name: string) => void
+  onAdd: (name: string) => void
+  onAddBinary?: (name: string, dataUrl: string, size: number) => void
+  onDelete: (name: string) => void
+  onRename?: (oldName: string, newName: string) => void
+  fileTypes?: Record<string, 'text' | 'binary'>
+}
+
+interface TreeNode {
+  name: string
+  path: string
+  isDir: boolean
+  children: TreeNode[]
+}
+
+function buildTree(paths: string[]): TreeNode[] {
+  const root: TreeNode[] = []
+  const dirMap: Record<string, TreeNode[]> = { '': root }
+  const sorted = [...paths].sort((a, b) => a.split('/').length - b.split('/').length || a.localeCompare(b))
+  for (const p of sorted) {
+    const parts = p.split('/')
+    if (parts.length === 1) {
+      if (parts[0].includes('.') && !p.endsWith('/')) {
+        root.push({ name: p, path: p, isDir: false, children: [] })
+      } else {
+        const node: TreeNode = { name: p, path: p, isDir: true, children: [] }
+        root.push(node); dirMap[p] = node.children
+      }
+    } else {
+      const parentPath = parts.slice(0, -1).join('/')
+      const baseName = parts[parts.length - 1]
+      if (!dirMap[parentPath]) {
+        const pName = parts[parts.length - 2]
+        const pNode: TreeNode = { name: pName, path: parentPath, isDir: true, children: [] }
+        const gp = parts.slice(0, -2).join('/')
+        const gpChildren = dirMap[gp]
+        if (gpChildren) gpChildren.push(pNode)
+        dirMap[parentPath] = pNode.children
+      }
+      const pc = dirMap[parentPath]
+      if (!pc) continue
+      if ((baseName.includes('.') && !p.endsWith('/')) || parts.length > 2) {
+        pc.push({ name: baseName, path: p, isDir: false, children: [] })
+      } else {
+        if (!pc.some(c => c.path === p && c.isDir)) {
+          const n: TreeNode = { name: baseName, path: p, isDir: true, children: [] }
+          pc.push(n); dirMap[p] = n.children
+        }
+      }
+    }
+  }
+  return root
+}
+
+function fileIcon(name: string, fileTypes?: Record<string, 'text' | 'binary'>): React.ReactNode {
+  const type = fileTypes?.[name]
+  const ext = name.split('.').pop()?.toLowerCase() || ''
+  if (type === 'binary' || ['png','jpg','jpeg','gif','svg','bmp','webp','ico'].includes(ext))
+    return <PictureOutlined style={{ fontSize: 12, color: '#52c41a', flexShrink: 0 }} />
+  if (['mp3','wav','ogg','aac','flac','m4a'].includes(ext))
+    return <SoundOutlined style={{ fontSize: 12, color: '#1890ff', flexShrink: 0 }} />
+  if (ext === 'py')
+    return <CodeOutlined style={{ fontSize: 12, color: '#4ec9b0', flexShrink: 0 }} />
+  return <FileOutlined style={{ fontSize: 12, color: '#888', flexShrink: 0 }} />
+}
+
+function parentDirPath(path: string): string {
+  const i = path.lastIndexOf('/')
+  return i >= 0 ? path.slice(0, i) : ''
+}
+
+function isValidFileName(name: string): boolean {
+  if (!name.trim()) return false
+  const baseName = name.split('/').pop() || name
+  const ext = '.' + baseName.split('.').pop()?.toLowerCase()
+  const RES = ['.py','.png','.jpg','.jpeg','.gif','.svg','.bmp','.webp','.ico','.mp3','.wav','.ogg','.aac','.flac','.m4a']
+  return RES.includes(ext)
+}
+
+export default function FileTree({ files, activeFile, onSelect, onAdd, onAddBinary, onDelete, onRename, fileTypes }: Props) {
+  const [adding, setAdding] = useState<'file' | 'dir' | null>(null)
+  const [newName, setNewName] = useState('')
+  const [collapsed, setCollapsed] = useState(false)
+  const [renaming, setRenaming] = useState<string | null>(null)
+  const [renameVal, setRenameVal] = useState('')
+  const [hoverPath, setHoverPath] = useState<string | null>(null)
+  const [dragOver, setDragOver] = useState(false)
+  const [expandedDirs, setExpandedDirs] = useState<Set<string>>(new Set(
+    files.filter(f => !f.includes('.') || f.endsWith('/')).map(f => f.replace(/\/$/, ''))
+  ))
+
+  const tree = buildTree(files)
+
+  const toggleDir = (path: string) => {
+    setExpandedDirs(prev => {
+      const next = new Set(prev)
+      next.has(path) ? next.delete(path) : next.add(path)
+      return next
+    })
+  }
+
+  const handleAdd = () => {
+    if (!newName.trim()) return
+    if (adding === 'file' && !isValidFileName(newName)) {
+      Modal.warning({ content: '文件名需以 .py 或图片/音频扩展名结尾' }); return
+    }
+    onAdd(newName.trim())
+    setNewName(''); setAdding(null)
+    const parent = parentDirPath(newName.trim())
+    if (parent) setExpandedDirs(prev => new Set(prev).add(parent))
+  }
+
+  const handleRename = (oldName: string) => {
+    if (!renameVal.trim() || !isValidFileName(renameVal)) {
+      Modal.warning({ content: '文件名需以 .py 或图片/音频扩展名结尾' }); return
+    }
+    onRename?.(oldName, renameVal.trim()); setRenaming(null)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(false)
+    const droppedFiles = e.dataTransfer.files
+    if (!droppedFiles || droppedFiles.length === 0) return
+    for (let i = 0; i < droppedFiles.length; i++) {
+      const df = droppedFiles[i]
+      const reader = new FileReader()
+      reader.onload = () => {
+        const dataUrl = reader.result as string
+        if (df.name.endsWith('.py')) {
+          onAdd(df.name)
+        } else if (onAddBinary) {
+          onAddBinary(df.name, dataUrl, df.size)
+        }
+      }
+      reader.readAsDataURL(df)
+    }
+  }
+
+  const renderNode = (node: TreeNode, depth: number): React.ReactNode => {
+    if (node.isDir) {
+      const expanded = expandedDirs.has(node.path)
+      return (
+        <div key={node.path}>
+          <div onClick={() => toggleDir(node.path)}
+            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 12px', cursor: 'pointer', fontSize: 13, color: '#888', paddingLeft: 12 + depth * 16 }}
+            onMouseEnter={() => setHoverPath(node.path)} onMouseLeave={() => setHoverPath(null)}>
+            {expanded ? <FolderOpenOutlined style={{ fontSize: 12, color: '#e8a838', flexShrink: 0 }} /> : <FolderFilled style={{ fontSize: 12, color: '#e8a838', flexShrink: 0 }} />}
+            <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{node.name}</span>
+          </div>
+          {expanded && node.children.map(c => renderNode(c, depth + 1))}
+        </div>
+      )
+    }
+    const isMainPy = node.path === 'main.py'
+    return (
+      <div key={node.path} onClick={() => onSelect(node.path)}
+        onMouseEnter={() => setHoverPath(node.path)} onMouseLeave={() => setHoverPath(null)}
+        style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 12px', cursor: 'pointer',
+          fontSize: 13, color: activeFile === node.path ? '#e0e0e0' : '#888',
+          background: activeFile === node.path ? '#37373d' : 'transparent', paddingLeft: 12 + depth * 16 }}>
+        {fileIcon(node.path, fileTypes)}
+        {renaming === node.path ? (
+          <Input size="small" value={renameVal} onChange={e => setRenameVal(e.target.value)}
+            onPressEnter={() => handleRename(node.path)} onBlur={() => handleRename(node.path)} autoFocus style={{ fontSize: 12, height: 22 }} />
+        ) : (
+          <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{node.name}</span>
+        )}
+        {hoverPath === node.path && !isMainPy && renaming !== node.path && (
+          <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
+            <EditOutlined style={{ fontSize: 11, color: '#888', cursor: 'pointer' }} onClick={e => { e.stopPropagation(); setRenaming(node.path); setRenameVal(node.path) }} />
+            <DeleteOutlined style={{ fontSize: 11, color: '#f87171', cursor: 'pointer' }} onClick={e => { e.stopPropagation(); onDelete(node.path) }} />
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  if (collapsed) return (
+    <div style={{ width: 36, background: '#252526', borderRight: '1px solid #3e3e42', display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 8, cursor: 'pointer' }} onClick={() => setCollapsed(false)}>
+      <FolderOpenOutlined style={{ color: '#888', fontSize: 16 }} />
+    </div>
+  )
+
+  return (
+    <div style={{ width: 220, background: '#252526', borderRight: '1px solid #3e3e42', display: 'flex', flexDirection: 'column', flexShrink: 0 }}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderBottom: '1px solid #3e3e42' }}>
+        <span style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: 1 }}>文件</span>
+        <div style={{ display: 'flex', gap: 4 }}>
+          <PlusOutlined style={{ color: '#888', cursor: 'pointer', fontSize: 12 }} onClick={() => { setAdding('file'); setNewName('') }} title="新建文件" />
+          <FolderAddOutlined style={{ color: '#888', cursor: 'pointer', fontSize: 12 }} onClick={() => { setAdding('dir'); setNewName('') }} title="新建目录" />
+          <CloseOutlined style={{ color: '#888', cursor: 'pointer', fontSize: 12 }} onClick={() => setCollapsed(true)} />
+        </div>
+      </div>
+      {adding && (
+        <div style={{ padding: '4px 8px' }}>
+          <Input size="small" placeholder={adding === 'dir' ? '文件夹名' : 'main.py'} value={newName} onChange={e => setNewName(e.target.value)}
+            onPressEnter={handleAdd} onBlur={() => { if (!newName) setAdding(null); else handleAdd() }} autoFocus style={{ fontSize: 12 }} />
+          <div style={{ fontSize: 10, color: '#666', marginTop: 2 }}>{adding === 'dir' ? '输入目录名' : '支持路径如 utils/helper.py'}</div>
+        </div>
+      )}
+      <div style={{ flex: 1, overflow: 'auto', padding: '4px 0', position: 'relative' }}>
+        {tree.map(node => renderNode(node, 0))}
+        {tree.length === 0 && <div style={{ color: '#555', textAlign: 'center', paddingTop: 24, fontSize: 12 }}>暂无文件</div>}
+        {dragOver && (
+          <div style={{ position: 'absolute', inset: 0, border: '2px dashed #4ec9b0', borderRadius: 4, background: 'rgba(78, 201, 176, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+            <span style={{ color: '#4ec9b0', fontSize: 13 }}>拖放文件到此</span>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
