@@ -1,0 +1,36 @@
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build
+dist/
+build/
+*.log
+
+# Runtime
+.env
+.env.local
+*.pem
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Cache
+.cache
+*.cache

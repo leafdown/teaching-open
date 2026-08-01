@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pyodide 加载测试</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #4ec9b0;
+        }
+        
+        .section {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .log {
+            background: #1e1e1e;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+        }
+        
+        .info { color: #7dd3fc; }
+        .success { color: #89d185; }
+        .warning { color: #fbbf24; }
+        .error { color: #f48771; }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #0e639c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: monospace;
+        }
+        
+        button:hover {
+            background: #1177bb;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .status.success { background: #1f3a1f; color: #89d185; }
+        .status.error { background: #3a1f1f; color: #f48771; }
+        .status.loading { background: #1f2a3a; color: #7dd3fc; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Pyodide 加载测试工具</h1>
+        
+        <div class="section">
+            <h2>网络信息</h2>
+            <div id="networkInfo"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Pyodide 状态</h2>
+            <div id="pyodideStatus" class="status loading">⏳ 检测中...</div>
+        </div>
+        
+        <div class="section">
+            <h2>操作按钮</h2>
+            <button onclick="testCDN()">测试 CDN</button>
+            <button onclick="testPyodide()">测试 Pyodide</button>
+            <button onclick="clearLog()">清除日志</button>
+            <button onclick="location.reload()">重新加载页面</button>
+        </div>
+        
+        <div class="section">
+            <h2>调试日志</h2>
+            <div class="log" id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        // 日志系统
+        const logEl = document.getElementById('log');
+        const pyodideStatusEl = document.getElementById('pyodideStatus');
+        
+        function addLog(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(`[${type}] ${message}`);
+        }
+        
+        function clearLog() {
+            logEl.innerHTML = '';
+            addLog('日志已清除', 'info');
+        }
+        
+        // 初始化
+        window.addEventListener('load', function() {
+            addLog('页面加载完成', 'success');
+            
+            // 显示网络信息
+            displayNetworkInfo();
+            
+            // 检测 Pyodide
+            detectPyodide();
+        });
+        
+        function displayNetworkInfo() {
+            const info = document.getElementById('networkInfo');
+            const navigator_info = `
+                <p><strong>用户代理:</strong> ${navigator.userAgent}</p>
+                <p><strong>浏览器:</strong> ${getBrowserInfo()}</p>
+                <p><strong>平台:</strong> ${navigator.platform}</p>
+                <p><strong>在线:</strong> ${navigator.onLine ? '✅ 是' : '❌ 否'}</p>
+            `;
+            info.innerHTML = navigator_info;
+        }
+        
+        function getBrowserInfo() {
+            const ua = navigator.userAgent;
+            if (ua.includes('Chrome')) return 'Chrome';
+            if (ua.includes('Firefox')) return 'Firefox';
+            if (ua.includes('Safari')) return 'Safari';
+            if (ua.includes('Edge')) return 'Edge';
+            return '未知浏览器';
+        }
+        
+        function detectPyodide() {
+            addLog('检测 Pyodide...');
+            
+            if (window.loadPyodide) {
+                updateStatus('✅ Pyodide 已加载', 'success');
+                addLog('✅ window.loadPyodide 存在', 'success');
+            } else if (document.querySelector('script[src*="pyodide.js"]')) {
+                updateStatus('⏳ Pyodide 正在加载...', 'loading');
+                addLog('⏳ Pyodide 脚本已加载，等待 window.loadPyodide...', 'warning');
+                
+                // 轮询等待
+                let attempts = 0;
+                const checkInterval = setInterval(() => {
+                    attempts++;
+                    if (window.loadPyodide) {
+                        clearInterval(checkInterval);
+                        updateStatus('✅ Pyodide 加载完成', 'success');
+                        addLog('✅ window.loadPyodide 可用', 'success');
+                    } else if (attempts > 100) {
+                        clearInterval(checkInterval);
+                        updateStatus('❌ Pyodide 加载超时', 'error');
+                        addLog('❌ Pyodide 加载超时 (> 10 秒)', 'error');
+                    }
+                }, 100);
+            } else {
+                updateStatus('❌ Pyodide 未加载', 'error');
+                addLog('❌ Pyodide 脚本未找到', 'error');
+            }
+        }
+        
+        function updateStatus(message, type) {
+            pyodideStatusEl.textContent = message;
+            pyodideStatusEl.className = `status ${type}`;
+        }
+        
+        // 测试 CDN
+        async function testCDN() {
+            addLog('开始测试 CDN...', 'info');
+            
+            const urls = {
+                'jsDelivr Pyodide': 'https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js',
+                'Pyodide CDN 2': 'https://pyodide-cdn2.iodide.io/v0.23.4/full/pyodide.js',
+                'jsDelivr Monaco': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js',
+            };
+            
+            for (const [name, url] of Object.entries(urls)) {
+                try {
+                    const response = await fetch(url, { method: 'HEAD' });
+                    if (response.ok) {
+                        addLog(`✅ ${name}: ${response.status}`, 'success');
+                    } else {
+                        addLog(`⚠️  ${name}: ${response.status}`, 'warning');
+                    }
+                } catch (error) {
+                    addLog(`❌ ${name}: ${error.message}`, 'error');
+                }
+            }
+            
+            addLog('CDN 测试完成', 'info');
+        }
+        
+        // 测试 Pyodide
+        async function testPyodide() {
+            addLog('开始测试 Pyodide...', 'info');
+            
+            if (!window.loadPyodide) {
+                addLog('❌ window.loadPyodide 未定义', 'error');
+                return;
+            }
+            
+            try {
+                addLog('📍 初始化 Pyodide...', 'info');
+                const pyodide = await window.loadPyodide({
+                    indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.23.4/full/'
+                });
+                
+                addLog('✅ Pyodide 初始化成功', 'success');
+                
+                // 测试 Python 代码
+                addLog('📍 执行测试代码...', 'info');
+                const result = await pyodide.runPythonAsync('print("Hello from Pyodide!")');
+                
+                addLog('✅ Python 代码执行成功', 'success');
+                addLog('✅ Pyodide 完全可用', 'success');
+                
+                updateStatus('✅ Pyodide 测试通过', 'success');
+                
+            } catch (error) {
+                addLog(`❌ Pyodide 测试失败: ${error.message}`, 'error');
+                updateStatus('❌ Pyodide 测试失败', 'error');
+            }
+        }
+    </script>
+    
+    <!-- Pyodide Script -->
+    <script>
+        console.log('📍 加载 Pyodide 脚本...');
+    </script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+    <script>
+        if (window.loadPyodide) {
+            console.log('✅ Pyodide 脚本加载成功');
+        } else {
+            console.log('❌ Pyodide 脚本加载失败');
+        }
+    </script>
+</body>
+</html>

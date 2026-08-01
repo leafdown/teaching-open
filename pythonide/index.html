@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Online Python IDE - 在线Python编程环境">
+    <meta name="keywords" content="Python IDE, Online Compiler, Python Editor">
+    <title>Online Python IDE - 在线Python编程</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Main CSS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: #252526;
+            border-bottom: 1px solid #3e3e42;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #4ec9b0;
+        }
+
+        .logo i {
+            font-size: 24px;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #0e639c;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #1177bb;
+        }
+
+        .btn-secondary {
+            background: #3e3e42;
+            color: #d4d4d4;
+        }
+
+        .btn-secondary:hover {
+            background: #4e4e52;
+        }
+
+        .btn-danger {
+            background: #d13438;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #e81123;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .file-name {
+            color: #d4d4d4;
+            font-size: 14px;
+        }
+
+        /* Main Content */
+        .content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .editor-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #3e3e42;
+        }
+
+        .output-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1e1e1e;
+        }
+
+        .editor-title,
+        .output-title {
+            background: #252526;
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            border-bottom: 1px solid #3e3e42;
+            color: #d4d4d4;
+        }
+
+        #editor {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        #output {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: #1e1e1e;
+        }
+
+        .output-line {
+            margin-bottom: 4px;
+        }
+
+        .output-line.error {
+            color: #f48771;
+        }
+
+        .output-line.success {
+            color: #89d185;
+        }
+
+        .output-line.info {
+            color: #7dd3fc;
+        }
+
+        .output-line.warning {
+            color: #fbbf24;
+        }
+
+        .empty-output {
+            color: #6a6a6a;
+            font-style: italic;
+        }
+
+        /* Loading indicator */
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #3e3e42;
+            border-top: 4px solid #0e639c;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 6px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #d4d4d4;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            background: #3e3e42;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            color: #d4d4d4;
+            font-size: 14px;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: #0e639c;
+            box-shadow: 0 0 0 3px rgba(14, 99, 156, 0.1);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+
+            .editor-section {
+                border-right: none;
+                border-bottom: 1px solid #3e3e42;
+            }
+        }
+
+        /* Status bar */
+        .status-bar {
+            background: #252526;
+            border-top: 1px solid #3e3e42;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #858585;
+        }
+
+        .status-left, .status-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .execution-time {
+            color: #4ec9b0;
+        }
+
+        /* Dropdown */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            min-width: 150px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            color: #d4d4d4;
+            border-bottom: 1px solid #3e3e42;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: #3e3e42;
+        }
+
+        .dropdown-item i {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-code"></i>
+                <span>Python IDE</span>
+            </div>
+            <div class="toolbar">
+                <input type="text" id="fileName" class="file-name" placeholder="untitled.py" value="untitled.py">
+                <button class="btn btn-primary" id="runBtn" title="Run Code (Ctrl+Enter)">
+                    <i class="fas fa-play"></i> Run
+                </button>
+                <button class="btn btn-secondary" id="clearBtn" title="Clear Output">
+                    <i class="fas fa-trash"></i> Clear
+                </button>
+                <button class="btn btn-secondary" id="shareBtn" title="Share Code">
+                    <i class="fas fa-share-alt"></i> Share
+                </button>
+                <button class="btn btn-secondary dropdown" id="menuBtn" title="More Options">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <div class="dropdown-item" id="newBtn">
+                        <i class="fas fa-plus"></i> New
+                    </div>
+                    <div class="dropdown-item" id="saveBtn">
+                        <i class="fas fa-download"></i> Download
+                    </div>
+                    <div class="dropdown-item" id="uploadBtn">
+                        <i class="fas fa-upload"></i> Upload
+                    </div>
+                    <div class="dropdown-item" id="formatBtn">
+                        <i class="fas fa-align-left"></i> Format
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Editor Section -->
+            <div class="editor-section">
+                <div class="editor-title">
+                    <i class="fas fa-file-code"></i> Editor
+                </div>
+                <div id="editor"></div>
+            </div>
+
+            <!-- Output Section -->
+            <div class="output-section">
+                <div class="output-title">
+                    <i class="fas fa-terminal"></i> Output
+                </div>
+                <div id="output" class="empty-output">Output will appear here...</div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span class="status-item">
+                    <span id="lineCol">Ln 1, Col 1</span>
+                </span>
+                <span class="status-item">
+                    <span id="charCount">0 characters</span>
+                </span>
+            </div>
+            <div class="status-right">
+                <span class="status-item execution-time" id="executionTime"></span>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>Running code...</div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <div class="modal-title">Share Code</div>
+            <input type="text" class="modal-input" id="shareLink" readonly placeholder="Share link will appear here...">
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('shareModal')">Close</button>
+                <button class="btn btn-primary" id="copyLink">
+                    <i class="fas fa-copy"></i> Copy Link
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monaco Editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+    
+    <!-- Load Monaco CSS dynamically to avoid CORB issues -->
+    <script>
+        // Load Monaco CSS
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor.main.min.css';
+        document.head.appendChild(link);
+    </script>
+    
+    <!-- Pyodide for Python Execution (must load before app.js) -->
+    <script>
+        console.log('📍 开始加载 Pyodide...');
+        console.log('📍 Pyodide CDN: https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js');
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/pyodide@0.29.0/pyodide.min.js" onload="console.log('✅ Pyodide 脚本加载成功')" onerror="console.error('❌ Pyodide 脚本加载失败')"></script>
+
+    <!-- Main Application -->
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{
+  "name": "online-python-ide",
+  "version": "1.0.0",
+  "description": "A modern Online Python IDE with Monaco Editor and Pyodide",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "serve": "http-server -p 8000",
+    "dev": "live-server --port=8000",
+    "build": "echo 'No build step required for static files'",
+    "docker:build": "docker build -t python-ide:latest .",
+    "docker:run": "docker run -d -p 8080:80 --name python-ide python-ide:latest",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "keywords": [
+    "python",
+    "ide",
+    "editor",
+    "online",
+    "compiler",
+    "pyodide"
+  ],
+  "author": "Lanqu Education",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-scratch/teaching-open.git"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
