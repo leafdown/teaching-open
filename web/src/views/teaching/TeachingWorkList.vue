@@ -121,11 +121,11 @@
         :dataSource="dataSource"
         :pagination="ipagination"
         :loading="loading"
-        :rowSelection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
+        :rowSelection="{fixed:true,selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
         @change="handleTableChange"
       >
         <template slot="htmlSlot" slot-scope="text">
-          <div v-html="text"></div>
+          <div v-safe-html="text"></div>
         </template>
         <template slot="imgSlot" slot-scope="text">
           <span v-if="!text" style="font-size: 12px; font-style: italic">无此图片</span>
@@ -206,7 +206,6 @@ import TeachingWorkModal from './modules/TeachingWorkModal'
 import TeachingWorkPreviewModal from './modules/TeachingWorkPreviewModal'
 import SelectUserModal from '../system/modules/SelectUserModal'
 import JDictSelectTag from '@/components/dict/JDictSelectTag.vue'
-import { filterMultiDictText } from '@/components/dict/JDictSelectUtil'
 
 export default {
   name: 'TeachingWorkList',
@@ -408,7 +407,6 @@ export default {
       for (var a = 0; a < data.length; a++) {
         params.userIdList.push(data[a])
       }
-      console.log(params)
       postAction(this.url.sendWorkUrl, params).then((res) => {
         if (res.success) {
           this.$message.success(res.message)

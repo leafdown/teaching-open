@@ -60,11 +60,11 @@
         :dataSource="dataSource"
         :pagination="ipagination"
         :loading="loading"
-        :rowSelection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
+        :rowSelection="{fixed:true,selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
         @change="handleTableChange"
       >
         <template slot="htmlSlot" slot-scope="text">
-          <div v-html="text"></div>
+          <div v-safe-html="text"></div>
         </template>
         <template slot="imgSlot" slot-scope="text">
           <span v-if="!text" style="font-size: 12px; font-style: italic">无图片</span>
@@ -108,15 +108,13 @@
 </template>
 
 <script>
-import '@/assets/less/TableExpand.less'
-import { mixinDevice } from '@/utils/mixin'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import TeachingAdditionalWorkModal from './modules/TeachingAdditionalWorkModal'
 import JSelectDepart from '@/components/jeecgbiz/JSelectDepart'
 import JEllipsis from '@/components/jeecg/JEllipsis'
 export default {
   name: 'TeachingAdditionalWorkList',
-  mixins: [JeecgListMixin, mixinDevice],
+  mixins: [JeecgListMixin],
   components: {
     JSelectDepart,
     TeachingAdditionalWorkModal,

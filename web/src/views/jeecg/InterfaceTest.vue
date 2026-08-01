@@ -26,7 +26,7 @@
 
     <a-tabs defaultActiveKey="1">
       <a-tab-pane tab="response" key="1">
-        <textarea style="width:100%;font-size: 16px;font-weight:500" :rows="10" v-html="resultJson" readOnly>
+        <textarea style="width:100%;font-size: 16px;font-weight:500" :rows="10" v-safe-html="resultJson" readOnly>
         </textarea>
       </a-tab-pane>
     </a-tabs>
@@ -52,14 +52,12 @@
         this.resultJson = {};
         if("POST"===this.requestMethod.toUpperCase()){
           postAction(value,this.paramJson).then((res)=>{
-            console.log(res)
             this.resultJson = res
           }).catch((err) => {
             that.$message.error("请求异常："+err)
           })
         }else {
           getAction(value,this.paramJson).then((res)=>{
-            console.log(res)
             this.resultJson = res;
           }).catch((err) => {
             that.$message.error("请求异常："+err)
@@ -76,7 +74,6 @@
           }
           this.paramJson = JSON.parse(json);
         }catch (e) {
-          console.log(e);
           this.$message.error("非法的JSON字符串")
         }
       },

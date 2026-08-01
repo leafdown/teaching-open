@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python 作品查看</title>
+    <link rel="icon" href="../logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="../js/common.js"></script>
+    <style>
+        :root {
+            --bg: #1e1e1e;
+            --bg2: #252526;
+            --border: #3e3e42;
+            --text: #d4d4d4;
+            --text2: #858585;
+            --accent: #4ec9b0;
+            --danger: #f48771;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .header {
+            background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header i { color: var(--accent); font-size: 18px; }
+        .header span { font-weight: 600; }
+        .main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .output-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .output-header {
+            background: var(--bg2);
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text2);
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        #output {
+            flex: 1;
+            overflow: auto;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .turtle-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--border);
+        }
+        #turtle-container {
+            flex: 1;
+            background: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        #turtleCanvas {
+            position: absolute;
+            top: 0; left: 0;
+        }
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 16px;
+            color: var(--text2);
+        }
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .error { color: var(--danger); }
+        .system { color: var(--text2); font-style: italic; }
+        .code-btn {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+        .code-btn:hover { background: var(--border); }
+    </style>
+</head>
+<body>
+<div class="header">
+    <i class="fab fa-python"></i>
+    <span id="workName">Python 作品</span>
+    <button class="code-btn" id="toggleCode" style="margin-left:auto">
+        <i class="fas fa-code"></i> 查看代码
+    </button>
+</div>
+<div class="main">
+    <div id="code-pane" style="display:none;width:40%;border-right:1px solid var(--border)">
+        <div class="output-header">源代码</div>
+        <pre id="code-view" style="flex:1;overflow:auto;padding:16px;font-family:'Courier New',monospace;font-size:13px;line-height:1.6;white-space:pre-wrap;margin:0;color:var(--text);"></pre>
+    </div>
+    <div class="output-pane" id="outputPane">
+        <div class="output-header">输出</div>
+        <div id="output"><span class="system">正在加载作品...</span></div>
+    </div>
+    <div class="turtle-pane" id="turtlePane">
+        <div class="output-header">海龟画图</div>
+        <div id="turtle-container">
+            <canvas id="turtleCanvas"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/pyodide@0.29.0/pyodide.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var workId = window.urlParams('workId');
+  var url = window.urlParams('url');
+  var lang = window.urlParams('lang');
+
+  var $ = function (s) { return document.querySelector(s); };
+  var els = {
+    output: $('#output'),
+    codeView: $('#code-view'),
+    codePane: $('#code-pane'),
+    outputPane: $('#outputPane'),
+    turtlePane: $('#turtlePane'),
+    turtleCanvas: $('#turtleCanvas'),
+    turtleContainer: $('#turtle-container'),
+    workName: $('#workName'),
+    toggleCode: $('#toggleCode'),
+  };
+
+  var pyodide = null;
+  var codeShowing = false;
+  var files = {};
+  var fileOrder = [];
+
+  function outf(text) {
+    var line = document.createElement('div');
+    line.textContent = text;
+    els.output.appendChild(line);
+    els.output.scrollTop = els.output.scrollHeight;
+  }
+
+  function resizeCanvas() {
+    var c = els.turtleCanvas;
+    var p = els.turtleContainer;
+    c.width = p.clientWidth || 400;
+    c.height = p.clientHeight || 400;
+  }
+
+  function getCombinedCode() {
+    var fullCode = '';
+    fileOrder.forEach(function (name) {
+      if (files[name]) {
+        fullCode += '# --- ' + name + ' ---\n' + files[name] + '\n\n';
+      }
+    });
+    return fullCode;
+  }
+
+  els.toggleCode.addEventListener('click', function () {
+    codeShowing = !codeShowing;
+    els.codePane.style.display = codeShowing ? 'flex' : 'none';
+    els.codePane.style.flexDirection = 'column';
+    if (codeShowing) {
+      els.outputPane.style.flex = '1';
+      els.turtlePane.style.flex = '1';
+    }
+  });
+
+  async function initAndRun() {
+    try {
+      var code = '';
+      var workName = 'Python 作品';
+
+      if (workId && window.getWorkInfo) {
+        els.output.innerHTML = '<span class="system">正在加载作品...</span>';
+        var info = await new Promise(function (resolve) {
+          window.getWorkInfo(workId, function (info) { resolve(info); });
+        });
+        if (info && info.workFileKey_url) {
+          workName = info.workName || workName;
+          if (els.workName) els.workName.textContent = workName;
+          var resp = await fetch(info.workFileKey_url);
+          var raw = await resp.text();
+          try {
+            var data = JSON.parse(raw);
+            if (data && data.files) {
+              files = data.files;
+              fileOrder = data.order || Object.keys(files);
+              code = getCombinedCode();
+            } else {
+              throw new Error('not multi-file');
+            }
+          } catch (e) {
+            files = { 'main.py': raw };
+            fileOrder = ['main.py'];
+            code = raw;
+          }
+        }
+      } else if (url) {
+        var resp = await fetch(url);
+        var raw = await resp.text();
+        try {
+          var data = JSON.parse(raw);
+          if (data && data.files) {
+            files = data.files;
+            fileOrder = data.order || Object.keys(files);
+            code = getCombinedCode();
+          } else {
+            throw new Error('not multi-file');
+          }
+        } catch (e) {
+          files = { 'main.py': raw };
+          fileOrder = ['main.py'];
+          code = raw;
+        }
+      }
+
+      if (!code) {
+        els.output.innerHTML = '<span class="system">没有可查看的作品</span>';
+        return;
+      }
+
+      els.codeView.textContent = code;
+      if (els.workName) els.workName.textContent = workName;
+      els.output.innerHTML = '';
+
+      // Init Pyodide
+      outf('正在初始化 Python 环境...');
+      if (typeof loadPyodide === 'undefined') {
+        throw new Error('Pyodide 加载失败');
+      }
+
+      pyodide = await loadPyodide({
+        indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.29.0/full/',
+        stdout: function (text) { outf(text); },
+        stderr: function (text) { outf('[错误] ' + text); }
+      });
+
+      await pyodide.loadPackage(['numpy', 'matplotlib']);
+
+      // Setup turtle
+      await pyodide.runPythonAsync(`
+import turtle
+import sys
+
+# Redirect turtle to canvas
+try:
+    turtle.Screen()._root = None
+except:
+    pass
+`);
+
+      resizeCanvas();
+      outf('开始执行...');
+
+      // Run code
+      var startTime = performance.now();
+      await pyodide.runPythonAsync(code);
+      var duration = ((performance.now() - startTime) / 1000).toFixed(2);
+      outf('\n--- 执行完成 (' + duration + 's) ---');
+
+      // Check if turtle was used
+      try {
+        pyodide.runPython('turtle.done()');
+      } catch (e) {
+        // turtle may not have been used
+      }
+
+    } catch (err) {
+      var msg = err.message || String(err);
+      msg = msg.replace(/File "<exec>".*\n/g, '');
+      outf('[错误] ' + msg);
+    }
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+  initAndRun();
+})();
+</script>
+</body>
+</html>

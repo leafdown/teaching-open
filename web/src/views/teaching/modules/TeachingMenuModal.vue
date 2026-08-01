@@ -154,9 +154,6 @@ export default {
       var that = this
       getAction('/teaching/menu/queryTreeList').then((res) => {
         if (res.success) {
-          console.log('----queryTreeList---')
-          console.log(res)
-          that.treeData = []
           let treeList = res.result.treeList
           for (let a = 0; a < treeList.length; a++) {
             let temp = treeList[a]
@@ -267,9 +264,6 @@ export default {
       this.iconChooseVisible = false
     },
     handleIconChoose(value) {
-      console.log(value)
-      this.model.icon = value
-      this.form.icon = value
       this.iconChooseVisible = false
     },
     // 根据屏幕变化,设置抽屉尺寸

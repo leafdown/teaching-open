@@ -218,7 +218,6 @@
         }
         let record = e.node.dataRef;
         this.currentDept = record;
-        console.log(record);
         
         this.checkedKeys.push(record.id);
         this.$refs.DeptBaseInfo.open(record);

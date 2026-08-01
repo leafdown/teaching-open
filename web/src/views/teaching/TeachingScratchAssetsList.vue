@@ -35,7 +35,7 @@
     <div class="table-operator">
       <a-button @click="handleAdd" type="primary" icon="plus">新增</a-button>
       <a-button type="primary" icon="download" @click="handleExportXls('Scratch素材库')">导出</a-button>
-      <a-upload name="file" :showUploadList="false" :multiple="false" :headers="tokenHeader" :action="importExcelUrl" @change="handleImportExcel">
+      <a-upload v-if="false" name="file" :showUploadList="false" :multiple="false" :headers="tokenHeader" :action="importExcelUrl" @change="handleImportExcel">
         <a-button type="primary" icon="import">导入</a-button>
       </a-upload>
       <a-dropdown v-if="selectedRowKeys.length > 0">
@@ -63,7 +63,7 @@
         :dataSource="dataSource"
         :pagination="ipagination"
         :loading="loading"
-        :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
+        :rowSelection="{fixed:true,selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
         class="j-table-force-nowrap"
         @change="handleTableChange">
 
@@ -117,24 +117,13 @@
 
 <script>
 
-  import '@/assets/less/TableExpand.less'
-  import { mixinDevice } from '@/utils/mixin'
   import { JeecgListMixin } from '@/mixins/JeecgListMixin'
   import TeachingScratchAssetsModal from './modules/TeachingScratchAssetsModal'
-  import JDictSelectTag from '@/components/dict/JDictSelectTag.vue'
-  import {filterMultiDictText} from '@/components/dict/JDictSelectUtil'
-  import JSelectUserByDep from '@/components/jeecgbiz/JSelectUserByDep'
-  import JSelectDepart from '@/components/jeecgbiz/JSelectDepart'
-  import JMultiSelectTag from '@/components/dict/JMultiSelectTag'
 
   export default {
     name: 'TeachingScratchAssetsList',
-    mixins:[JeecgListMixin, mixinDevice],
+    mixins:[JeecgListMixin],
     components: {
-      JDictSelectTag,
-      JSelectUserByDep,
-      JSelectDepart,
-      JMultiSelectTag,
       TeachingScratchAssetsModal
     },
     data () {

@@ -290,7 +290,6 @@ export default {
           res.result.map((v) => {
             this.model[v.configKey] = v.configValue
           })
-          console.log(this.model)
           this.$nextTick(() => {
             this.form.setFieldsValue(this.model)
           })
@@ -312,7 +311,6 @@ export default {
               formData[k] = ''
             }
           }
-          console.log(formData)
           postAction('/sys/config/saveTenantConfig', formData).then((res) => {
             if (res.success) {
               this.$message.success('修改成功，部分设置将在1小时内生效')

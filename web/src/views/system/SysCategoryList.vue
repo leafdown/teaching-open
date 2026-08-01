@@ -216,7 +216,6 @@
           this.loadData()
         }else{
           this.expandedRowKeys=[]
-          console.log("22222",arr)
           for(let i of arr){
             await this.expandTreeNode(i)
           }
@@ -230,7 +229,6 @@
           let params = this.getQueryParams();//查询条件
           params[this.pidField] = nodeId
           getAction(this.url.childList,params).then((res)=>{
-            console.log("11111",res)
             if(res.success){
               if(res.result && res.result.length>0){
                 row.children = this.getDataByResult(res.result)

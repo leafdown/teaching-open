@@ -143,7 +143,6 @@
         this.dataSource = []
         getAction(this.url.list).then((res) => {
           if (res.success) {
-            console.log(res.result)
             this.dataSource = res.result
           }
         })

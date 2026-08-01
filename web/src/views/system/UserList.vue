@@ -364,7 +364,6 @@ export default {
         if (res.success) {
           this.roleList = res.result
         } else {
-          console.log(res.message)
         }
       })
     },
@@ -372,7 +371,6 @@ export default {
       return getFileAccessHttpUrl(avatar)
     },
     onDateChange: function (value, dateString) {
-      console.log(dateString[0],dateString[1]);
       this.queryParam.createTime_begin=dateString[0];
       this.queryParam.createTime_end=dateString[1];
     },

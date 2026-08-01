@@ -68,7 +68,6 @@
       },
       edit(record){
         this.model = Object.assign({}, record)
-        console.log("TeachingWorkCorrectForm-edit",this.model);
         let fieldval = pick(this.model,'score','comment')
         this.$nextTick(() => {
           this.form.setFieldsValue(fieldval)
@@ -92,7 +91,6 @@
             this.$emit("validateError","作业批改表单校验未通过");
           }
         })
-        console.log("作业批改表单数据集",formdata_arr);
         return formdata_arr;
       },
       popupCallback(row){

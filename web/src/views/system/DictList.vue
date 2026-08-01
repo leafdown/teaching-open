@@ -192,13 +192,11 @@
           }
         }).catch(e=>{
           this.$message.warn("刷新缓存失败！");
-          console.log("刷新失败",e)
         })
       }
     },
     watch: {
       openKeys(val) {
-        console.log('openKeys', val)
       },
     },
   }

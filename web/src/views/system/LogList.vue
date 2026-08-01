@@ -216,12 +216,10 @@
         that.loadData();
       },
       onDateChange: function (value, dateString) {
-        console.log(dateString[0],dateString[1]);
         this.queryParam.createTime_begin=dateString[0];
         this.queryParam.createTime_end=dateString[1];
       },
       onDateOk(value) {
-        console.log(value);
       },
     }
   }

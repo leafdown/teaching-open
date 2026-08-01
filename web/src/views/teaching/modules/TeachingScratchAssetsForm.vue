@@ -215,8 +215,6 @@ export default {
     'model.assetType': {
       handler(newVal, oldVal) {
         newVal == '1' || newVal == '3' ? (this.fileType = 'image') : (this.fileType = 'file')
-        console.log('model.assetType');
-        console.log(newVal);
         switch (newVal) {
           case 1:
             this.scratchTagCode = 'A03A01'
@@ -277,9 +275,7 @@ export default {
       }
     },
     onCostumeDelete(key) {
-      console.log(key);
       for (let i = 0; i < this.assetData.costumes.length; i++) {
-        console.log(this.assetData.costumes[i]);
         if (key.includes(this.assetData.costumes[i].assetId)) {
           this.assetData.costumes.splice(i, 1)
           this.generateJsonData()
@@ -405,8 +401,7 @@ export default {
             this.model.md5Ext = md5Exts.join(",")
           }
         }
-        console.log(this.assetData);
-        
+
         let data = JSON.stringify(this.assetData)
         this.model.assetData = data
         this.$refs.codeEditor.setCodeContent(data)
@@ -441,7 +436,6 @@ export default {
             method = 'put'
           }
           let formData = Object.assign(this.model, values)
-          console.log('表单提交数据', formData)
           httpAction(httpurl, formData, method)
             .then(res => {
               if (res.success) {

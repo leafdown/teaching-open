@@ -14,13 +14,13 @@
           <a-tab-pane key="video" tab="视频" v-if="unit.courseVideo">
             <video v-if="unit.courseVideoSource==1" :src="unit.courseVideo_url" controls="true" controlsList='nodownload noremote footbar' oncontextmenu="return false;"></video>
             <video v-if="unit.courseVideoSource==2" :src="unit.courseVideo" controls="true" controlsList='nodownload noremote footbar' oncontextmenu="return false;"></video>
-            <div v-if="unit.courseVideoSource==3" v-html="unit.courseVideo"></div>
+            <div v-if="unit.courseVideoSource==3" v-safe-html="unit.courseVideo"></div>
           </a-tab-pane>
           <a-tab-pane key="scratch" tab="案例" v-if="unit.courseCase">
             <iframe id="player" :src="previewCourseCase(unit)" allowtransparency='true' frameborder="0" scrolling="no" allowfullscreen></iframe>
           </a-tab-pane>
           <a-tab-pane key="media" tab="课程内容" v-if="unit.mediaContent">
-            <div v-html="unit.mediaContent"></div>
+            <div v-safe-html="unit.mediaContent"></div>
           </a-tab-pane>
         </a-tabs>
         <template v-else>
@@ -38,7 +38,7 @@
         <a-row :gutter="24">
           <a-col :span="16">
             <a-card size="small" title="课程说明">
-              <div v-html="unit.unitIntro ? unit.unitIntro.replace(/\n/g, '<br>') : ''"></div>
+              <div v-safe-html="unit.unitIntro ? unit.unitIntro.replace(/\n/g, '<br>') : ''"></div>
             </a-card>
           </a-col>
           <a-col :span="8">
@@ -129,7 +129,6 @@ export default {
     previewCourseCase(unit) {
       let url = this.getFileAccessHttpUrl(unit.courseCase)
       let go_url = "";
-      console.log(url);
       switch(unit.courseWorkType){
         case 1:
           go_url = '/scratch3/player.html?workUrl=' + url;
@@ -145,7 +144,6 @@ export default {
            go_url = '/python/player.html?lang=turtle&url='+ url;
            break;
       }
-      console.log(go_url);
       return go_url;
     },
     handleViewCode (unit) {

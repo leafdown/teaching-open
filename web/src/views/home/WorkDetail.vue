@@ -15,40 +15,32 @@
       <keyboard v-if="_isMobile() && workInfo.workType == 2" @event="keyEvent" />
       <!-- 作品信息 -->
       <div class="project-info">
-        <a-row type="flex" justify="space-around">
-          <a-col :span="4">
-            <a-avatar shape="square" class="avatar" :size="60" :src="workInfo.avatar_url" @click="toFriend(workInfo.userId)"/>
-            <p @click="toFriend(workInfo.userId)">{{ workInfo.realname || workInfo.username }}</p>
-          </a-col>
-          <a-col :span="14" v-if="!_isMobile()">
-            <div class="project-meta">
-              <h2 class="title">{{ workInfo.workName }}</h2>
-              <p class="time">{{ workInfo.createTime }}</p>
-            </div>
-          </a-col>
-          <a-col :span="_isMobile() ? 12 : 6">
-            <div class="project-op">
-              <a-icon type="eye" theme="twoTone" />
-              <span class="gap">{{ workInfo.viewNum }}</span>
-
-              <a-icon type="like" theme="twoTone" @click="starWork" />
-              <span class="gap">{{ workInfo.starNum }}</span>
-
-              <a-popover v-if="!_isMobile()" title="微信扫一扫手机体验和分享">
-                <template slot="content">
-                  <qrcode :value="getShareUrl()" :size="200" level="H"></qrcode>
-                </template>
-                <a-icon type="mobile" theme="twoTone" />
-              </a-popover>
-            </div>
-          </a-col>
-          <a-col :span="24" v-if="_isMobile()">
-            <div class="project-meta">
-              <h2 class="title">{{ workInfo.workName }}</h2>
-              <p class="time">{{ workInfo.createTime }}</p>
-            </div>
-          </a-col>
-        </a-row>
+        <div class="info-author" @click="toFriend(workInfo.userId)">
+          <a-avatar shape="square" class="avatar" :size="60" :src="workInfo.avatar_url" />
+          <span class="author-name">{{ workInfo.realname || workInfo.username }}</span>
+        </div>
+        <div class="info-meta">
+          <h2 class="title">{{ workInfo.workName }}</h2>
+          <p class="time">{{ workInfo.createTime }}</p>
+        </div>
+        <div class="info-op">
+          <span class="op-item">
+            <a-icon type="eye" theme="twoTone" />
+            <span class="op-num">{{ workInfo.viewNum }}</span>
+          </span>
+          <span class="op-item op-like" @click="starWork">
+            <a-icon type="like" theme="twoTone" />
+            <span class="op-num">{{ workInfo.starNum }}</span>
+          </span>
+          <a-popover v-if="!_isMobile()" title="微信扫一扫手机体验和分享">
+            <template slot="content">
+              <qrcode :value="getShareUrl()" :size="200" level="H"></qrcode>
+            </template>
+            <span class="op-item op-share">
+              <a-icon type="mobile" theme="twoTone" />
+            </span>
+          </a-popover>
+        </div>
       </div>
 
       <!-- 评论区 -->
@@ -163,7 +155,6 @@ export default {
   },
   mounted() {
     var that = this
-    const iframe = this.$refs.Iframe;
     //scratch全屏
     document.addEventListener('scratchFullScreen', function (e) {
       window.launchIntoFullscreen(document.getElementById('player'))
@@ -184,21 +175,22 @@ export default {
         window.document.exitFullscreen();
   }
 }, false);
-    if (iframe.attachEvent) {
-      // IE
-      iframe.attachEvent('onload', () => {
-        that.stateChange();
-
-      });
-    } else {
-      // 非IE
-      iframe.onload = function () {
-        that.stateChange();
-      };
+    const player = document.getElementById('player')
+    // iframe 加载完成后回调(stateChange 在旧版用于同步状态,此处保留调用约定)
+    player.onload = function () {
+      if (typeof that.stateChange === 'function') that.stateChange()
     }
-    //计算播放器高度
-    let playerDom = document.getElementById('player')
-    playerDom.style.height = playerDom.clientWidth * 0.9 + 'px'
+    // 计算播放器高度:Scratch 舞台为 4:3(480×360),按宽度等比计算高度。
+    // mounted 时布局可能尚未稳定,故在 onload 与下一帧各复核一次,确保舞台完整展示。
+    const applyStageHeight = () => {
+      const p = document.getElementById('player')
+      if (p && p.clientWidth > 0) {
+        p.style.height = p.clientWidth * 0.75 + 'px'
+      }
+    }
+    applyStageHeight()
+    this.$nextTick(applyStageHeight)
+    player.addEventListener('load', applyStageHeight)
   },
   methods: {
     ...mapGetters(['nickname', 'avatar', 'userInfo']),
@@ -238,7 +230,7 @@ export default {
           this.frameHref = '/scratchjr/editor.html?mode=look&workFile=' + record.workFileKey_url
           return
         case '4':
-          this.frameHref = '/python/player.html?lang=turtle&url=' + record.workFileKey_url
+          this.frameHref = '/python/player.html?lang=turtle&workId=' + record.id
           return
         case '10':
           this.frameHref = '/blockly/index.html?lang=zh-hans&workId=' + record.id
@@ -359,19 +351,73 @@ export default {
     }
   }
   .project-info {
-    padding: 10px;
-    text-align: center;
-    .project-meta {
-      text-align: left;
-    }
-    .project-op {
-      color: #797979;
-      .anticon {
-        font-size: 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 10px;
+    .info-author {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 0 0 auto;
+      cursor: pointer;
+      .author-name {
+        margin-top: 4px;
+        font-size: 13px;
+        color: #666;
       }
-      .gap {
-        margin-right: 20px;
-        font-size: 24px;
+    }
+    .info-meta {
+      flex: 1 1 auto;
+      min-width: 0;
+      .title {
+        margin: 0 0 4px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .time {
+        margin: 0;
+        font-size: 12px;
+        color: #999;
+      }
+    }
+    .info-op {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex: 0 0 auto;
+      .op-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: default;
+        .anticon {
+          font-size: 22px;
+        }
+        .op-num {
+          font-size: 16px;
+          color: #797979;
+        }
+      }
+      .op-like {
+        cursor: pointer;
+      }
+      .op-share {
+        cursor: pointer;
+      }
+    }
+    // 移动端:信息纵向堆叠,操作行居中
+    @media (max-width: 768px) {
+      flex-wrap: wrap;
+      justify-content: center;
+      .info-meta {
+        flex: 1 1 100%;
+        text-align: center;
+        .title { white-space: normal; }
       }
     }
   }

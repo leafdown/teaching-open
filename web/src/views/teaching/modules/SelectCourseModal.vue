@@ -161,7 +161,6 @@
       },
       handleOk() {
         this.dataSource2 = this.selectedRowKeys;
-        console.log("data:" + this.dataSource2);
         this.$emit("selectFinished", this.dataSource2);
         this.visible = false;
       },
@@ -228,8 +227,6 @@
       },
       handleTableChange(pagination, filters, sorter) {
         //分页、排序、筛选变化时触发
-        console.log(sorter);
-        //TODO 筛选
         if (Object.keys(sorter).length > 0) {
           this.isorter.column = sorter.field;
           this.isorter.order = "ascend" == sorter.order ? "asc" : "desc"

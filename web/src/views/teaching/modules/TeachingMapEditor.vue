@@ -118,7 +118,6 @@ export default {
         if (res.success && res.result.total > 0) {
           this.unitList = res.result.records
           this.currentUnitId = selectUnitId==null?this.unitList[0].id:selectUnitId
-          console.log("----"+this.currentUnitId);
         } else {
           this.$message.error('没有课程单元')
         }

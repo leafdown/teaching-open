@@ -1,6 +1,6 @@
 <template>
   <a-card :bordered="null">
-    <div v-if="html" v-html="html"></div>
+    <div v-if="html" v-safe-html="html"></div>
     <h1 v-else>欢迎使用{{brandName}}</h1>
   </a-card>
 </template>

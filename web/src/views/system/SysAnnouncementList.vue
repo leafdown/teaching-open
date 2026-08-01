@@ -256,7 +256,6 @@
     methods: {
       //执行发布操作
       releaseData: function (id) {
-        console.log(id);
         var that = this;
         doReleaseData({id: id}).then((res) => {
           if (res.success) {
