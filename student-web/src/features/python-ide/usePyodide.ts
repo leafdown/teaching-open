@@ -220,7 +220,7 @@ class _Turtle:
         step_deg = extent / steps
         step_rad = math.radians(step_deg)
         h = math.radians(self._heading)
-        # 圆心在海龟左侧 r 处 (r>0 左弧, r<0 右弧)
+        # 圆心在海龟左侧 r 处 (r>0 左弧逆时针, r<0 右弧顺时针)
         cx = self._x + r * math.cos(h + math.pi / 2)
         cy = self._y + r * math.sin(h + math.pi / 2)
         # 圆心->海龟的初始角度
@@ -233,7 +233,7 @@ class _Turtle:
                 _canvas_line(self._color, self._tx(self._x), self._ty(self._y), self._tx(nx), self._ty(ny), self._width)
                 if self._filling: self._fill_path.append((nx, ny))
             self._x, self._y = nx, ny
-        self._heading = (self._heading + extent) % 360
+            self._heading = (self._heading + step_deg) % 360
     def dot(self, s=1, c=None):
         _canvas_circle(c or self._color, self._tx(self._x), self._ty(self._y), s/2, 0)
     def write(self, t, move=False, align='left', font=('Arial',8,'normal')):
