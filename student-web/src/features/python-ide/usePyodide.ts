@@ -164,6 +164,8 @@ class _Turtle:
         self._fillcolor = 'black'
         self._filling = False
         self._fill_path = []
+        self._svg_lines = []  # SVG 调试: 记录所有线条 [(x1,y1,x2,y2,color,width)]
+        self._svg_fills = []  # SVG 调试: 记录填充多边形 [pts, color]
         self._delay = 0
     def _tx(self, x):
         import js as _js
@@ -183,6 +185,7 @@ class _Turtle:
         if self._pen_down:
             self._maybe_delay()
             _canvas_line(self._color, self._tx(self._x), self._ty(self._y), self._tx(nx), self._ty(ny), self._width)
+            self._svg_lines.append((self._x, self._y, nx, ny, self._color, self._width))
             if self._filling: self._fill_path.append((nx, ny))
         self._x, self._y = nx, ny
     def backward(self, d): self.forward(-d)
@@ -195,6 +198,7 @@ class _Turtle:
         if self._pen_down:
             self._maybe_delay()
             _canvas_line(self._color, self._tx(self._x), self._ty(self._y), self._tx(x), self._ty(y), self._width)
+            self._svg_lines.append((self._x, self._y, x, y, self._color, self._width))
             if self._filling: self._fill_path.append((x, y))
         self._x, self._y = x, y
     def setpos(self, x, y): self.goto(x, y)
@@ -231,6 +235,7 @@ class _Turtle:
             ny = cy + r * math.sin(a)
             if self._pen_down:
                 _canvas_line(self._color, self._tx(self._x), self._ty(self._y), self._tx(nx), self._ty(ny), self._width)
+                self._svg_lines.append((self._x, self._y, nx, ny, self._color, self._width))
                 if self._filling: self._fill_path.append((nx, ny))
             self._x, self._y = nx, ny
             self._heading = (self._heading + step_deg) % 360
@@ -256,6 +261,7 @@ class _Turtle:
         if len(self._fill_path) > 2:
             pts = [(self._tx(p[0]), self._ty(p[1])) for p in self._fill_path]
             _canvas_fill(self._fillcolor or self._color, pts)
+            self._svg_fills.append((list(self._fill_path), self._fillcolor or self._color))
         self._fill_path = []
     def fillcolor(self, c): self._fillcolor = c
     def setx(self, x): self._x = x
@@ -296,7 +302,10 @@ class _TurtleModule:
         self._default = _Turtle()
     Turtle = _Turtle
     Screen = _Screen
-    def done(self): pass
+    def done(self):
+        import sys as _s
+        _fn = _s.modules.get('_svg_dump_fn')
+        if _fn: _fn()
     def bye(self): pass
     def exitonclick(self): pass
     def bgcolor(self, c): self._default._bg = c
@@ -306,6 +315,33 @@ class _TurtleModule:
     def clearscreen(self): self._default.reset()
     def resetscreen(self): self._default.reset()
     def turtles(self): return []
+    def _dump_svg(self):
+        import js as _js
+        d = self._default
+        # 计算边界
+        xs = []; ys = []
+        for ln in d._svg_lines:
+            xs += [ln[0], ln[2]]; ys += [ln[1], ln[3]]
+        for fl in d._svg_fills:
+            for p in fl[0]: xs.append(p[0]); ys.append(p[1])
+        if not xs: return ''
+        minx, maxx = min(xs), max(xs)
+        miny, maxy = min(ys), max(ys)
+        pad = 20
+        w = maxx - minx + pad * 2
+        h = maxy - miny + pad * 2
+        # SVG y 轴向下, turtle y 向上, 翻转: svg_y = h - (y - miny + pad)
+        def sy(y): return h - (y - miny) - pad
+        def sx(x): return x - minx + pad
+        parts = ['<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d" viewBox="0 0 %d %d">' % (w, h, w, h)]
+        parts.append('<rect width="100%%" height="100%%" fill="white"/>')
+        for fl in d._svg_fills:
+            pts_str = ' '.join('%.1f,%.1f' % (sx(p[0]), sy(p[1])) for p in fl[0])
+            parts.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="1"/>' % (pts_str, fl[1], fl[1]))
+        for ln in d._svg_lines:
+            parts.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s" stroke-width="%.1f"/>' % (sx(ln[0]), sy(ln[1]), sx(ln[2]), sy(ln[3]), ln[4], ln[5]))
+        parts.append('</svg>')
+        return ''.join(parts)
     def getcanvas(self): return None
     def getscreen(self): return _Screen()
     def setup(self, *a):
@@ -377,6 +413,20 @@ class _TurtleModule:
     def setundobuffer(self, *a): pass
 
 sys.modules['turtle'] = _TurtleModule()
+def _dump_turtle_svg():
+    import sys as _s
+    _m = _s.modules.get('turtle')
+    if _m and hasattr(_m, '_dump_svg'): return _m._dump_svg()
+    return ''
+def _svg_dump_fn():
+    import builtins as _b
+    _svg = _dump_turtle_svg()
+    if _svg:
+        _b.print('===TURTLE_SVG===')
+        _b.print(_svg)
+        _b.print('===END_SVG===')
+import sys as _s2
+_s2.modules['_svg_dump_fn'] = type('m',(),{'__call__':lambda s:_svg_dump_fn()})()
 `)
   } catch (e: any) { console.warn('turtle shim 注入失败:', e.message) }
   // 注册 canvas 绘制函数(pygame shim 依赖)
