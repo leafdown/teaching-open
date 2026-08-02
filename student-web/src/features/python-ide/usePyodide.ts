@@ -303,9 +303,12 @@ class _TurtleModule:
     Turtle = _Turtle
     Screen = _Screen
     def done(self):
-        import sys as _s
-        _fn = _s.modules.get('_svg_dump_fn')
-        if _fn: _fn()
+        import builtins as _b
+        _svg = self._dump_svg()
+        if _svg:
+            _b.print('===TURTLE_SVG_START===')
+            _b.print(_svg)
+            _b.print('===TURTLE_SVG_END===')
     def bye(self): pass
     def exitonclick(self): pass
     def bgcolor(self, c): self._default._bg = c
@@ -418,15 +421,7 @@ def _dump_turtle_svg():
     _m = _s.modules.get('turtle')
     if _m and hasattr(_m, '_dump_svg'): return _m._dump_svg()
     return ''
-def _svg_dump_fn():
-    import builtins as _b
-    _svg = _dump_turtle_svg()
-    if _svg:
-        _b.print('===TURTLE_SVG===')
-        _b.print(_svg)
-        _b.print('===END_SVG===')
-import sys as _s2
-_s2.modules['_svg_dump_fn'] = type('m',(),{'__call__':lambda s:_svg_dump_fn()})()
+
 `)
   } catch (e: any) { console.warn('turtle shim 注入失败:', e.message) }
   // 注册 canvas 绘制函数(pygame shim 依赖)
