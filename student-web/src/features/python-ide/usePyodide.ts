@@ -217,21 +217,23 @@ class _Turtle:
         import math
         extent = e if e is not None else 360
         steps = max(60, int(abs(extent) * 2))
-        step = extent / steps
-        # 圆心在海龟左侧 r 处 (r>0 左弧, r<0 右弧)
-        # heading=0 朝右, 圆心在屏幕上方 (y 减小方向)
+        step_deg = extent / steps
+        step_rad = math.radians(step_deg)
         h = math.radians(self._heading)
+        # 圆心在海龟左侧 r 处 (r>0 左弧, r<0 右弧)
         cx = self._x + r * math.cos(h + math.pi / 2)
         cy = self._y + r * math.sin(h + math.pi / 2)
-        for _ in range(steps):
-            self._heading = (self._heading + step) % 360
-            h2 = math.radians(self._heading)
-            nx = cx + r * math.cos(h2 - math.pi / 2)
-            ny = cy + r * math.sin(h2 - math.pi / 2)
+        # 圆心->海龟的初始角度
+        start_angle = h - math.pi / 2
+        for i in range(steps):
+            a = start_angle + step_rad * (i + 1)
+            nx = cx + r * math.cos(a)
+            ny = cy + r * math.sin(a)
             if self._pen_down:
                 _canvas_line(self._color, self._tx(self._x), self._ty(self._y), self._tx(nx), self._ty(ny), self._width)
                 if self._filling: self._fill_path.append((nx, ny))
             self._x, self._y = nx, ny
+        self._heading = (self._heading + extent) % 360
     def dot(self, s=1, c=None):
         _canvas_circle(c or self._color, self._tx(self._x), self._ty(self._y), s/2, 0)
     def write(self, t, move=False, align='left', font=('Arial',8,'normal')):
