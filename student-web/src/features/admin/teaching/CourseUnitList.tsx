@@ -5,6 +5,7 @@ import { UploadOutlined, DownloadOutlined, DeleteOutlined, PlusOutlined, Picture
 import CrudList from '@/components/crud/CrudList'
 import { crudApi } from '@/api/system.api'
 import { fileUrl, uploadFile } from '@/api/common.api'
+import { useDictOptions, toOptions } from '@/hooks/use-dict-options'
 import RichEditor from '@/components/editor/RichEditor'
 import type { CrudFormField } from '@/components/crud/CrudList'
 
@@ -15,12 +16,13 @@ export default function Page() {
   const courseName = params.get('courseName') || ''
   const [form] = Form.useForm()
   const [coverFile, setCoverFile] = useState<File | null>(null)
+  const courseWorkTypeOptions = useDictOptions('course_work_type')
 
   const basicFields: CrudFormField[] = [
     { name: 'unitName', label: '单元名称', required: true },
     { name: 'courseId', label: '课程' },
     { name: 'unitIntro', label: '简介' },
-    { name: 'courseWorkType', label: '作业类型' },
+    { name: 'courseWorkType', label: '作业类型', type: 'select', options: toOptions(courseWorkTypeOptions.data) },
     { name: 'orderNum', label: '排序', type: 'number' },
   ]
 

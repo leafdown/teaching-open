@@ -1,22 +1,34 @@
-import { useState } from 'react'
-import { Form, Upload, Button, Image, Modal, message, Space, Card, Input, Select } from 'antd'
+import { useState, useEffect } from 'react'
+import { Form, Upload, Button, Image, Modal, message, Space, Card, Input, Select, Switch, Tooltip } from 'antd'
 import { UploadOutlined, DownloadOutlined, DeleteOutlined, PlusOutlined, PictureOutlined, FileOutlined } from '@ant-design/icons'
 import CrudList from '@/components/crud/CrudList'
 import { crudApi } from '@/api/system.api'
 import { fileUrl, uploadFile } from '@/api/common.api'
+import { getAction } from '@/api/client'
+import { useDictOptions, toOptions } from '@/hooks/use-dict-options'
 import RichEditor from '@/components/editor/RichEditor'
 import type { CrudFormField } from '@/components/crud/CrudList'
+
+interface Depart { id: string; departName: string }
 
 export default function Page() {
   const api = crudApi('/teaching/teachingCourse')
   const [form] = Form.useForm()
   const [coverFile, setCoverFile] = useState<File | null>(null)
+  const courseTypeOptions = useDictOptions('course_type')
+  const courseCategoryOptions = useDictOptions('course_category')
+  const [departOptions, setDepartOptions] = useState<{ label: string; value: string }[]>([])
+  useEffect(() => {
+    getAction<Depart[]>('/sys/sysDepart/listAll')
+      .then(r => Array.isArray(r) ? r : [])
+      .then(list => setDepartOptions(list.map(d => ({ label: d.departName, value: d.id }))))
+      .catch(() => {})
+  }, [])
 
   const basicFields: CrudFormField[] = [
     { name: 'courseName', label: '课程名称', required: true },
-    { name: 'courseType', label: '课程类型' },
-    { name: 'courseCategory', label: '课程分类' },
-    { name: 'departIds', label: '授权部门' },
+    { name: 'courseType', label: '课程类型', type: 'select', options: toOptions(courseTypeOptions.data) },
+    { name: 'courseCategory', label: '课程分类', type: 'select', options: toOptions(courseCategoryOptions.data) },
     { name: 'isShared', label: '是否共享' },
     { name: 'showHome', label: '首页展示' },
     { name: 'orderNum', label: '排序', type: 'number' },
@@ -123,13 +135,23 @@ export default function Page() {
           {/* 基本信息分组 */}
           <Card title="基本信息" size="small" style={{ marginBottom: 16 }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
-              {basicFields.map(f => (
-                <Form.Item key={f.name} name={f.name} label={f.label}
-                  rules={f.required ? [{ required: true, message: `请输入${f.label}` }] : []}>
-                  {f.type === 'select' ? <Select options={f.options} /> :
-                   f.type === 'number' ? <Input type="number" /> : <Input />}
-                </Form.Item>
-              ))}
+              {basicFields.map(f => {
+                const isBool = f.name === 'isShared' || f.name === 'showHome'
+                return (
+                  <Form.Item key={f.name} name={f.name} label={f.label} valuePropName={isBool ? 'checked' : 'value'}
+                    rules={f.required ? [{ required: true, message: `请输入${f.label}` }] : []}>
+                    {isBool ? <Switch /> :
+                     f.type === 'select' ? <Select options={f.options} allowClear /> :
+                     f.type === 'number' ? <Input type="number" /> : <Input />}
+                  </Form.Item>
+                )
+              })}
+              {/* 授权部门:多选,后端存逗号分隔字符串 */}
+              <Form.Item name="departIds" label="授权部门"
+                getValueFromEvent={(v: string[]) => (v || []).join(',')}
+                normalize={(v: string) => (v ? v.split(',').filter(Boolean) : [])}>
+                <Select mode="multiple" options={departOptions} placeholder="请选择授权部门" allowClear />
+              </Form.Item>
             </div>
           </Card>
 
@@ -163,7 +185,7 @@ export default function Page() {
     fields={[]}
     onSave={async (vals, record) => record ? api.edit({ ...record, ...vals }) : api.add(vals)}
     extraActions={(record: any) => (
-      <a onClick={() => window.open(`/admin/teaching/TeachingCourseUnitList?courseId=${record.id}&courseName=${encodeURIComponent(record.courseName || '')}`, '_self')}>管理单元</a>
+      <Tooltip title="管理单元"><a onClick={() => window.open(`/admin/teaching/TeachingCourseUnitList?courseId=${record.id}&courseName=${encodeURIComponent(record.courseName || '')}`, '_self')}><i className="fas fa-layer-group" /></a></Tooltip>
     )}
   />
 }

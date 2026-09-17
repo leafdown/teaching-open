@@ -7,6 +7,7 @@ import { fileUrl } from '@/api/common.api'
 import { getDictItems } from '@/api/system.api'
 import { DictItem } from '@/api/types'
 import { SafeHtml } from '@/utils/safe-html'
+import { contentWrapper } from '@/utils/responsive-utils'
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint'
 
 const { Title } = Typography
@@ -114,7 +115,7 @@ export default function PublicCourse() {
   }
 
   return (
-    <div style={{ padding: '24px 0' }}>
+    <div style={contentWrapper}>
       {/* 筛选区 */}
       <Card bordered={false} style={{ marginBottom: 24 }}>
         <Space wrap size="middle" style={{ display: 'flex', flexWrap: 'wrap' }}>

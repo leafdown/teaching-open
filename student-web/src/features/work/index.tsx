@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Card, Row, Col, Spin, Empty, Tabs, Button, Popconfirm, message, Space, Select, Pagination } from 'antd'
 import { mineWorks, leaderboard, deleteWork, WorkVO } from '@/api/work.api'
@@ -7,6 +7,7 @@ import { coverUrl, workFileUrl } from '@/api/common.api'
 import MineWorkTable from './MineWorkTable'
 import { RESPONSIVE, contentWrapper } from '@/utils/responsive-utils'
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint'
+import { useAuth } from '@/stores/auth.store'
 
 const typeMap: Record<string, { label: string; orderBy?: string; workStatus?: number }> = {
   '0': { label: '最火', orderBy: 'view' },
@@ -26,11 +27,26 @@ function editHref(w: WorkVO): string {
 
 function MineWorks() {
   const qc = useQueryClient()
+  const nav = useNavigate()
+  const token = useAuth((s) => s.token)
+  const isLoggedIn = !!token
   const [page, setPage] = useState(1)
   const screens = useBreakpoint()
   const isMobile = !(screens.md ?? false)
-  const q = useQuery({ queryKey: ['mineWorks', page], queryFn: () => mineWorks({ pageNo: page, pageSize: 12 }) })
+  // /works 是公开页: 未登录不发「我的作品」请求(该接口 401 会触发全局登出硬跳 /login)
+  const q = useQuery({ queryKey: ['mineWorks', page], queryFn: () => mineWorks({ pageNo: page, pageSize: 12 }), enabled: isLoggedIn })
   const del = useMutation({ mutationFn: deleteWork, onSuccess: () => { message.success('已删除'); qc.invalidateQueries({ queryKey: ['mineWorks'] }) } })
+
+  if (!isLoggedIn) {
+    return (
+      <div style={contentWrapper}>
+        <h2>我的作品</h2>
+        <Empty description="登录后可查看和管理我的作品" style={{ padding: '40px 0' }}>
+          <Button type="primary" onClick={() => nav('/login')}>去登录</Button>
+        </Empty>
+      </div>
+    )
+  }
 
   return (
     <div style={contentWrapper}>

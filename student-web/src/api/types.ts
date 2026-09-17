@@ -58,6 +58,7 @@ export interface SysConfig {
   webURL?: string
   domianURL?: string
   brandName?: string
+  logo?: string
   footer?: string
   customJS?: string
   customCss?: string

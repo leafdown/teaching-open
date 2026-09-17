@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { Table, Input, Select, Button, Space, Popconfirm, Rate, Tooltip, Tag, message } from 'antd'
+import { useNavigate } from 'react-router-dom'
+import { Table, Input, Select, Button, Space, Popconfirm, Rate, Tooltip, Tag, message, Empty } from 'antd'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { mineWorks, deleteWork, deleteBatchWork, getWorkTags, setWorkTag, WorkVO } from '@/api/work.api'
 import { useDict } from '@/stores/dict.store'
+import { useAuth } from '@/stores/auth.store'
 import { coverUrl } from '@/api/common.api'
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint'
 
@@ -17,15 +19,19 @@ function editHref(w: WorkVO): string {
 
 export default function MineWorkTable() {
   const qc = useQueryClient()
+  const nav = useNavigate()
   const dict = useDict()
+  const token = useAuth((s) => s.token)
+  const isLoggedIn = !!token
   const [page, setPage] = useState(1)
   const [filters, setFilters] = useState<{ workName?: string; workTag?: string; workType?: string }>({})
   const [selected, setSelected] = useState<React.Key[]>([])
   const screens = useBreakpoint()
   const isMobile = !(screens.md ?? false)
 
-  const q = useQuery({ queryKey: ['mineWorksTable', page, filters], queryFn: () => mineWorks({ pageNo: page, pageSize: 10, ...filters }) })
-  const tagsQ = useQuery({ queryKey: ['workTags'], queryFn: getWorkTags })
+  // 未登录不发请求(避免 401 触发全局登出硬跳 /login)
+  const q = useQuery({ queryKey: ['mineWorksTable', page, filters], queryFn: () => mineWorks({ pageNo: page, pageSize: 10, ...filters }), enabled: isLoggedIn })
+  const tagsQ = useQuery({ queryKey: ['workTags'], queryFn: getWorkTags, enabled: isLoggedIn })
   const del = useMutation({ mutationFn: deleteWork, onSuccess: () => { message.success('已删除'); qc.invalidateQueries({ queryKey: ['mineWorksTable'] }) } })
   const batchDel = useMutation({ mutationFn: deleteBatchWork, onSuccess: () => { message.success('批量删除成功'); setSelected([]); qc.invalidateQueries({ queryKey: ['mineWorksTable'] }) } })
 
@@ -46,6 +52,16 @@ export default function MineWorkTable() {
       </Space>
     ) },
   ]
+
+  if (!isLoggedIn) {
+    return (
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? 12 : 24 }}>
+        <Empty description="登录后可查看和管理我的作品" style={{ padding: '40px 0' }}>
+          <Button type="primary" onClick={() => nav('/login')}>去登录</Button>
+        </Empty>
+      </div>
+    )
+  }
 
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? 12 : 24 }}>

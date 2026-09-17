@@ -63,9 +63,24 @@ export default function Home() {
   return (
     <div style={contentWrapper}>
       <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]}>
-        <Col {...RESPONSIVE.col3}><Card hoverable onClick={() => openIDE('scratchjr')}><Card.Meta title="ScratchJr" description="低年级图形化编程" /></Card></Col>
-        <Col {...RESPONSIVE.col3}><Card hoverable onClick={() => openIDE('scratch3')}><Card.Meta title="Scratch3" description="图形化编程创作" /></Card></Col>
-        <Col {...RESPONSIVE.col3}><Card hoverable onClick={() => openIDE('python')}><Card.Meta title="Python" description="Python Turtle 编程" /></Card></Col>
+        <Col {...RESPONSIVE.col3}>
+          <Card hoverable onClick={() => openIDE('scratchjr')} styles={{ body: { display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px' } }}>
+            <img src="/images/tools/scratchjr.png" alt="" style={{ width: 44, height: 44, borderRadius: 8, flexShrink: 0, objectFit: 'contain' }} />
+            <Card.Meta title={<span style={{ fontSize: 16, fontWeight: 600 }}>ScratchJr</span>} description={<span style={{ fontSize: 13 }}>低年级图形化编程</span>} />
+          </Card>
+        </Col>
+        <Col {...RESPONSIVE.col3}>
+          <Card hoverable onClick={() => openIDE('scratch3')} styles={{ body: { display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px' } }}>
+            <img src="/images/tools/scratch3.jpg" alt="" style={{ width: 44, height: 44, borderRadius: 8, flexShrink: 0, objectFit: 'contain' }} />
+            <Card.Meta title={<span style={{ fontSize: 16, fontWeight: 600 }}>Scratch3</span>} description={<span style={{ fontSize: 13 }}>图形化编程创作</span>} />
+          </Card>
+        </Col>
+        <Col {...RESPONSIVE.col3}>
+          <Card hoverable onClick={() => openIDE('python')} styles={{ body: { display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px' } }}>
+            <img src="/images/tools/python.png" alt="" style={{ width: 44, height: 44, borderRadius: 8, flexShrink: 0, objectFit: 'contain' }} />
+            <Card.Meta title={<span style={{ fontSize: 16, fontWeight: 600 }}>Python</span>} description={<span style={{ fontSize: 13 }}>Python Turtle 编程</span>} />
+          </Card>
+        </Col>
       </Row>
 
       <Section title="精选作品" onMore={() => nav('/works?type=3')}>

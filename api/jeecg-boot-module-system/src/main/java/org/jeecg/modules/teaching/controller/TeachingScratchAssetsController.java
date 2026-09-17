@@ -48,7 +48,7 @@ public class TeachingScratchAssetsController extends JeecgController<TeachingScr
     @GetMapping("/getScratchAssets")
     public JSONArray getScratchAssets(@RequestParam Integer assetType){
         JSONArray list = new JSONArray();
-        List<TeachingScratchAssets> assets = teachingScratchAssetsService.list(new QueryWrapper<TeachingScratchAssets>().eq("asset_type",assetType));
+        List<TeachingScratchAssets> assets = teachingScratchAssetsService.list(new QueryWrapper<TeachingScratchAssets>().eq("asset_type",assetType).eq("del_flag",0));
         for (TeachingScratchAssets asset: assets){
             list.add(JSONObject.parseObject(asset.getAssetData()));
         }

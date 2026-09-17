@@ -17,7 +17,7 @@ service.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config
 })
 
-// 响应拦截:解包 {success,result,message,code};code=510/500 token 失效
+// 响应拦截:解包 {success,result,message,code};仅「token 失效/过期」语义才强制登出
 service.interceptors.response.use(
   (resp) => {
     const data = resp.data as ApiResult
@@ -26,11 +26,13 @@ service.interceptors.response.use(
     // __raw:调用方需要完整响应体(如 /sys/common/upload 数据在 message 字段,无法走 result 解包)
     if ((resp.config as any).__raw) return data as never
     if (data && typeof data === 'object' && 'success' in data) {
-      if (data.code === 510 || !data.success && /Token|登录|过期|未登录/i.test(data.message || '')) {
+      // token 失效/过期 → 强制登出(仅此语义才登出)
+      if (isTokenExpired(data)) {
         handleTokenExpired()
         return Promise.reject(new Error(data.message || '登录已过期'))
       }
       if (!data.success) {
+        // 权限不足 / 其它业务失败:只提示,不登出
         message.error(data.message || '请求失败')
         return Promise.reject(new Error(data.message || '请求失败'))
       }
@@ -40,14 +42,37 @@ service.interceptors.response.use(
   },
   (error: AxiosError) => {
     const status = error.response?.status
-    if (status === 401 || status === 403 || status === 500) {
+    if (status === 401) {
       handleTokenExpired()
+    } else if (status === 403) {
+      // 权限不足:提示但不登出
+      message.error('没有权限，请联系管理员授权')
+    } else if (status === 500) {
+      // 后端异常(可能含 AuthenticationException→token失效):按响应体 message 判断
+      const body = (error.response?.data as any) || {}
+      const msg = body?.message || body?.error || ''
+      if (/Token|登录|过期|未登录|token/i.test(msg)) {
+        handleTokenExpired()
+      } else {
+        message.error(msg || '服务器异常')
+      }
     } else {
       message.error(error.message || '网络异常')
     }
     return Promise.reject(error)
   }
 )
+
+// 判定业务响应是否为「登录态过期」:仅 token 失效/过期/未登录语义才返回 true(登出)
+function isTokenExpired(data: ApiResult): boolean {
+  // 明确 403 = 权限不足,永不登出
+  if (data.code === 403) return false
+  // 兼容旧约定:510/500 常被「无权限」复用;仅当 message 明确是 token 失效语义才真登出
+  if (data.code === 510 || data.code === 500) {
+    return /Token|登录|过期|未登录/i.test(data.message || '')
+  }
+  return false
+}
 
 function handleTokenExpired() {
   // 清 token 跳登录(避免循环依赖,直接操作 localStorage + location)

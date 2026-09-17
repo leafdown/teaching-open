@@ -24,7 +24,6 @@ const FALLBACK_MENUS: MenuItem[] = [
       { component: 'teaching/TeachingAdditionalWorkList', meta: { title: '附加作业' }, children: [] } as any,
       { component: 'teaching/TeachingScratchAssetsList', meta: { title: '素材管理' }, children: [] } as any,
       { component: 'teaching/TeachingNewsList', meta: { title: '资讯管理' }, children: [] } as any,
-      { component: 'teaching/TeachingOrderList', meta: { title: '订单管理' }, children: [] } as any,
       { component: 'teaching/TeachingMenuList', meta: { title: '教学菜单' }, children: [] } as any,
     ]
   } as any,

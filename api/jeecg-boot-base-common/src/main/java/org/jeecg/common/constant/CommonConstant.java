@@ -68,8 +68,10 @@ public interface CommonConstant {
     /** {@code 200 OK} (HTTP/1.0 - RFC 1945) */
     public static final Integer SC_OK_200 = 200;
     
-    /**访问权限认证未通过 510*/
+    /**访问权限认证未通过 510(兼容旧约定:token失效/无权限统一 510)*/
     public static final Integer SC_JEECG_NO_AUTHZ=510;
+    /** 权限不足(非 token 失效)独立状态码 403,用于与「登录态过期」区分 */
+    public static final Integer SC_FORBIDDEN=403;
 
     /** 登录用户Shiro权限缓存KEY前缀 */
     public static String PREFIX_USER_SHIRO_CACHE  = "shiro:cache:org.jeecg.modules.shiro.authc.ShiroRealm.authorizationCache:";

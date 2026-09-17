@@ -7,8 +7,39 @@
   <meta name="google" value="notranslate">
   <link rel="shortcut icon" href="static/favicon.ico">
   <title>Scratch 3.0 Player</title>
+  <style>
+    html,body{margin:0;padding:0;overflow:hidden;height:100%;}
+    /* render-gui.raw.css 打进 bundle 后会给 html/body/.app 设 min-width:1024px;
+       min-height:640px。在小视口(如作品详情页的 4:3 iframe)下会把 #scratch 撑到
+       1024×640,舞台在其内部虽居中但整体溢出视口 → 看起来贴右/下。必须清掉。 */
+    html,body{min-width:0 !important;min-height:0 !important;}
+    #scratch{width:100vw;height:100vh;}
+    /* player.js 会把 #scratch 自身加上 class="app"(ne.className="app"),
+       故这里的 .app 就在 #scratch 本身上,必须用 #scratch.app 而不是 #scratch .app
+       (后代选择器永远匹配不上,导致舞台不居中)。 */
+    #scratch.app{
+      min-width:0 !important;min-height:0 !important;width:100%;height:100%;
+      display:flex !important;flex-direction:column;align-items:center;justify-content:center;
+    }
+    /* 直接子节点(舞台 column)在 flex 容器内双轴居中,不依赖 bundle 内哈希类名 */
+    #scratch.app > section{ margin:auto; }
+    /* GUI 自身全屏:bundle 里 .stage-wrapper_full-screen 只做了 align-items:center
+       (水平),没有 justify-content:center,舞台纵向贴顶。这里补垂直居中。 */
+    #scratch .stage-wrapper_full-screen_VkfX3{ justify-content:center; }
+    /* 宿主页面自带全屏按钮(nofs=1)时,隐藏 Scratch GUI 内置全屏按钮,避免页面上
+       出现两个全屏按钮。GUI 的 showFullscreenButton 配置在 v14 standalone 渲染下
+       不生效(已实测),故用 .nofs 类 + CSS 隐藏兜底。 */
+    .nofs button[aria-label="Enter full screen mode"],
+    .nofs button[aria-label*="full screen" i],
+    .nofs button[aria-label*="全屏"],
+    .nofs img[title="Full Screen Control"] { display: none !important; }
+  </style>
   <script src="../js/jquery.min.js"></script>
   <script src="../js/common.js?v=27"></script>
+  <script>
+    // nofs=1 → 宿主页面自带全屏按钮,给 <html> 加 .nofs 类,CSS 隐藏 GUI 内置全屏按钮
+    if (urlParams('nofs') === '1') document.documentElement.classList.add('nofs')
+  </script>
   <script>
     var workId = urlParams('workId')
     var workUrl = urlParams('workUrl')
@@ -29,7 +60,7 @@
         showControl: true,
         showLoading: false,
         fullscreenButton:{ //全屏按钮
-          show: true,
+          show: urlParams('nofs') !== '1',
           handleBeforeSetStageUnFull(){ //退出全屏前的操作
             var event = new CustomEvent('scratchUnFullScreen');
             window.parent.document.dispatchEvent(event);
@@ -86,7 +117,7 @@
 </body>
 
 <!-- lib.min.js removed -->
-<script type="text/javascript" src="chunks/player.js"></script>
+<script type="text/javascript" src="chunks/player.js?v=20260826"></script>
 <script>
 
 </script>

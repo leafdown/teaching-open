@@ -1,11 +1,29 @@
 import { useState } from 'react'
 import CrudList from '@/components/crud/CrudList'
-import { postAction, getAction } from '@/api/client'
+import { postAction, getAction, putAction } from '@/api/client'
 import { sendWorkToUsers } from '@/api/work.api'
-import { Space, Modal, Rate, Input, message, List, Tabs, Avatar, Tag, Select } from 'antd'
+import { Space, Modal, Rate, Input, message, List, Tabs, Avatar, Tag, Select, Tooltip } from 'antd'
 
 interface Comment { id: string; comment?: string; username?: string; avatar?: string; createTime?: string }
 interface Correct { id: string; teacherScore?: number; teacherComment?: string; createTime?: string; createBy?: string }
+
+// 预览配置:按 workType 分发不同的 player/IDE URL
+function previewUrl(record: any): { src: string; width: number; height: number } {
+  const wt = Number(record.workType) || 2
+  switch (wt) {
+    case 1:
+    case 2:
+      return { src: `/scratch3/player.html?workId=${record.id}`, width: 620, height: 500 }
+    case 3:
+      return { src: `/scratchjr/editor.html?mode=look&workFile=${record.workFileKey_url || ''}`, width: 1500, height: 700 }
+    case 4:
+      return { src: `/python/player.html?lang=turtle&url=${record.workFileKey_url || ''}`, width: 620, height: 600 }
+    case 10:
+      return { src: `/blockly/index.html?lang=zh-hans&workId=${record.id}`, width: 1500, height: 700 }
+    default:
+      return { src: `/scratch3/player.html?workId=${record.id}`, width: 620, height: 500 }
+  }
+}
 
 export default function WorkList() {
   const [correct, setCorrect] = useState<any>(null)
@@ -17,6 +35,8 @@ export default function WorkList() {
   const [targetUsers, setTargetUsers] = useState<string[]>([])
   const [sendUserOptions, setUserOptions] = useState<{ label: string; value: string }[]>([])
   const [sending, setSending] = useState(false)
+  // 预览
+  const [previewRecord, setPreviewRecord] = useState<any>(null)
 
   const openCorrect = async (record: any) => {
     setCorrect(record); setScore(record.teacherScore || 0); setComment(record.teacherComment || '')
@@ -55,18 +75,9 @@ export default function WorkList() {
         {title:'观看',dataIndex:'viewNum'},{title:'点赞',dataIndex:'starNum'},{title:'创建时间',dataIndex:'createTime'},
       ]}
       extraActions={(record:any)=> (
-        <Space>
-          <a onClick={() => {
-            const wt = Number(record.workType) || 2
-            if (wt === 4) {
-              window.open(`/ide?workType=4&workId=${record.id}&readOnly=true`, '_blank')
-            } else if (wt === 10) {
-              window.open(`/blockly/index.html?lang=zh-hans&workId=${record.id}`, '_blank')
-            } else {
-              window.open(`/scratch3/player.html?workId=${record.id}`, '_blank')
-            }
-          }}>预览</a>
-          <a onClick={() => {
+        <Space size="middle">
+          <Tooltip title="预览"><a onClick={() => setPreviewRecord(record)}><i className="fas fa-eye" /></a></Tooltip>
+          <Tooltip title="编辑"><a onClick={() => {
             const wt = Number(record.workType) || 2
             if (wt === 4) {
               window.open(`/ide?workType=4&workId=${record.id}`, '_blank')
@@ -77,9 +88,21 @@ export default function WorkList() {
             } else {
               window.open(`/scratch3/index.html?scene=edit&workId=${record.id}`, '_blank')
             }
-          }}>编辑</a>
-          <a onClick={() => setSendModal({ workId: record.id, workName: record.workName || '' })}>发送</a>
-          <a onClick={()=>openCorrect(record)}>批改</a>
+          }}><i className="fas fa-pen" /></a></Tooltip>
+          <Tooltip title="发送"><a onClick={() => setSendModal({ workId: record.id, workName: record.workName || '' })}><i className="fas fa-paper-plane" /></a></Tooltip>
+          <Tooltip title="批改"><a onClick={()=>openCorrect(record)}><i className="fas fa-check-circle" /></a></Tooltip>
+          <Tooltip title="设为精选"><a onClick={async () => {
+            try {
+              await putAction('/teaching/teachingWork/edit', { id: record.id, workStatus: 4 })
+              message.success('已设为精选')
+            } catch { message.error('设置失败') }
+          }}><i className="fas fa-star" /></a></Tooltip>
+          <Tooltip title="取消精选"><a onClick={async () => {
+            try {
+              await putAction('/teaching/teachingWork/edit', { id: record.id, workStatus: 3 })
+              message.success('已取消精选')
+            } catch { message.error('操作失败') }
+          }}><i className="fas fa-star" style={{ color: '#faad14' }} /></a></Tooltip>
         </Space>
       )}
     />
@@ -101,6 +124,17 @@ export default function WorkList() {
         ]} />
       )}
     </Modal>
+      {/* 作品预览 Modal */}
+      {previewRecord && (() => {
+        const cfg = previewUrl(previewRecord)
+        return (
+          <Modal title={`预览: ${previewRecord.workName || ''}`} open onCancel={() => setPreviewRecord(null)}
+            footer={null} width={cfg.width + 50} destroyOnClose
+          >
+            <iframe key={previewRecord.id} src={cfg.src} style={{ width: cfg.width, height: cfg.height, border: 'none' }} title="preview" />
+          </Modal>
+        )
+      })()}
       {/* 发送作品给学生的弹窗 */}
       <Modal title={`发送作品: ${sendModal?.workName || ''}`} open={!!sendModal} onCancel={()=>{setSendModal(null);setTargetUsers([]);setUserOptions([])}}
         onOk={doSendWork} confirmLoading={sending} destroyOnClose>

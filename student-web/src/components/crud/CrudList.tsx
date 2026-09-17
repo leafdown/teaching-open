@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, ReactNode } from 'react'
-import { Table, Button, Space, Popconfirm, Upload, Form, Input, message } from 'antd'
-import { PlusOutlined, DeleteOutlined, ExportOutlined, ImportOutlined, ReloadOutlined } from '@ant-design/icons'
+import { Table, Button, Space, Popconfirm, Upload, Form, Input, message, Tooltip } from 'antd'
 import { useCrudList } from './useCrudList'
 import { CrudUrls } from './useCrudList'
 import CrudModal from './CrudModal'
@@ -48,10 +47,10 @@ export default function CrudList<T extends Record<string, any>>(props: CrudListP
     } finally { setSaving(false) }
   }
 
-  const actionCol = { title: '操作', width: 200, fixed: 'right' as const, render: (_: any, record: T) => (
-    <Space>
-      {!hideEdit && <a onClick={() => handleEdit(record)}>编辑</a>}
-      {urls.delete && <Popconfirm title="确认删除?" onConfirm={() => crud.handleDelete(record[rowKey])}><a style={{ color: '#ff4d4f' }}>删除</a></Popconfirm>}
+  const actionCol = { title: '操作', width: 120, fixed: 'right' as const, render: (_: any, record: T) => (
+    <Space size="small">
+      {!hideEdit && <Tooltip title="编辑"><a onClick={() => handleEdit(record)}><i className="fas fa-edit" /></a></Tooltip>}
+      {urls.delete && <Popconfirm title="确认删除?" onConfirm={() => crud.handleDelete(record[rowKey])}><Tooltip title="删除"><a style={{ color: '#ff4d4f' }}><i className="fas fa-trash-alt" /></a></Tooltip></Popconfirm>}
       {extraActions?.(record)}
     </Space>
   )}
@@ -69,11 +68,11 @@ export default function CrudList<T extends Record<string, any>>(props: CrudListP
         </Form>
       )}
       <Space style={{ marginBottom: 16 }}>
-        {!hideAdd && <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>新增</Button>}
-        {urls.deleteBatch && <Button icon={<DeleteOutlined />} disabled={!crud.selectedKeys.length} onClick={crud.batchDelete}>批量删除</Button>}
-        {urls.exportXls && <Button icon={<ExportOutlined />} onClick={() => crud.handleExportXls()}>导出</Button>}
-        {urls.importExcel && <Upload showUploadList={false} beforeUpload={crud.handleImportExcel}><Button icon={<ImportOutlined />}>导入</Button></Upload>}
-        <Button icon={<ReloadOutlined />} onClick={() => crud.loadData()}>刷新</Button>
+        {!hideAdd && <Button type="primary" icon={<i className="fas fa-plus" />} onClick={handleAdd}>新增</Button>}
+        {urls.deleteBatch && <Button icon={<i className="fas fa-trash-alt" />} disabled={!crud.selectedKeys.length} onClick={crud.batchDelete}>批量删除</Button>}
+        {urls.exportXls && <Button icon={<i className="fas fa-file-export" />} onClick={() => crud.handleExportXls()}>导出</Button>}
+        {urls.importExcel && <Upload showUploadList={false} beforeUpload={crud.handleImportExcel}><Button icon={<i className="fas fa-file-import" />}>导入</Button></Upload>}
+        <Button icon={<i className="fas fa-sync" />} onClick={() => crud.loadData()}>刷新</Button>
       </Space>
       <Table dataSource={crud.data} columns={[...columns, actionCol]} rowKey={rowKey}
         loading={crud.loading} rowSelection={crud.rowSelection}

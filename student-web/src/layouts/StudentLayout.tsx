@@ -4,7 +4,7 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/stores/auth.store'
 import { logout as apiLogout } from '@/api/auth.api'
 import { useConfig } from '@/stores/config.store'
-import { coverUrl } from '@/api/common.api'
+import { coverUrl, fileUrl } from '@/api/common.api'
 import { SafeHtml } from '@/utils/safe-html'
 import MobileMenu from '@/components/MobileMenu'
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint'
@@ -21,6 +21,7 @@ export default function StudentLayout() {
   const avatarUrl = userInfo ? coverUrl(userInfo) : ''
   const logoutStore = useAuth((s) => s.logout)
   const brandName = useConfig((s) => s.sysConfig?.brandName) || '教学平台'
+  const logo = useConfig((s) => s.sysConfig?.logo)
   const footer = useConfig((s) => s.sysConfig?.footer)
 
   const onLogout = async () => {
@@ -50,7 +51,10 @@ export default function StudentLayout() {
   return (
     <Layout style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', background: '#fff', borderBottom: '1px solid #f0f0f0', padding: isMobile ? '0 12px' : '0 24px' }}>
-        <div style={{ fontWeight: 600, fontSize: 18, marginRight: isMobile ? 12 : 32, color: '#1890ff', cursor: 'pointer', whiteSpace: 'nowrap' }} onClick={() => nav('/')}>{brandName}</div>
+        <div style={{ display: 'flex', alignItems: 'center', fontWeight: 600, fontSize: 18, marginRight: isMobile ? 12 : 32, color: '#1890ff', cursor: 'pointer', whiteSpace: 'nowrap' }} onClick={() => nav('/')}>
+          {logo ? <img src={fileUrl(logo)} alt={brandName} style={{ height: 28, marginRight: 8, objectFit: 'contain' }} /> : null}
+          {brandName}
+        </div>
         {isMobile ? (
           <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
             <MobileMenu isAdmin={isAdmin} />

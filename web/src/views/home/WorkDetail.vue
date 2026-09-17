@@ -11,6 +11,15 @@
           height="100%"
           :scrolling="workInfo.workType == 4 || workInfo.workType == 10 ? 'auto' : 'no'"
         ></iframe>
+        <!-- 外部全屏按钮:Scratch 作品自带的 GUI 全屏按钮已通过 player.html?nofs=1 隐藏,
+             避免页面上出现两个全屏按钮 -->
+        <a-button
+          v-if="isScratchWork"
+          class="player-fullscreen-btn"
+          shape="circle"
+          :icon="isFull ? 'fullscreen-exit' : 'fullscreen'"
+          @click="toggleFullscreen"
+        />
       </div>
       <keyboard v-if="_isMobile() && workInfo.workType == 2" @event="keyEvent" />
       <!-- 作品信息 -->
@@ -144,7 +153,14 @@ export default {
       comments: [],
       shareHtml: '',
       sysConfig: {},
+      isFull: false,
     }
+  },
+  computed: {
+    // Scratch3 作品(workType 1/2)才有外部全屏按钮;ScratchJr 全屏由自身编辑器接管
+    isScratchWork() {
+      return ['1', '2'].indexOf(String(this.workInfo.workType)) !== -1
+    },
   },
   created() {
     this.workId = this.$route.query.id
@@ -175,6 +191,10 @@ export default {
         window.document.exitFullscreen();
   }
 }, false);
+    // 同步外部全屏按钮图标:按 Esc 或浏览器退出全屏时更新 isFull
+    const syncFull = () => { that.isFull = !!window.isFullscreen() }
+    document.addEventListener('fullscreenchange', syncFull)
+    document.addEventListener('webkitfullscreenchange', syncFull)
     const player = document.getElementById('player')
     // iframe 加载完成后回调(stateChange 在旧版用于同步状态,此处保留调用约定)
     player.onload = function () {
@@ -221,10 +241,11 @@ export default {
       this.frameHref = ''
       switch (record.workType) {
         case '1':
-          this.frameHref = '/scratch3/player.html?workId=' + record.id
+          // nofs=1:该页自带外部全屏按钮,隐藏 player.html 内置的 Scratch 全屏按钮
+          this.frameHref = '/scratch3/player.html?workId=' + record.id + '&nofs=1'
           return
         case '2':
-          this.frameHref = '/scratch3/player.html?workId=' + record.id
+          this.frameHref = '/scratch3/player.html?workId=' + record.id + '&nofs=1'
           return
         case '3':
           this.frameHref = '/scratchjr/editor.html?mode=look&workFile=' + record.workFileKey_url
@@ -235,6 +256,15 @@ export default {
         case '10':
           this.frameHref = '/blockly/index.html?lang=zh-hans&workId=' + record.id
           return
+      }
+    },
+    toggleFullscreen() {
+      const player = document.getElementById('player')
+      if (!player) return
+      if (window.isFullscreen()) {
+        window.exitFullscreen()
+      } else {
+        window.launchIntoFullscreen(player)
       }
     },
     starWork() {
@@ -345,9 +375,16 @@ export default {
   padding: 20px;
   .scratch-player {
     margin: auto;
+    position: relative;
     iframe {
       max-width: 720px;
       max-height: 600px;
+    }
+    .player-fullscreen-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 10;
     }
   }
   .project-info {

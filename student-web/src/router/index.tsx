@@ -2,9 +2,12 @@ import { Navigate, RouteObject } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import { Spin } from 'antd'
 import StudentLayout from '@/layouts/StudentLayout'
-import AdminLayout from '@/layouts/AdminLayout'
 import { useAuth } from '@/stores/auth.store'
 import { readToken } from '@/api/client'
+
+// AdminLayout 懒加载: 其静态依赖(SimpleCrud→CrudModal→RichEditor/wangeditor 等
+// 仅管理端使用的重组件)不应打进学生端首屏主 chunk
+const AdminLayout = lazy(() => import('@/layouts/AdminLayout'))
 
 // 学生端 / 公共页:静态懒加载
 const Login = lazy(() => import('@/features/login'))
@@ -90,7 +93,7 @@ export const routes: RouteObject[] = [
   // (对齐旧 Vue 菜单驱动路由:component 字符串 → import.meta.glob 懒加载组件)
   {
     path: '/admin/*',
-    element: <RequireAuth><RequireAdmin><AdminLayout /></RequireAdmin></RequireAuth>,
+    element: <RequireAuth><RequireAdmin><Lazy><AdminLayout /></Lazy></RequireAdmin></RequireAuth>,
   },
   { path: '*', element: <Navigate to="/" replace /> },
 ]

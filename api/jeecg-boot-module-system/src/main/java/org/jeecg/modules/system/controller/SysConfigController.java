@@ -81,7 +81,10 @@ public class SysConfigController {
         Result<Map<String, Object>> result = new Result();
         Map<String, Object> tenantConfig = sysConfigService.getConfigMap();
         tenantConfig.put("uploadType", uploadType);
-        tenantConfig.put("qiniuDomain", QiniuConfig.domain);
+        // qiniuDomain(素材库 assetHost / logo / avatar 访问域名)优先取 sys_config 表的
+        // 数据库配置值,方便 Admin 后台切换(如 storage.lanqu.vip / home.leafdown.com:8334);
+        // 数据库未配置时才回退 yml 的 jeecg.qiniu.staticDomain。
+        tenantConfig.putIfAbsent("qiniuDomain", QiniuConfig.domain);
         tenantConfig.put("qiniuArea", QiniuConfig.area);
         tenantConfig.put("staticDomain", staticDomain);
         tenantConfig.put("filePreview", filePreview);

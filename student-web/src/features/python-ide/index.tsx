@@ -5,7 +5,7 @@ import { Button, Spin, message, Dropdown, Modal } from 'antd'
 import { PlayCircleOutlined, BugOutlined, EyeOutlined, ShareAltOutlined, CheckOutlined, CloudUploadOutlined, FormatPainterOutlined, CodeOutlined, ArrowLeftOutlined, FolderAddOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons'
 import { QRCodeCanvas } from 'qrcode.react'
 import Editor from '@monaco-editor/react'
-import { usePyodide } from './usePyodide'
+import { usePyodide, detectTurtleMode, formatPyError } from './usePyodide'
 import FileTree from './FileTree'
 import OutputPanel from './OutputPanel'
 import { submitWork, studentWorkInfo } from '@/api/work.api'
@@ -111,7 +111,7 @@ t.hideturtle()
 ]
 
 // Console 欢迎语
-const CONSOLE_WELCOME = 'Python 3.12 (Pyodide) — 输入代码后回车执行, Shift+Enter 换行'
+const CONSOLE_WELCOME = 'Python 3.12 (Pyodide) — 回车执行; for/if/def 等冒号结尾自动进入多行模式, 空行结束并执行'
 
 // Monaco 补全模块列表
 const COMPLETION_MODULES = ['turtle','pygame','numpy','math','random','time','datetime','json','os','sys','re','collections','itertools','functools','pathlib']
@@ -446,6 +446,31 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
     try { sessionStorage.setItem('python_console_history', JSON.stringify(consoleHistory)) } catch {}
   }, [consoleHistory])
 
+  // Python input() 桥接: 组件挂载即注册(而非仅在 handleRun 中),
+  // 这样 Console 里调用 input() 也能弹出内联输入框, 否则 Promise 永不 resolve → 解释器假死
+  useEffect(() => {
+    ;(window as any).__pythonInputShow = (prompt: string) => {
+      // 提示语直接写入输出面板(batched stdout 缓冲到换行才输出, 靠 print(p) 会导致提示语延迟显示)
+      setOutput(prev => [...prev, prompt])
+      setAwaitingInput(true)
+      // 若在 Console tab 触发, 自动切回终端以便看到输入框
+      setConsoleMode(false)
+      setTimeout(() => inputRef.current?.focus(), 100)
+    }
+    return () => { delete (window as any).__pythonInputShow }
+  }, [])
+
+  // 手动中断执行(需 Cross-Origin-Isolation 提供 SharedArrayBuffer)
+  const handleStop = useCallback(() => {
+    const buf = (window as any).__pythonInterruptBuffer
+    if (buf) {
+      try { buf[0] = 2 } catch { /* ignore */ }
+      setOutput(prev => [...prev, '⏹️ 正在中断…'])
+    } else {
+      message.warning('当前环境不支持中断(需 COOP/COEP 响应头)。请等待程序结束, 或刷新页面。')
+    }
+  }, [])
+
   const handleConsoleSubmit = useCallback(async () => {
     await init().catch(() => {})
 
@@ -457,8 +482,9 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
 
       // 空行 + 缩进归零 → 执行
       if (!consoleInput.trim()) {
-        const fullCode = newBuffer
-        setConsoleHistory(prev => [...prev, ...fullCode.split('\n').slice(1)]) // 显示完整代码块（去掉第一行）
+        // 去掉每行遗留的 ">>> " 前缀再执行(旧版把前缀一起送进解释器, 必然 SyntaxError)
+        const fullCode = newBuffer.split('\n').map(l => l.replace(/^>>>\s?/, '')).join('\n')
+        setConsoleHistory(prev => [...prev, ...fullCode.split('\n')])
         setConsoleMultiline(false)
         setConsoleMultiBuffer('')
         try {
@@ -500,11 +526,7 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
     setRunning(true); setOutput([]); setAwaitingInput(false)
     // 清理 pending 的 input 等待
     if (inputResolveRef.current) { inputResolveRef.current(''); inputResolveRef.current = null }
-    // 注册 Python input() 回调
-    ;(window as any).__pythonInputShow = (prompt: string) => {
-      setAwaitingInput(true)
-      setTimeout(() => inputRef.current?.focus(), 100)
-    }
+    // input() 桥接(__pythonInputShow)已在组件挂载时注册, Console 里同样可用
     // 多文件: 通过 Pyodide 的 Python 文件 API 写入虚拟文件系统
     // 先收集所有目录，一次性创建（包括空目录）
     const dirsToCreate = new Set<string>()
@@ -524,7 +546,7 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
       }
     }
     if (dirsToCreate.size > 0) {
-      const cmds = Array.from(dirsToCreate).map(d => `os.makedirs('${d}', exist_ok=True)`).join('\n')
+      const cmds = Array.from(dirsToCreate).map(d => `os.makedirs(${JSON.stringify(d)}, exist_ok=True)`).join('\n')
       await py.runPythonAsync(`import os\n${cmds}`)
     }
     for (const f of files) {
@@ -534,10 +556,19 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
           const resp = await fetch(f.dataUrl)
           const blob = await resp.blob()
           const arr = new Uint8Array(await blob.arrayBuffer())
-          await py.runPythonAsync(`open('${f.name}', 'wb').write(bytes(${JSON.stringify(Array.from(arr))}))`)
+          try {
+            py.FS.writeFile(f.name, arr)
+          } catch {
+            // FS 写入失败(如父目录缺失)时回退到 Python open()
+            await py.runPythonAsync(`open(${JSON.stringify(f.name)}, 'wb').write(bytes(${JSON.stringify(Array.from(arr))}))`)
+          }
           setOutput(prev => [...prev, `📦 加载资源: ${f.name} (${blob.size} bytes)`])
         } else {
-          await py.runPythonAsync(`open('${f.name}', 'w').write(${JSON.stringify(f.code)})`)
+          try {
+            py.FS.writeFile(f.name, f.code, { encoding: 'utf8' })
+          } catch {
+            await py.runPythonAsync(`open(${JSON.stringify(f.name)}, 'w').write(${JSON.stringify(f.code)})`)
+          }
         }
       } catch (e: any) {
         setOutput(prev => [...prev, `⚠️ 写入文件 ${f.name} 失败: ${e.message}`])
@@ -559,15 +590,21 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
       if (/while\s+True\s*:/.test(fullCode) && !/break/.test(fullCode)) hints.push('⚠️ while True 循环缺少 break，可能无限循环')
       if (/except\s*:/.test(fullCode) && !/except\s+\w/.test(fullCode)) hints.push('💡 建议: except: 会捕获所有异常，最好指定异常类型')
       if (/\binput\b/.test(fullCode) && !/int\(|float\(/.test(fullCode)) hints.push('💡 input() 返回字符串，数字运算前需用 int() 或 float() 转换')
-      const useTurtle = /\bturtle\b/.test(fullCode) || /\bpygame\b/.test(fullCode)
+      const useTurtle = detectTurtleMode(fullCode)
       if (hints.length > 0) setOutput(prev => [...prev, '', '── 代码提示 ──', ...hints, ''])
       const result = await runCode(fullCode, useTurtle, (line) => {
         setOutput(prev => [...prev, line])
       })
       const duration = ((performance.now() - startTime) / 1000).toFixed(2)
-      setOutput(prev => [...prev, '', `--- 执行完成 (${duration}s) ---`, ...(result.output.length ? result.output : ['✅ 执行成功'])])
+      // 输出已在运行中流式展示, 完成行不再重复追加整个 stdout(旧版每行都显示两遍)
+      setOutput(prev => [...prev, '', `--- 执行完成 (${duration}s) ---`, ...(result.output.length ? [] : ['✅ 执行成功'])])
     } catch (e: any) {
-      setOutput(prev => [...prev, `❌ ${(e?.message || String(e) || '未知错误').replace(/File "<exec>",?\s*/g, '').replace(/, in <exec>/g, '').trim()}`])
+      const raw = (e?.message || String(e) || '未知错误')
+      if (/KeyboardInterrupt/.test(raw)) {
+        setOutput(prev => [...prev, '⏹️ 执行已停止'])
+      } else {
+        setOutput(prev => [...prev, `❌ ${formatPyError(raw)}`])
+      }
     } finally { setRunning(false); runningRef.current = false }
   }, [init, runCode, files])
   const handleRunRef = useRef(handleRun)
@@ -752,6 +789,8 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
             {loading && <span style={{fontSize:11,color:'#888',marginRight:4}}>{Math.min(progress,99)}%</span>}
             {loading && statusText && <span style={{fontSize:11,color:'#888',marginRight:8}}>{statusText}</span>}
             {!loading && error && <span style={{fontSize:11,color:'#f87171',marginRight:8}}>❌ {error}</span>}
+            {running && <Button size="small" icon={<span style={{ fontSize: 10 }}>⏹</span>} onClick={handleStop}
+              style={{ background: '#b91c1c', borderColor: '#b91c1c', color: '#fff', border: 'none' }}>停止</Button>}
             <Button size="small" icon={<PlayCircleOutlined />} onClick={handleRun} loading={running} disabled={loading}
             style={{ background: '#2ea043', borderColor: '#2ea043', color: '#fff', border: 'none' }}>运行</Button>
             <Button size="small" icon={<BugOutlined />} onClick={() => {
@@ -890,10 +929,14 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
                     if (!py) return
                     setRunning(true); setOutput([])
                     try {
-                      const st = performance.now(); const r = await runCode(txt, /\bturtle\b/.test(txt) || /\bpygame\b/.test(txt))
+                      const st = performance.now(); const r = await runCode(txt, detectTurtleMode(txt))
                       const d = ((performance.now() - st) / 1000).toFixed(2)
-                      setOutput(prev => [...prev, `--- 选中代码执行完成 (${d}s) ---`, ...(r.output.length ? r.output : ['✅ 执行成功'])])
-                    } catch (e: any) { setOutput(prev => [...prev, `❌ ${(e?.message || '').replace(/File "<exec>",?\s*/g, '').replace(/, in <exec>/g, '').trim()}`]) }
+                      setOutput(prev => [...prev, `--- 选中代码执行完成 (${d}s) ---`, ...(r.output.length ? [] : ['✅ 执行成功'])])
+                    } catch (e: any) {
+                      const raw = (e?.message || '')
+                      if (/KeyboardInterrupt/.test(raw)) setOutput(prev => [...prev, '⏹️ 执行已停止'])
+                      else setOutput(prev => [...prev, `❌ ${formatPyError(raw)}`])
+                    }
                     finally { setRunning(false) }
                   }
                 })

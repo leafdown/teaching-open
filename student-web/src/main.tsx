@@ -7,6 +7,7 @@ import zhCN from 'antd/locale/zh_CN'
 import 'dayjs/locale/zh-cn'
 import App from './App'
 import './index.css'
+import '@fortawesome/fontawesome-free/css/all.min.css'
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } }

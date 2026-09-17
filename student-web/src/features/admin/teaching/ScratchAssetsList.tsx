@@ -1,10 +1,40 @@
 import { useState } from 'react'
 import CrudList from '@/components/crud/CrudList'
 import { crudApi } from '@/api/system.api'
-import { fileUrl, uploadFile } from '@/api/common.api'
-import { Modal, Image, message, Space, Form, Input, Select, Upload, Button } from 'antd'
+import { fileUrl, uploadQiniu } from '@/api/common.api'
+import { Modal, Image, message, Space, Form, Input, Select, Upload, Button, Tooltip } from 'antd'
 import { EyeOutlined, SoundOutlined, UploadOutlined } from '@ant-design/icons'
 import type { CrudFormField } from '@/components/crud/CrudList'
+
+// 素材在七牛上的目录前缀(Scratch 素材库用 assetHost + /internalapi/asset/{md5ext} 抓资源)
+const ASSET_DIR = 'internalapi/asset/'
+
+// 生成 32 位 hex 唯一文件名(与旧前端 j-upload uuid 一致)
+function genUuid(): string {
+  const s: string[] = []
+  const hex = '0123456789abcdef'
+  for (let i = 0; i < 32; i++) s[i] = hex[Math.floor(Math.random() * 16)]
+  return s.join('')
+}
+// 解析图片真实尺寸,构造 Scratch 造型字段(旋转中心/bitmapResolution)
+function getImageMeta(file: File): Promise<{ rotationCenterX: number; rotationCenterY: number; bitmapResolution: number }> {
+  const suffix = file.name.split('.').pop()?.toLowerCase() || ''
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = function () {
+      const img = new window.Image()
+      img.onload = () => resolve({
+        rotationCenterX: Math.floor(img.width / 2),
+        rotationCenterY: Math.floor(img.height / 2),
+        bitmapResolution: suffix === 'svg' ? 1 : 2,
+      })
+      img.onerror = () => reject(new Error('图片解析失败'))
+      img.src = reader.result as string
+    }
+    reader.onerror = () => reject(new Error('文件读取失败'))
+    reader.readAsDataURL(file)
+  })
+}
 
 export default function Page() {
   const api = crudApi('/teaching/teachingScratchAssets')
@@ -23,8 +53,8 @@ export default function Page() {
     if (type === 2) {
       return (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <SoundOutlined style={{ color: '#1890ff' }} />
-          <a onClick={() => setPreview(record)}>播放</a>
+          <i className="fas fa-music" style={{ color: '#1890ff' }} />
+          <Tooltip title="播放"><a onClick={() => setPreview(record)}><i className="fas fa-play" /></a></Tooltip>
         </div>
       )
     }
@@ -59,16 +89,42 @@ export default function Page() {
       <Modal title={isEdit ? '编辑素材' : '新增素材'} open onCancel={onCancel} onOk={async () => {
         try {
           const vals = await form.validateFields()
+          const assetType = Number(vals.assetType ?? record?.assetType)
           let md5Ext = record?.md5Ext || ''
           if (uploadFileState) {
-            const ext = uploadFileState.name.split('.').pop() || ''
-            const res = await uploadFile(uploadFileState, `${Date.now()}.${ext}`, 'scratch-assets')
-            md5Ext = res.key || res.url || ''
+            setUploading(true)
+            const ext = uploadFileState.name.split('.').pop()?.toLowerCase() || ''
+            const assetId = genUuid()
+            const md5ext = `${assetId}.${ext}`
+            const key = ASSET_DIR + md5ext
+            // 七牛直传到 internalapi/asset/ 目录(与 Scratch 素材库 assetHost 路径对齐)
+            await uploadQiniu(uploadFileState, key)
+            md5Ext = key
+            const tags = (vals.tags || '').split(',').filter(Boolean)
+            // 构造 assetData,对齐旧前端数据结构:
+            // - 背景(1)/造型(3)/声音(2):扁平对象(md5ext/assetId/dataFormat 直接放顶层)
+            // - 角色(4):完整嵌套(isStage/variables/blocks/sounds/costumes)
+            if (assetType === 2) {
+              vals.assetData = JSON.stringify({ name: vals.assetName, tags, md5ext, assetId, dataFormat: ext, sampleCount: 0, rate: 0 })
+            } else if (assetType === 4) {
+              let c = { name: vals.assetName, md5ext, assetId, dataFormat: ext, rotationCenterX: 0, rotationCenterY: 0, bitmapResolution: 2 }
+              try { c = { ...c, ...(await getImageMeta(uploadFileState)) } } catch { /* 忽略尺寸解析失败 */ }
+              vals.assetData = JSON.stringify({ name: vals.assetName, tags, isStage: false, variables: {}, blocks: {}, sounds: [], costumes: [c] })
+            } else {
+              // 背景(1)/造型(3)
+              let c = { name: vals.assetName, tags, md5ext, assetId, dataFormat: ext, rotationCenterX: 0, rotationCenterY: 0, bitmapResolution: 2 }
+              if (!ext.startsWith('snd')) {
+                try { c = { ...c, ...(await getImageMeta(uploadFileState)) } } catch { /* 忽略尺寸解析失败 */ }
+              }
+              vals.assetData = JSON.stringify(c)
+            }
+          } else if (!md5Ext) {
+            message.warning('请选择素材文件'); return
           }
           await onOk({ ...vals, md5Ext })
           setUploadFileState(null)
-        } catch (e) { /* form validation error */ }
-      }} width={500} destroyOnClose>
+        } catch (e) { message.error('保存失败: ' + ((e as Error)?.message || String(e))) } finally { setUploading(false) }
+      }} width={500} destroyOnClose confirmLoading={uploading}>
         <Form form={form} layout="vertical" initialValues={record || {}} preserve={false}>
           {fields.map(f => (
             <Form.Item key={f.name} name={f.name} label={f.label}

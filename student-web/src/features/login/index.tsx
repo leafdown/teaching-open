@@ -4,6 +4,7 @@ import { UserOutlined, LockOutlined, MobileOutlined, SafetyOutlined } from '@ant
 import { useNavigate } from 'react-router-dom'
 import { login, phoneLogin, sendSms, randomImage } from '@/api/auth.api'
 import { getCurrentConfig } from '@/api/system.api'
+import { fileUrl } from '@/api/common.api'
 import { useAuth } from '@/stores/auth.store'
 import { useConfig } from '@/stores/config.store'
 import { useDict } from '@/stores/dict.store'
@@ -14,7 +15,9 @@ export default function Login() {
   const [phoneForm] = Form.useForm()
   const setLogin = useAuth((s) => s.setLogin)
   const setSysConfig = useConfig((s) => s.setSysConfig)
+  const brandName = useConfig((s) => s.sysConfig?.brandName)
   const setAllDict = useDict((s) => s.setAll)
+  const logo = useConfig((s) => s.sysConfig?.logo)
   const [loading, setLoading] = useState(false)
   const [smsLoading, setSmsLoading] = useState(false)
   const [smsCount, setSmsCount] = useState(0)
@@ -73,7 +76,10 @@ export default function Login() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#1890ff,#36cfc9)' }}>
       <Card style={{ width: 'calc(100% - 32px)', maxWidth: 400, boxShadow: '0 8px 24px rgba(0,0,0,.15)' }}>
-        <h2 style={{ textAlign: 'center', marginBottom: 24 }}>教学平台 · 学生端</h2>
+        <div style={{ textAlign: 'center', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {logo ? <img src={fileUrl(logo)} alt={brandName} style={{ height: 32, marginRight: 8, objectFit: 'contain' }} /> : null}
+          <span style={{ fontSize: 20, fontWeight: 600 }}>{brandName ? `${brandName} · 学生端` : '学生端'}</span>
+        </div>
         <Tabs items={[
           {
             key: 'account', label: '账号登录', children: (

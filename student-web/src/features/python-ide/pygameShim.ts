@@ -10,11 +10,16 @@ class Rect:
         else: self.x=self.y=self.w=self.h=0
     @property
     def left(self): return self.x
-    @property def right(self): return self.x+self.w
-    @property def top(self): return self.y
-    @property def bottom(self): return self.y+self.h
-    @property def center(self): return (self.x+self.w//2,self.y+self.h//2)
-    @property def size(self): return (self.w,self.h)
+    @property
+    def right(self): return self.x+self.w
+    @property
+    def top(self): return self.y
+    @property
+    def bottom(self): return self.y+self.h
+    @property
+    def center(self): return (self.x+self.w//2,self.y+self.h//2)
+    @property
+    def size(self): return (self.w,self.h)
     def collidepoint(self,x,y): return self.x<=x<=self.x+self.w and self.y<=y<=self.y+self.h
 
 class Surface:
@@ -75,6 +80,18 @@ class _key:
     @staticmethod
     def get_pressed(): return _event_pressed
 
+class _mouse:
+    @staticmethod
+    def get_pos(): return (0,0)
+    @staticmethod
+    def get_pressed(): return (False, False, False)
+    @staticmethod
+    def set_pos(pos): pass
+    @staticmethod
+    def get_focused(): return False
+    @staticmethod
+    def get_rel(): return (0,0)
+
 class _time:
     def delay(self,ms): _time.sleep(ms/1000)
     def get_ticks(self): return int(_time.time()*1000)
@@ -110,11 +127,15 @@ class _mixer:
 
 class _pygameMod:
     draw=_draw(); display=_display(); event=_event(); key=_key(); time=_time()
-    font=_font(); image=_image(); mixer=_mixer()
+    font=_font(); image=_image(); mixer=_mixer(); mouse=_mouse()
     Rect=Rect; Surface=Surface
     QUIT,KEYDOWN,KEYUP=256,768,769
     MOUSEBUTTONDOWN,MOUSEBUTTONUP,MOUSEMOTION=1025,1026,1024
-    init=lambda:None; quit=lambda:None
+    # 注意: 类体内的 lambda 不接收 self, pygame.init() 会 TypeError — 必须用 staticmethod
+    @staticmethod
+    def init(): pass
+    @staticmethod
+    def quit(): pass
 
 sys.modules['pygame']=_pygameMod()
 `
