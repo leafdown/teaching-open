@@ -67,7 +67,8 @@ public class TeachingScratchAssetsController extends JeecgController<TeachingScr
    @AutoLog(value = "Scratch素材库-分页列表查询")
    @ApiOperation(value="Scratch素材库-分页列表查询", notes="Scratch素材库-分页列表查询")
    @GetMapping(value = "/list")
-   @RequiresPermissions("teaching:scratchAssets:list")
+   // 只读列表不加权限注解:学生端素材库页(/assets)和 Python IDE 资源面板登录后即可浏览,
+   // 与 getScratchAssets 的暴露面一致;增删改仍保留权限校验
    public Result<?> queryPageList(TeachingScratchAssets teachingScratchAssets,
                                   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
                                   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,

@@ -89,6 +89,8 @@ export const routes: RouteObject[] = [
       { path: 'ppt', element: <Lazy><PptGenerator /></Lazy> },
     ]
   },
+  // 旧前端(Scratch 编辑器「我的东西」)遗留路径,兼容重定向,否则命中通配路由弹回首页
+  { path: '/account/center', element: <Navigate to="/center" replace /> },
   // 管理端:所有 /admin/* 路径进 AdminLayout,由其按当前路径 + 后端菜单 component 动态解析渲染
   // (对齐旧 Vue 菜单驱动路由:component 字符串 → import.meta.glob 懒加载组件)
   {
