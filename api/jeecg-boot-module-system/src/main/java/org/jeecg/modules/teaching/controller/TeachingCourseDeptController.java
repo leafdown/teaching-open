@@ -1,6 +1,7 @@
 package org.jeecg.modules.teaching.controller;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -74,7 +75,16 @@ public class TeachingCourseDeptController extends JeecgController<TeachingCourse
 														@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 														@RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 														HttpServletRequest req) {
-		QueryWrapper<CourseDeptModel> queryWrapper = QueryGenerator.initQueryWrapper(teachingCourseDept, req.getParameterMap());
+		// list 为三表 join,多表都有 create_time;前端默认排序会产生 ambiguous order clause,
+		// 统一限定为课程班级表的列
+		Map<String, String[]> params = new HashMap<>(req.getParameterMap());
+		if (params.containsKey("column")) {
+			String col = params.get("column")[0];
+			if ("createTime".equals(col) || "create_time".equals(col)) {
+				params.put("column", new String[]{"teaching_course_dept.create_time"});
+			}
+		}
+		QueryWrapper<CourseDeptModel> queryWrapper = QueryGenerator.initQueryWrapper(teachingCourseDept, params);
 		Page<CourseDeptModel> page = new Page<CourseDeptModel>(pageNo, pageSize);
 		IPage<CourseDeptModel> pageList = teachingCourseDeptService.list(page, queryWrapper);
 		return Result.ok(pageList);

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { login, phoneLogin, sendSms, randomImage } from '@/api/auth.api'
 import { getCurrentConfig } from '@/api/system.api'
 import { fileUrl } from '@/api/common.api'
-import { useAuth } from '@/stores/auth.store'
+import { useAuth, normalizeRoles } from '@/stores/auth.store'
 import { useConfig } from '@/stores/config.store'
 import { useDict } from '@/stores/dict.store'
 
@@ -35,11 +35,12 @@ export default function Login() {
   useEffect(() => { refreshCaptcha() }, [])
 
   const afterLogin = async (token: string, userInfo: any, role: any[], dict?: Record<string, any[]>) => {
-    setLogin(token, userInfo, role)
+    const roles = normalizeRoles(role)
+    setLogin(token, userInfo, roles)
     if (dict) setAllDict(dict)
     message.success('登录成功')
     // 管理员进管理后台,学生进学生首页
-    const isAdmin = role.some((r: any) => r.roleCode === 'admin' || r.roleCode === 'teacher' || r.roleCode === 'dev')
+    const isAdmin = roles.some((r: any) => r.roleCode === 'admin' || r.roleCode === 'teacher' || r.roleCode === 'dev')
     nav(isAdmin ? '/admin' : '/', { replace: true })
   }
 

@@ -71,7 +71,9 @@ public class JwtUtil {
 	 * @return 加密的token
 	 */
 	public static String sign(String username, String secret) {
-		Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME);
+		// EXPIRE_TIME 单位是秒(redis expire 同用此常量),JWT 需要毫秒;不加 1000 会变成 108 秒过期,
+		// 导致每 2 分钟触发一次 token 刷新,并发请求下存在竞态(偶发 401 登出)
+		Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME * 1000);
 		Algorithm algorithm = Algorithm.HMAC256(secret);
 		// 附带username信息
 		return JWT.create().withClaim("username", username).withExpiresAt(date).sign(algorithm);

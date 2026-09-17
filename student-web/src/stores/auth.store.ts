@@ -23,6 +23,14 @@ function clearVueLs(key: string) {
   localStorage.removeItem(`pro__${key}`)
 }
 
+// 后端 /sys/login 的 role 是字符串数组 ["admin","student"],前端各处(登录跳转/RequireAdmin/isStudent)
+// 按 RoleInfo 对象的 roleCode 判断 → 字符串时统一归一化,否则管理员永远进不了管理后台
+export function normalizeRoles(role: unknown): RoleInfo[] {
+  return ((role as any[]) || []).map((r) =>
+    typeof r === 'string' ? { id: r, roleCode: r, roleName: r } : r,
+  )
+}
+
 export const useAuth = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -35,7 +43,7 @@ export const useAuth = create<AuthState>()(
         writeVueLs('Access-Token', token)
         writeVueLs('Login_Userinfo', userInfo)
         writeVueLs('Login_UserRole', role)
-        set({ token, userInfo, role })
+        set({ token, userInfo, role: normalizeRoles(role) })
       },
       setToken: (token) => {
         writeToken(token)
@@ -45,7 +53,7 @@ export const useAuth = create<AuthState>()(
       setUserInfo: (userInfo, role) => {
         writeVueLs('Login_Userinfo', userInfo)
         writeVueLs('Login_UserRole', role)
-        set({ userInfo, role })
+        set({ userInfo, role: normalizeRoles(role) })
       },
       logout: () => {
         clearToken()
@@ -63,7 +71,12 @@ export const useAuth = create<AuthState>()(
       name: 'student-web-auth',
       // 只 persist userInfo/role,token 用独立的 vue-ls 兼容 key 保证与旧前端互通
       partialize: (s) => ({ userInfo: s.userInfo, role: s.role }),
-      storage: createJSONStorage(() => localStorage)
+      storage: createJSONStorage(() => localStorage),
+      // 兼容历史持久化数据里字符串形态的 role(如 ["admin"])和缺失的 userInfo
+      merge: (persisted, current) => {
+        const p = (persisted || {}) as any
+        return { ...current, ...p, role: normalizeRoles(p.role) }
+      }
     }
   )
 )
