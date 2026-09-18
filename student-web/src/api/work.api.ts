@@ -55,7 +55,7 @@ export function starWork(workId: string) {
 }
 
 // 评论列表 GET /teaching/teachingWork/getWorkComments (返回数组,非分页)
-export interface WorkComment { id: string; comment?: string; username?: string; realname?: string; avatar?: string; avatar_url?: string; createTime?: string }
+export interface WorkComment { id: string; userId?: string; comment?: string; username?: string; realname?: string; avatar?: string; avatar_url?: string; createTime?: string }
 export function getWorkComments(workId: string, page: number) {
   return getAction<WorkComment[]>('/teaching/teachingWork/getWorkComments', { workId, page })
 }
@@ -63,6 +63,11 @@ export function getWorkComments(workId: string, page: number) {
 // 发表评论 POST /teaching/teachingWork/saveComment
 export function saveComment(workId: string, comment: string) {
   return postAction('/teaching/teachingWork/saveComment', { workId, comment })
+}
+
+// 删除评论 POST /teaching/teachingWork/deleteComment(仅评论作者本人或 admin 可删)
+export function deleteComment(id: string) {
+  return postAction('/teaching/teachingWork/deleteComment', { id })
 }
 
 // 作者信息 GET /teaching/teachingWork/userInfo

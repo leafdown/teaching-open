@@ -220,6 +220,8 @@ public class TeachingWorkController extends BaseController {
 					 put("user_id", getCurrentUser().getId());
 					 put("work_type", teachingWork.getWorkType());
 				 }});
+				 // 自由创作:同名只延续「未提交草稿」;已提交作品不允许被同名新作品静默覆盖(防止数据丢失)
+				 oldWorks.removeIf(w -> "1".equals(w.getWorkStatus()));
 			 }
 			 teachingWork.setId(null);
 			 teachingWork.setUserId(getCurrentUser().getId());
@@ -444,6 +446,30 @@ public class TeachingWorkController extends BaseController {
 		 c.setUserId(userId);
 		 teachingWorkCommentService.save(c);
 		 return Result.ok("评论成功");
+	 }
+
+	 // 删除评论:仅评论作者本人或 admin 角色可删(未成年人平台需要撤评/管理能力)
+	 @PostMapping(value = "/deleteComment")
+	 public Result<?> deleteComment(@RequestBody JSONObject params) {
+		 String id = params.getString("id");
+		 if (oConvertUtils.isEmpty(id)) {
+			 return Result.error("参数缺失");
+		 }
+		 TeachingWorkComment c = teachingWorkCommentService.getById(id);
+		 if (c == null) {
+			 return Result.ok();
+		 }
+		 LoginUser user = getCurrentUser();
+		 boolean isAdmin = false;
+		 try {
+			 isAdmin = sysUserService.getUserRolesSet(user.getUsername()).contains("admin");
+		 } catch (Exception ignore) {
+		 }
+		 if (!user.getId().equals(c.getUserId()) && !isAdmin) {
+			 return Result.noauth("只能删除自己的评论");
+		 }
+		 teachingWorkCommentService.removeById(id);
+		 return Result.ok("删除成功");
 	 }
 
 	 // 获取全部的标签

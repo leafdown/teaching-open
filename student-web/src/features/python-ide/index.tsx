@@ -165,6 +165,9 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
   const [awaitingInput, setAwaitingInput] = useState(false)
   const [inputBuffer, setInputBuffer] = useState('')
   const [submitResult, setSubmitResult] = useState<{ id: string } | null>(null)
+  // 首次保存/提交后记住后端返回的作品 id:后续保存带 id 走更新,
+  // 否则后端按(同名+同人+同类型)去重,新项目会静默覆盖旧作品
+  const savedIdRef = useRef<string | null>(params.get('workId'))
   const editorRef = useRef<any>(null)
   const inputResolveRef = useRef<((v: string) => void) | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -824,7 +827,8 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
             <Button size="small" icon={<CloudUploadOutlined />} onClick={async () => {
               try {
                 const workFile = await serializeFiles()
-                const res = await submitWork({ workName, workType: 4, workStatus: 1, workFile, workScene: 'python-ide', additionalId, departId })
+                const res = await submitWork({ id: savedIdRef.current || undefined, workName, workType: 4, workStatus: 1, workFile, workScene: 'python-ide', additionalId, departId })
+                if (res?.id) savedIdRef.current = res.id
                 setSubmitResult(res)
                 // 提交成功后清除草稿缓存
                 const workId = params.get('workId')
@@ -842,7 +846,8 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
             <Button size="small" icon={<CheckOutlined />} onClick={async () => {
               try {
                 const workFile = await serializeFiles()
-                await submitWork({ workName, workType: 4, workStatus: 0, workFile, workScene: 'python-ide', additionalId, departId })
+                const res = await submitWork({ id: savedIdRef.current || undefined, workName, workType: 4, workStatus: 0, workFile, workScene: 'python-ide', additionalId, departId })
+                if (res?.id) savedIdRef.current = res.id
                 // 存草稿成功后清除 localStorage 草稿
                 const workId = params.get('workId')
                 removeDraft(workId ? "python_ide_draft_" + workId : "python_ide_draft")
@@ -943,7 +948,8 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
                 editor.addAction({ id: 'save', label: '保存 (Ctrl+S)', keybindings: [2048|49], run: async () => {
                   try {
                     const workFile = await serializeFiles()
-                    await submitWork({workName,workType:4,workStatus:0,workFile,workScene:'python-ide', additionalId, departId})
+                    const res = await submitWork({id: savedIdRef.current || undefined, workName, workType: 4, workStatus: 0, workFile, workScene: 'python-ide', additionalId, departId})
+                    if (res?.id) savedIdRef.current = res.id
                     message.success('已保存')
                     const workId = params.get('workId')
                     removeDraft(workId ? "python_ide_draft_" + workId : "python_ide_draft")

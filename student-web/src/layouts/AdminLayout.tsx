@@ -43,7 +43,7 @@ const FALLBACK_MENUS: MenuItem[] = [
       { component: 'system/DataLogList', meta: { title: '数据日志' }, children: [] } as any,
     ]
   } as any,
-  { component: 'report/TeacherReport', meta: { title: '教师报表' }, children: [] } as any,
+  // report/TeacherReport 页面尚未实现,先不下发菜单入口(点了只显示"暂未实现")
 ]
 
 function isUrl(s?: string): boolean {

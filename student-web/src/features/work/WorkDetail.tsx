@@ -1,9 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Spin, Card, Button, Avatar, List, Input, message, Row, Col, Statistic, Popover } from 'antd'
+import { Spin, Card, Button, Avatar, List, Input, message, Row, Col, Statistic, Popover, Popconfirm } from 'antd'
 import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons'
-import { studentWorkInfo, starWork, getWorkComments, saveComment, WorkVO } from '@/api/work.api'
+import { studentWorkInfo, starWork, getWorkComments, saveComment, deleteComment, WorkVO } from '@/api/work.api'
+import { useAuth } from '@/stores/auth.store'
 import { QRCodeCanvas } from 'qrcode.react'
 import { fileUrl, coverUrl, workFileUrl } from '@/api/common.api'
 import PythonPlayer from '@/features/python-ide/Player'
@@ -31,6 +32,13 @@ export default function WorkDetail() {
   const isMobile = !(screens.md ?? false)
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
   const playerRef = useRef<HTMLDivElement | null>(null)
+  const myId = useAuth((s) => s.userInfo?.id)
+  const myRole = useAuth((s) => s.role)
+  const canModerate = myRole.some((r) => r.roleCode === 'admin' || r.roleCode === 'teacher' || r.roleCode === 'dev')
+  const delCmt = useMutation({
+    mutationFn: (cid: string) => deleteComment(cid),
+    onSuccess: () => { message.success('已删除'); qc.invalidateQueries({ queryKey: ['comments', id] }) },
+  })
 
   useEffect(() => {
     if (!fullscreen) return
@@ -145,7 +153,9 @@ export default function WorkDetail() {
         <Input.TextArea rows={2} value={comment} onChange={(e) => setComment(e.target.value)} placeholder="说点什么..." />
         <Button style={{ marginTop: 8 }} type="primary" disabled={!comment.trim()} onClick={() => postCmt.mutate()} loading={postCmt.isPending}>发表</Button>
         <List style={{ marginTop: 12 }} dataSource={cmts.data || []} renderItem={(c) => (
-          <List.Item><List.Item.Meta avatar={<Avatar src={coverUrl(c) as string} >{(c.realname || c.username || '?')[0]}</Avatar>} title={c.realname || c.username} description={<>{c.comment}<div style={{ fontSize: 12, color: '#999' }}>{c.createTime}</div></>} /></List.Item>
+          <List.Item actions={[(myId && c.userId === myId) || canModerate ? (
+            <Popconfirm key="del" title="删除这条评论?" onConfirm={() => delCmt.mutate(c.id)}><a style={{ color: '#ff4d4f', fontSize: 12 }}>删除</a></Popconfirm>
+          ) : null]}><List.Item.Meta avatar={<Avatar src={coverUrl(c) as string} >{(c.realname || c.username || '?')[0]}</Avatar>} title={c.realname || c.username} description={<>{c.comment}<div style={{ fontSize: 12, color: '#999' }}>{c.createTime}</div></>} /></List.Item>
         )} />
         <Button type="link" loading={cmts.isFetching} onClick={() => setCmtPage((p) => p + 1)}>加载更多</Button>
       </Card>
