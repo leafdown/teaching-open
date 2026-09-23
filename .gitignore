@@ -23,3 +23,7 @@ student-web/public/scratchjr/
 ## data
 deploy/data
 .superpowers/sdd/
+
+## vendored IDE static (same policy as public/scratch3, scratchjr)
+student-web/public/blockly/
+student-web/public/python/
