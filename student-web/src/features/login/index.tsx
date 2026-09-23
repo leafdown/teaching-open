@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Card, Form, Input, Button, Tabs, message } from 'antd'
+import { Card, Form, Input, Button, Tabs, Modal, message } from 'antd'
 import { UserOutlined, LockOutlined, MobileOutlined, SafetyOutlined } from '@ant-design/icons'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { login, phoneLogin, sendSms, randomImage } from '@/api/auth.api'
 import { getCurrentConfig } from '@/api/system.api'
 import { fileUrl } from '@/api/common.api'
@@ -11,6 +11,7 @@ import { useDict } from '@/stores/dict.store'
 
 export default function Login() {
   const nav = useNavigate()
+  const [params] = useSearchParams()
   const [accountForm] = Form.useForm()
   const [phoneForm] = Form.useForm()
   const setLogin = useAuth((s) => s.setLogin)
@@ -23,6 +24,7 @@ export default function Login() {
   const [smsCount, setSmsCount] = useState(0)
   const [captchaImg, setCaptchaImg] = useState('')
   const [checkKey, setCheckKey] = useState<number>(Date.now())
+  const [forgot, setForgot] = useState(false)
 
   const refreshCaptcha = async () => {
     const key = Date.now()
@@ -39,9 +41,11 @@ export default function Login() {
     setLogin(token, userInfo, roles)
     if (dict) setAllDict(dict)
     message.success('登录成功')
-    // 管理员进管理后台,学生进学生首页
+    // 带redirect参数时回跳原页面(仅允许站内路径,防开放跳转);管理员默认进管理后台
     const isAdmin = roles.some((r: any) => r.roleCode === 'admin' || r.roleCode === 'teacher' || r.roleCode === 'dev')
-    nav(isAdmin ? '/admin' : '/', { replace: true })
+    const r = params.get('redirect') || ''
+    const redirect = r.startsWith('/') && !r.startsWith('//') ? r : null
+    nav(redirect || (isAdmin ? '/admin' : '/'), { replace: true })
   }
 
   const onAccountLogin = async (vals: { username: string; password: string; captcha: string }) => {
@@ -120,6 +124,15 @@ export default function Login() {
             )
           }
         ]} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+          <a onClick={() => nav('/register')}>注册账号</a>
+          <a onClick={() => setForgot(true)}>忘记密码？</a>
+        </div>
+        <Modal title="忘记密码" open={forgot} onCancel={() => setForgot(false)}
+          footer={<Button type="primary" onClick={() => setForgot(false)}>知道了</Button>}>
+          <p>请联系老师或管理员在管理后台重置密码。</p>
+          <p style={{ color: '#999', fontSize: 13 }}>登录成功后也可在「个人中心 → 设置 → 安全设置」中自行修改密码。</p>
+        </Modal>
       </Card>
     </div>
   )

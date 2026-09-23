@@ -32,6 +32,9 @@ export default function Register() {
   const [loading, setLoading] = useState(false)
   const [smsCount, setSmsCount] = useState(0)
   const [smsLoading, setSmsLoading] = useState(false)
+  // 短信服务未配置时的降级:后端 /sys/user/register 允许「无短信验证码」注册
+  // (phone+smscode 任一为空即跳过校验),否则无短信服务的部署无法自助注册
+  const [smsUnavailable, setSmsUnavailable] = useState(false)
   const [pwdStrength, setPwdStrength] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -100,7 +103,15 @@ export default function Register() {
       await sendSms(phone, '1')
       message.success('验证码已发送')
       startCountdown()
-    } catch { /* client 已提示 */ } finally {
+    } catch (e: any) {
+      // 后端短信服务未配置时的两种报错:「短信接口未配置」(阿里云 ClientException,accessKeyId 为 ?? 占位)
+      // 与「短信验证码发送失败」(DySmsHelper 返回 false);降级为「验证码可留空」注册,
+      // 否则此类部署上自助注册完全不可用
+      if (/短信接口未配置|短信验证码发送失败|发送失败|404/.test(e?.message || '')) {
+        setSmsUnavailable(true)
+        message.info('短信服务未配置：可不填验证码，直接点击注册')
+      }
+    } finally {
       setSmsLoading(false)
     }
   }
@@ -111,9 +122,9 @@ export default function Register() {
       await register({
         username: vals.username,
         password: vals.password,
-        email: '',
+        email: null,
         phone: vals.phone,
-        smscode: vals.smscode,
+        smscode: smsUnavailable ? vals.smscode || '' : vals.smscode,
       })
       message.success('注册成功')
       nav('/login', { state: { username: vals.username, password: vals.password } })
@@ -151,8 +162,8 @@ export default function Register() {
           <Form.Item name="phone" rules={[{ validator: validatePhone }]} validateTrigger={['onBlur']}>
             <Input prefix={<MobileOutlined />} placeholder="11 位手机号" />
           </Form.Item>
-          <Form.Item name="smscode" rules={[{ required: true, message: '请输入短信验证码' }]}>
-            <Input prefix={<SafetyOutlined />} placeholder="短信验证码" addonAfter={
+          <Form.Item name="smscode" rules={smsUnavailable ? [] : [{ required: true, message: '请输入短信验证码' }]}>
+            <Input prefix={<SafetyOutlined />} placeholder={smsUnavailable ? '短信服务未配置，可留空' : '短信验证码'} addonAfter={
               <Button type="link" size="small" disabled={smsCount > 0} loading={smsLoading} onClick={onSendSms}>
                 {smsCount > 0 ? `${smsCount}s` : '获取验证码'}
               </Button>

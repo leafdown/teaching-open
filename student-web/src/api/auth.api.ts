@@ -1,4 +1,4 @@
-import { postAction, getAction } from './client'
+import { postAction, getAction, putAction } from './client'
 import { LoginResult } from './types'
 
 // 图形验证码 GET /sys/randomImage/{checkKey} 返回 base64 dataURI
@@ -16,9 +16,10 @@ export function phoneLogin(data: { mobile: string; captcha: string }) {
   return postAction<LoginResult>('/sys/phoneLogin', data)
 }
 
-// 发送短信 POST /account/sms {mobile, smsmode} smsmode: '0'默认 '1'注册 '2'找回密码
+// 发送短信 POST /sys/sms {mobile, smsmode} smsmode: '0'默认 '1'注册 '2'找回密码
+// 注意:后端只有 /sys/sms(LoginController),不存在 /account/sms,打错会 404
 export function sendSms(mobile: string, smsmode: string = '0') {
-  return postAction('/account/sms', { mobile, smsmode })
+  return postAction('/sys/sms', { mobile, smsmode })
 }
 
 // 登出 POST /sys/logout
@@ -27,7 +28,9 @@ export function logout() {
 }
 
 // 注册 POST /sys/user/register
-export function register(data: { username: string; password: string; email: string; phone: string; smscode: string }) {
+// email 传 null 而不是 '':uniq_sys_user_email 唯一索引会把多条 email='' 判为重复,
+// NULL 才允许多条(邮箱未填的用户)
+export function register(data: { username: string; password: string; email: string | null; phone: string; smscode: string }) {
   return postAction('/sys/user/register', data)
 }
 
@@ -54,4 +57,10 @@ export function phoneVerification(phone: string, smscode: string) {
 // 修改密码 GET /sys/user/passwordChange
 export function passwordChange(username: string, password: string, smscode: string, phone: string) {
   return getAction<boolean>('/sys/user/passwordChange', { username, password, smscode, phone })
+}
+
+// 旧密码修改密码 PUT /sys/user/updatePassword {username,oldpassword,password,confirmpassword}
+// 不依赖短信,已登录用户自助改密用这个
+export function updatePassword(data: { username: string; oldpassword: string; password: string; confirmpassword: string }) {
+  return putAction('/sys/user/updatePassword', data)
 }

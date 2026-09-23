@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from 'react'
-import { Card, Steps, Form, Input, Button, message } from 'antd'
-import { UserOutlined, SafetyOutlined, LockOutlined, CheckCircleOutlined } from '@ant-design/icons'
+import { useState, useEffect } from 'react'
+import { Card, Steps, Form, Input, Button, message, Alert } from 'antd'
+import { UserOutlined, SafetyOutlined, LockOutlined, CheckCircleOutlined, PhoneOutlined } from '@ant-design/icons'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   randomImage, checkCaptcha, querySysUser,
@@ -9,14 +9,21 @@ import {
 
 interface UserList {
   username: string
+  /** 服务端返回的脱敏手机号 138****1234,仅用于校验用户输入,不可直接发起短信 */
   phone: string
   smscode?: string
 }
 
-/** 手机号脱敏: 138****1234 */
-function maskPhone(phone: string): string {
-  if (!phone || phone.length < 7) return phone
-  return phone.slice(0, 3) + '****' + phone.slice(-4)
+/** 与 Register 一致:短信服务未配置时的降级识别 */
+function isSmsUnavailable(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err ?? '')
+  return /短信接口未配置|短信验证码发送失败|发送失败|404/.test(msg)
+}
+
+/** 校验用户输入的完整手机号与脱敏掩码吻合(前3后4) */
+function matchesMask(phone: string, mask: string): boolean {
+  if (!mask || mask.length < 11) return true
+  return phone.slice(0, 3) === mask.slice(0, 3) && phone.slice(-4) === mask.slice(-4)
 }
 
 /** 新密码校验: 8位含大小写+特殊符号 */
@@ -38,6 +45,7 @@ export default function Alteration() {
   const [checkKey, setCheckKey] = useState<number>(Date.now())
   const [smsCount, setSmsCount] = useState(0)
   const [smsLoading, setSmsLoading] = useState(false)
+  const [smsUnavailable, setSmsUnavailable] = useState(false)
   const [countdown, setCountdown] = useState(0)
   const [step1Form] = Form.useForm()
   const [step2Form] = Form.useForm()
@@ -59,7 +67,8 @@ export default function Alteration() {
     try {
       await checkCaptcha(vals.captcha, checkKey)
       const res = await querySysUser(vals.username)
-      setUserList({ username: res.username, phone: res.phone })
+      setUserList({ username: res.username, phone: res.phone || '' })
+      setSmsUnavailable(false)
       setCurrent(1)
     } catch {
       refreshCaptcha()
@@ -68,7 +77,7 @@ export default function Alteration() {
     }
   }
 
-  // ===== Step 2: 短信验证 =====
+  // ===== Step 2: 短信验证(用户输入完整手机号,前端按脱敏掩码校验前3后4) =====
   const startSmsCountdown = () => {
     let n = 60
     setSmsCount(n)
@@ -80,21 +89,27 @@ export default function Alteration() {
   }
 
   const onSendSms = async () => {
+    const phone = step2Form.getFieldValue('phone') as string | undefined
+    if (!phone) { message.warning('请先输入手机号'); return }
     setSmsLoading(true)
     try {
-      await sendSms(userList.phone, '2')
+      await sendSms(phone, '2')
       message.success('验证码已发送')
       startSmsCountdown()
-    } catch { /* client 已提示 */ } finally {
+    } catch (e) {
+      if (isSmsUnavailable(e)) {
+        setSmsUnavailable(true)
+      }
+    } finally {
       setSmsLoading(false)
     }
   }
 
-  const onStep2Next = async (vals: { smscode: string }) => {
+  const onStep2Next = async (vals: { phone: string; smscode: string }) => {
     setLoading(true)
     try {
-      const token = await phoneVerification(userList.phone, vals.smscode)
-      setUserList({ ...userList, smscode: token })
+      const token = await phoneVerification(vals.phone, vals.smscode)
+      setUserList({ ...userList, phone: vals.phone, smscode: token })
       setCurrent(2)
     } catch { /* client 已提示 */ } finally {
       setLoading(false)
@@ -163,22 +178,56 @@ export default function Alteration() {
 
         {current === 1 && (
           <Form form={step2Form} onFinish={onStep2Next} size="large">
+            {smsUnavailable && (
+              <Form.Item>
+                <Alert
+                  type="warning"
+                  showIcon
+                  message="短信服务未配置"
+                  description="当前站点未接入短信通道,暂时无法通过手机自助找回密码。请联系管理员在「后台-用户管理」中重置密码。"
+                />
+              </Form.Item>
+            )}
+            {!smsUnavailable && !userList.phone && (
+              <Form.Item>
+                <Alert
+                  type="warning"
+                  showIcon
+                  message="该账号未绑定手机号"
+                  description="无法通过手机验证找回密码,请联系管理员在「后台-用户管理」中重置密码。"
+                />
+              </Form.Item>
+            )}
             <Form.Item label="账号名">
               <Input value={userList.username} disabled />
             </Form.Item>
-            <Form.Item label="手机">
-              <Input value={maskPhone(userList.phone)} disabled />
+            <Form.Item
+              label="手机号"
+              extra={userList.phone ? `绑定手机:${userList.phone},请输入完整号码` : undefined}
+              name="phone"
+              rules={[
+                { required: true, message: '请输入绑定的手机号' },
+                { pattern: /^1\d{10}$/, message: '请输入11位手机号' },
+                ({ getFieldValue }) => ({
+                  validator(_, value: string) {
+                    if (!value || matchesMask(value, userList.phone)) return Promise.resolve()
+                    return Promise.reject('与该账号绑定的手机号不符')
+                  },
+                }),
+              ]}
+            >
+              <Input prefix={<PhoneOutlined />} placeholder="请输入完整手机号" maxLength={11} disabled={smsUnavailable || !userList.phone} />
             </Form.Item>
             <Form.Item name="smscode" rules={[{ required: true, message: '请输入短信验证码' }]}>
               <Input placeholder="短信验证码" addonAfter={
-                <Button type="link" size="small" disabled={smsCount > 0} loading={smsLoading} onClick={onSendSms}>
+                <Button type="link" size="small" disabled={smsCount > 0 || smsUnavailable || !userList.phone} loading={smsLoading} onClick={onSendSms}>
                   {smsCount > 0 ? `${smsCount}s` : '获取验证码'}
                 </Button>
-              } />
+              } disabled={smsUnavailable || !userList.phone} />
             </Form.Item>
             <div style={{ display: 'flex', gap: 8 }}>
               <Button block onClick={prevStep}>上一步</Button>
-              <Button type="primary" block htmlType="submit" loading={loading}>下一步</Button>
+              <Button type="primary" block htmlType="submit" loading={loading} disabled={smsUnavailable || !userList.phone}>下一步</Button>
             </div>
           </Form>
         )}

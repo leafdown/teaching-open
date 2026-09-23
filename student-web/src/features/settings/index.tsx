@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Form, Input, Button, DatePicker, Radio, Upload, Avatar, message, Spin, Card, Tabs, List, Switch, Modal } from 'antd'
+import { Form, Input, Button, DatePicker, Radio, Upload, Avatar, message, Spin, Card, Tabs, List, Modal } from 'antd'
 import { UserOutlined, UploadOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { getMyInfo, editMyInfo, StudentUserVO } from '@/api/user.api'
 import { uploadFile, duplicateCheck, fileUrl } from '@/api/common.api'
-import { passwordChange, phoneVerification, sendSms } from '@/api/auth.api'
+import { useAuth } from '@/stores/auth.store'
+import { updatePassword } from '@/api/auth.api'
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint'
 
 // ===== 基础资料 =====
@@ -50,24 +51,22 @@ function BaseSetting({ form, q, save }: { form: any; q: any; save: any }) {
 function SecuritySetting() {
   const [modal, setModal] = useState<'password' | null>(null)
   const [pwForm] = Form.useForm()
-  const [phoneCodeSent, setPhoneCodeSent] = useState(false)
-  const [countdown, setCountdown] = useState(0)
+  const userInfo = useAuth((s) => s.userInfo)
 
+  // 旧密码改密:PUT /sys/user/updatePassword 校验旧密码,不依赖短信
+  // (短信改密端点 passwordChange 强制要求验证码,本部署未配置短信服务,走它会死路)
   const changePw = useMutation({
-    mutationFn: (v: any) => passwordChange(v.username, v.newPassword, v.smscode, v.phone),
-    onSuccess: () => { message.success('密码修改成功'); setModal(null); pwForm.resetFields() }
+    mutationFn: (v: any) => updatePassword({
+      username: userInfo?.username || '',
+      oldpassword: v.oldpassword,
+      password: v.newPassword,
+      confirmpassword: v.confirm,
+    }),
+    onSuccess: () => { message.success('密码修改成功，下次登录请使用新密码'); setModal(null); pwForm.resetFields() }
   })
 
-  const sendCode = async () => {
-    const phone = pwForm.getFieldValue('phone')
-    if (!phone || !/^1\d{10}$/.test(phone)) { message.warning('请先输入正确的手机号'); return }
-    await sendSms(phone, '2')
-    setPhoneCodeSent(true); setCountdown(60)
-    const timer = setInterval(() => { setCountdown(v => { if (v <= 1) { clearInterval(timer); return 0 }; return v - 1 }) }, 1000)
-  }
-
   const items = [
-    { title: '账户密码', description: '修改登录密码', actions: { title: '修改', callback: () => setModal('password') } },
+    { title: '账户密码', description: '通过旧密码修改登录密码', actions: { title: '修改', callback: () => setModal('password') } },
     { title: '密保手机', description: '绑定手机号用于找回密码', actions: { title: '绑定', callback: () => message.info('手机绑定请到基础资料页修改') } },
   ]
 
@@ -81,43 +80,18 @@ function SecuritySetting() {
 
       <Modal title="修改密码" open={modal === 'password'} onCancel={() => setModal(null)} onOk={() => pwForm.submit()} destroyOnClose>
         <Form form={pwForm} layout="vertical" onFinish={(v) => changePw.mutate(v)}>
-          <Form.Item name="username" label="用户名" rules={[{ required: true }]}><Input /></Form.Item>
-          <Form.Item name="phone" label="手机号" rules={[{ required: true, pattern: /^1\d{10}$/ }]}><Input /></Form.Item>
-          <Form.Item name="smscode" label="验证码" rules={[{ required: true }]}>
-            <Input placeholder={phoneCodeSent ? '验证码已发送' : '点击发送获取'} />
-          </Form.Item>
-          <Form.Item name="newPassword" label="新密码" rules={[{ required: true, min: 6 }]}><Input.Password /></Form.Item>
-          <Button onClick={sendCode} disabled={countdown > 0} style={{ marginBottom: 8 }}>{countdown > 0 ? `${countdown}s` : phoneCodeSent ? '重新发送' : '发送验证码'}</Button>
+          <Form.Item label="账号"><Input value={userInfo?.username || ''} disabled /></Form.Item>
+          <Form.Item name="oldpassword" label="旧密码" rules={[{ required: true, message: '请输入旧密码' }]}><Input.Password /></Form.Item>
+          <Form.Item name="newPassword" label="新密码" rules={[{ required: true, min: 6, message: '至少6位' }]}><Input.Password /></Form.Item>
+          <Form.Item name="confirm" label="确认新密码" dependencies={['newPassword']} rules={[
+            { required: true, message: '请确认新密码' },
+            ({ getFieldValue }) => ({
+              validator: async (_, v) => { if (v && v !== getFieldValue('newPassword')) throw new Error('两次密码不一致') }
+            }),
+          ]}><Input.Password /></Form.Item>
         </Form>
       </Modal>
     </div>
-  )
-}
-
-// ===== 通知设置 =====
-function NotificationSetting() {
-  const data = [
-    { title: '作品评论', description: '有人评论我的作品时通知', value: true },
-    { title: '系统公告', description: '系统发布公告时通知', value: true },
-    { title: '课程更新', description: '课程有更新时通知', value: false },
-  ]
-  return (
-    <List dataSource={data} renderItem={(item: any) => (
-      <List.Item actions={[<Switch key="sw" defaultChecked={item.value} />]}>
-        <List.Item.Meta title={item.title} description={item.description} />
-      </List.Item>
-    )} />
-  )
-}
-
-// ===== 自定义偏好 =====
-function CustomSetting() {
-  return (
-    <List>
-      <List.Item actions={[<Switch key="sw" />]}>
-        <List.Item.Meta title="暗色模式" description="使用深色主题（暂未支持）" />
-      </List.Item>
-    </List>
   )
 }
 
@@ -151,8 +125,6 @@ export default function Settings() {
         <Tabs items={[
           { key: 'base', label: '基础资料', children: <BaseSetting form={form} q={q} save={save} /> },
           { key: 'security', label: '安全设置', children: <SecuritySetting /> },
-          { key: 'notification', label: '通知设置', children: <NotificationSetting /> },
-          { key: 'custom', label: '个性化', children: <CustomSetting /> },
         ]} />
       </Card>
     </div>
