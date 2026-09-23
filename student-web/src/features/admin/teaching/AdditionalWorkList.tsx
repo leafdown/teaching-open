@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Form, Upload, Button, Image, Modal, message, Space, Card, Input, Select } from 'antd'
 import { UploadOutlined, DownloadOutlined, DeleteOutlined, PlusOutlined, PictureOutlined, FileOutlined } from '@ant-design/icons'
 import CrudList from '@/components/crud/CrudList'
 import { crudApi } from '@/api/system.api'
+import { getAction } from '@/api/client'
 import { fileUrl, uploadFile } from '@/api/common.api'
 import type { CrudFormField } from '@/components/crud/CrudList'
 
@@ -10,12 +11,34 @@ export default function Page() {
   const api = crudApi('/teaching/teachingAdditionalWork')
   const [form] = Form.useForm()
   const [coverFile, setCoverFile] = useState<File | null>(null)
+  // 班级(部门)下拉选项:手填 UUID 不可用,从部门列表取
+  const [deptOptions, setDeptOptions] = useState<{ label: string; value: string }[]>([])
 
+  useEffect(() => {
+    // listAll 返回全量平铺部门(/list 是分页接口,当前部署返回空分页)
+    getAction<any>('/sys/sysDepart/listAll')
+      .then((res: any) => {
+        const rows = Array.isArray(res) ? res : res?.records || []
+        setDeptOptions(rows.map((d: any) => ({ label: d.departName || d.name, value: d.id })))
+      })
+      .catch(() => {})
+  }, [])
+
+  // codeType 与学生端 goIDE 的跳转映射一致:0=文件上传 2=Scratch 3=ScratchJr 4=Python 10=Blockly
   const basicFields: CrudFormField[] = [
     { name: 'workName', label: '作业名称', required: true },
-    { name: 'codeType', label: '作业类型' },
-    { name: 'workDept', label: '分配班级' },
-    { name: 'status', label: '状态' },
+    { name: 'codeType', label: '作业类型', type: 'select', options: [
+      { label: '文件上传', value: 0 },
+      { label: 'Scratch', value: 2 },
+      { label: 'ScratchJr', value: 3 },
+      { label: 'Python', value: 4 },
+      { label: 'Blockly', value: 10 },
+    ] },
+    { name: 'workDept', label: '分配班级', type: 'select', options: deptOptions, required: true },
+    { name: 'status', label: '状态', type: 'select', options: [
+      { label: '未发布', value: 0 },
+      { label: '已发布', value: 1 },
+    ] },
   ]
 
   const upload = async (file: File, biz: string): Promise<string> => {

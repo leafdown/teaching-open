@@ -5,7 +5,8 @@ import { sendWorkToUsers } from '@/api/work.api'
 import { Space, Modal, Rate, Input, message, List, Tabs, Avatar, Tag, Select, Tooltip } from 'antd'
 
 interface Comment { id: string; comment?: string; username?: string; avatar?: string; createTime?: string }
-interface Correct { id: string; teacherScore?: number; teacherComment?: string; createTime?: string; createBy?: string }
+// 批改记录:实际存 teaching_work_correct 子表(列名 score/comment),主表无评分列
+interface Correct { id: string; score?: number; comment?: string; createTime?: string; createBy?: string }
 
 // 预览配置:按 workType 分发不同的 player/IDE URL
 function previewUrl(record: any): { src: string; width: number; height: number } {
@@ -39,14 +40,30 @@ export default function WorkList() {
   const [previewRecord, setPreviewRecord] = useState<any>(null)
 
   const openCorrect = async (record: any) => {
-    setCorrect(record); setScore(record.teacherScore || 0); setComment(record.teacherComment || '')
+    setCorrect(record)
     setComments([]); setCorrects([])
-    // 拉评论 + 批改记录
-    try { const c = await getAction<Comment[]>('/teaching/teachingWork/queryTeachingWorkCommentByMainId', { id: record.id }); setComments(Array.isArray(c) ? c : []) } catch {}
-    try { const r = await getAction<Correct[]>('/teaching/teachingWork/queryTeachingWorkCorrectByMainId', { id: record.id }); setCorrects(Array.isArray(r) ? r : []) } catch {}
+    // 拉评论 + 批改记录,取最近一次批改的分数/评语回填
+    let cs: Comment[] = []
+    let crs: Correct[] = []
+    try { const c = await getAction<Comment[]>('/teaching/teachingWork/queryTeachingWorkCommentByMainId', { id: record.id }); if (Array.isArray(c)) cs = c } catch {}
+    try { const r = await getAction<Correct[]>('/teaching/teachingWork/queryTeachingWorkCorrectByMainId', { id: record.id }); if (Array.isArray(r)) crs = r } catch {}
+    const last = crs[crs.length - 1]
+    setScore(Number(last?.score ?? record.score) || 0)
+    setComment(last?.comment || '')
+    setComments(cs); setCorrects(crs)
   }
   const doCorrect = async () => {
-    await postAction('/teaching/teachingWork/submit', { id: correct.id, workType: correct.workType, workStatus: correct.workStatus, teacherScore: score, teacherComment: comment, workScene: correct.workScene })
+    // 评分存 teaching_work_correct 子表(主表无评分列,post /submit 会静默丢弃):
+    // 走主子表编辑 /edit,updateMain 会先清空两个子表,必须把已查出的评论列表原样带回,
+    // 否则批改一次就会清空该作品的全部学生评论
+    await putAction('/teaching/teachingWork/edit', {
+      id: correct.id,
+      workType: correct.workType,
+      workStatus: correct.workStatus,
+      workScene: correct.workScene,
+      teachingWorkCorrectList: [{ score, comment }],
+      teachingWorkCommentList: comments,
+    })
     message.success('批改完成'); setCorrect(null)
   }
 
@@ -111,9 +128,9 @@ export default function WorkList() {
         <Tabs items={[
           { key: 'correct', label: '批改', children: (
             <div>
-              <div style={{ marginBottom: 12 }}><span style={{ marginRight: 8 }}>评分:</span><Rate value={score} onChange={setScore} allowHalf /></div>
+              <div style={{ marginBottom: 12 }}><span style={{ marginRight: 8 }}>评分:</span><Rate value={score} onChange={setScore} /></div>
               <Input.TextArea rows={4} value={comment} onChange={(e)=>setComment(e.target.value)} placeholder="评语" />
-              {corrects.length > 0 && <div style={{ marginTop: 12 }}><h4>历史批改</h4>{corrects.map((c,i)=><div key={i} style={{fontSize:13,color:'#666',padding:'4px 0',borderBottom:'1px solid #f0f0f0'}}>{c.createBy} {c.createTime}: ⭐{c.teacherScore} {c.teacherComment}</div>)}</div>}
+              {corrects.length > 0 && <div style={{ marginTop: 12 }}><h4>历史批改</h4>{corrects.map((c,i)=><div key={i} style={{fontSize:13,color:'#666',padding:'4px 0',borderBottom:'1px solid #f0f0f0'}}>{c.createBy} {c.createTime}: ⭐{c.score} {c.comment}</div>)}</div>}
             </div>
           )},
           { key: 'comments', label: `评论(${comments.length})`, children: (
