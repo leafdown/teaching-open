@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { Row, Col, Card, Button, Spin, Empty, Typography } from 'antd'
-import { FolderOpenOutlined, StarOutlined, BookOutlined, RocketOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons'
+import { FolderOpenOutlined, StarOutlined, BookOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons'
 import { useAuth } from '@/stores/auth.store'
 import { mineWorks } from '@/api/work.api'
-import { coverUrl } from '@/api/common.api'
+import { mineCourse } from '@/api/course.api'
+import { coverUrl, fileUrl } from '@/api/common.api'
 import StatCard from './StatCard'
 import WorkCard from './WorkCard'
 import { RESPONSIVE, contentWrapper } from '@/utils/responsive-utils'
@@ -25,6 +26,18 @@ export default function Center() {
   })
   const totalWorks = worksQ.data?.total || 0
   const recentWorks = worksQ.data?.records || []
+  // 我的课程:后端 mineCourse 返回当前用户所在班级授权的课程
+  const coursesQ = useQuery({ queryKey: ['center-courses'], queryFn: mineCourse, retry: false })
+  const myCourses = coursesQ.data || []
+  // 获赞:汇总本人全部作品的 starNum(一次大分页拉取,仅取数值)
+  const starsQ = useQuery({
+    queryKey: ['center-stars'],
+    queryFn: async () => {
+      const all = await mineWorks({ pageNo: 1, pageSize: 999 })
+      return (all.records || []).reduce((sum, w: any) => sum + (Number(w.starNum) || 0), 0)
+    },
+    retry: false,
+  })
 
   return (
     <div style={contentWrapper}>
@@ -43,15 +56,16 @@ export default function Center() {
             <div style={{ color: '#888', fontSize: 13, marginTop: 2 }}>这个人很懒，什么都没留下</div>
           </div>
           <Button onClick={() => nav('/settings')}>编辑资料</Button>
+          {/* 旧后端菜单「班级作业」入口:页面在 /additional-work */}
+          <Button icon={<BookOutlined />} onClick={() => nav('/additional-work')}>班级作业</Button>
         </div>
       </Card>
 
-      {/* 统计 */}
+      {/* 统计(仅展示有数据源的指标;学习天数后端无数据源,不放假 0) */}
       <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: 16 }}>
-        <Col {...RESPONSIVE.col2}><StatCard icon={<FolderOpenOutlined />} label="作品" value={totalWorks} /></Col>
-        <Col {...RESPONSIVE.col2}><StatCard icon={<StarOutlined />} label="获赞" value={0} /></Col>
-        <Col {...RESPONSIVE.col2}><StatCard icon={<BookOutlined />} label="课程" value={0} /></Col>
-        <Col {...RESPONSIVE.col2}><StatCard icon={<RocketOutlined />} label="学习天数" value={0} /></Col>
+        <Col xs={24} sm={8}><StatCard icon={<FolderOpenOutlined />} label="作品" value={totalWorks} /></Col>
+        <Col xs={24} sm={8}><StatCard icon={<StarOutlined />} label="获赞" value={starsQ.data ?? 0} /></Col>
+        <Col xs={24} sm={8}><StatCard icon={<BookOutlined />} label="课程" value={myCourses.length} /></Col>
       </Row>
 
       {/* 快捷创作 */}
@@ -82,11 +96,28 @@ export default function Center() {
 
       {/* 我的课程 */}
       <Card title="我的课程" size="small"
-        extra={<a onClick={() => nav('/home')}>查看全部 <RightOutlined /></a>}>
-        <div style={{ color: '#888', textAlign: 'center', padding: 24 }}>
-          <BookOutlined style={{ fontSize: 32, opacity: 0.3 }} />
-          <div style={{ marginTop: 8 }}>课程功能即将上线</div>
-        </div>
+        extra={<a onClick={() => nav('/courses')}>查看全部 <RightOutlined /></a>}>
+        {coursesQ.isLoading ? <Spin /> : !myCourses.length ? (
+          <div style={{ color: '#888', textAlign: 'center', padding: 24 }}>
+            <BookOutlined style={{ fontSize: 32, opacity: 0.3 }} />
+            <div style={{ marginTop: 8 }}>暂未加入任何课程</div>
+          </div>
+        ) : (
+          <Row gutter={[12, 12]}>
+            {myCourses.map((c: any) => (
+              <Col key={c.id} xs={12} sm={8} md={6}>
+                <Card size="small" hoverable style={{ textAlign: 'center' }} onClick={() => nav(`/course/${c.id}`)}
+                  cover={<div style={{ height: 90, background: '#f0f0f0', overflow: 'hidden' }}>
+                    {c.courseCover
+                      ? <img src={fileUrl(c.courseCover)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+                      : <BookOutlined style={{ fontSize: 32, lineHeight: '90px', color: '#bbb' }} />}
+                  </div>}>
+                  <div style={{ fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.courseName}</div>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        )}
       </Card>
     </div>
   )

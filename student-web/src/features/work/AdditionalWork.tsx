@@ -3,10 +3,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { List, Radio, Card, Tag, Button, Rate, Tooltip, Modal, Input, Upload, message, Empty, Spin, Form } from 'antd'
 import { mineAdditionalWork, submitWork, WorkVO } from '@/api/work.api'
 import { uploadFile, fileUrl, coverUrl } from '@/api/common.api'
+import { contentWrapper } from '@/utils/responsive-utils'
 
 export default function AdditionalWork() {
   const qc = useQueryClient()
-  const [submit, setSubmit] = useState<undefined | boolean>(undefined)
+  // submit: '' =全部 / 'false' =未提交 / 'true' =已提交(Radio 值需可比,查询时再转)
+  const [submit, setSubmit] = useState('')
   const [page, setPage] = useState(1)
   const [modal, setModal] = useState<WorkVO | null>(null)
   const [workName, setWorkName] = useState('')
@@ -14,7 +16,7 @@ export default function AdditionalWork() {
 
   const q = useQuery({
     queryKey: ['additionalWork', submit, page],
-    queryFn: () => mineAdditionalWork({ pageNo: page, pageSize: 10, submit: submit === undefined ? undefined : String(submit) })
+    queryFn: () => mineAdditionalWork({ pageNo: page, pageSize: 10, submit: submit === '' ? undefined : submit })
   })
 
   const submitMut = useMutation({
@@ -42,12 +44,12 @@ export default function AdditionalWork() {
   }
 
   return (
-    <div style={{ maxWidth: 1000, margin: '0 auto', padding: 24 }}>
-      <h2>附加作业</h2>
+    <div style={contentWrapper}>
+      <h2>班级作业</h2>
       <Radio.Group value={submit} onChange={(e) => { setSubmit(e.target.value); setPage(1) }} style={{ marginBottom: 16 }}>
-        <Radio.Button value={undefined}>全部</Radio.Button>
-        <Radio.Button value={false}>未提交</Radio.Button>
-        <Radio.Button value={true}>已提交</Radio.Button>
+        <Radio.Button value="">全部</Radio.Button>
+        <Radio.Button value="false">未提交</Radio.Button>
+        <Radio.Button value="true">已提交</Radio.Button>
       </Radio.Group>
 
       {q.isLoading ? <Spin /> : (
@@ -59,7 +61,7 @@ export default function AdditionalWork() {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600 }}>{w.workName} <Tag>{Number(w.workType) === 4 ? "Python" : Number(w.workType) === 3 ? "ScratchJr" : "Scratch"}</Tag></div>
-                <div style={{ color: '#999', fontSize: 13 }}>{(w as any).description}</div>
+                <div style={{ color: '#999', fontSize: 13 }}>{(w as any).workDesc || (w as any).description}</div>
                 {(w as any).teacherScore != null && (
                   <div style={{ marginTop: 4 }}><Rate disabled value={(w as any).teacherScore} /> {w.teacherComment && <Tooltip title={w.teacherComment}><span style={{ color: '#999' }}>评语</span></Tooltip>}</div>
                 )}

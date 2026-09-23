@@ -6,6 +6,7 @@ import { mineWorks, leaderboard, deleteWork, WorkVO } from '@/api/work.api'
 import { coverUrl, workFileUrl } from '@/api/common.api'
 import MineWorkTable from './MineWorkTable'
 import { RESPONSIVE, contentWrapper } from '@/utils/responsive-utils'
+import { decodeEntities } from '@/utils/text'
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint'
 import { useAuth } from '@/stores/auth.store'
 
@@ -15,6 +16,9 @@ const typeMap: Record<string, { label: string; orderBy?: string; workStatus?: nu
   '2': { label: '最赞', orderBy: 'star' },
   '3': { label: '精选', workStatus: 4, orderBy: 'create_time' },
 }
+
+// work_status 字典(sys_dict: 0已保存/1已提交/2优秀作品/4精选作品);固定映射避免刷新后字典丢失显示成数字
+const STATUS_TEXT: Record<number, string> = { 0: '已保存', 1: '已提交', 2: '优秀作品', 4: '精选作品' }
 
 function editHref(w: WorkVO): string {
   const t = Number(w.workType)
@@ -61,7 +65,7 @@ function MineWorks() {
                   <a key="view" href={`/work-detail?id=${w.id}`} target="_blank" rel="noreferrer">查看</a>,
                   <Popconfirm key="del" title="确认删除?" onConfirm={() => del.mutate(w.id)}><a style={{ color: '#ff4d4f' }}>删除</a></Popconfirm>
                 ]}>
-                <Card.Meta title={w.workName} description={<span>状态:{w.workStatus === 1 ? '已提交' : '草稿'}</span>} />
+                <Card.Meta title={decodeEntities(w.workName)} description={<span>状态:{STATUS_TEXT[w.workStatus ?? 0] ?? '已保存'}</span>} />
               </Card>
             </Col>
           ))}
@@ -74,6 +78,7 @@ function MineWorks() {
 
 function Leaderboard() {
   const [params] = useSearchParams()
+  const nav = useNavigate()
   const t = params.get('type') || '0'
   const cfg = typeMap[t] || typeMap['0']
   const [page, setPage] = useState(1)
@@ -98,7 +103,7 @@ function Leaderboard() {
   ]
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? 12 : 24 }}>
+    <div style={contentWrapper}>
       <h2>{cfg.label}作品</h2>
       <Space style={{ marginBottom: 16, flexWrap: 'wrap' }}>
         {typeFilters.map(f => (
@@ -114,8 +119,16 @@ function Leaderboard() {
             {(q.data?.records || []).map((w) => (
               <Col key={w.id} {...RESPONSIVE.col6}>
                 <Card size="small" hoverable onClick={() => window.open(`/work-detail?id=${w.id}`, '_blank')}
-                  cover={<div style={{ height: isMobile ? 80 : 110, background: '#f0f0f0', overflow: 'hidden' }}><img src={coverUrl(w)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" /></div>}>
-                  <Card.Meta title={<span style={{ fontSize: 12 }}>{w.workName}</span>} description={<span style={{ fontSize: 11, color: '#999' }}>❤ {w.starCount || 0} · 👁 {w.viewCount || 0}</span>} />
+                  cover={<div style={{ height: isMobile ? 80 : 110, background: '#f0f0f0', overflow: 'hidden' }}>{coverUrl(w) && <img src={coverUrl(w)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />}</div>}>
+                  <Card.Meta title={<span style={{ fontSize: 12 }}>{decodeEntities(w.workName)}</span>}
+                    description={
+                      <span style={{ fontSize: 11, color: '#999' }}>
+                        {/* 作者名可点进作者主页(对齐旧 Vue toFriend) */}
+                        <a onClick={(e) => { e.stopPropagation(); w.userId && nav(`/friend-detail?id=${w.userId}`) }}
+                          style={{ fontSize: 11 }}>{w.realname || w.username || '佚名'}</a>
+                        {' · ❤ '}{w.starNum ?? w.starCount ?? 0}{' · 👁 '}{w.viewNum ?? w.viewCount ?? 0}
+                      </span>
+                    } />
                 </Card>
               </Col>
             ))}
@@ -139,7 +152,7 @@ export default function WorkList() {
   if (hasType) return <Leaderboard />
   return (
     <>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? '12px 12px 0' : '24px 24px 0' }}>
+      <div style={{ ...contentWrapper, paddingBottom: 0 }}>
         <Tabs activeKey={view} onChange={(k) => setView(k as 'card' | 'table')} items={[
           { key: 'card', label: '卡片视图' },
           { key: 'table', label: '表格视图' },

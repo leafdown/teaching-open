@@ -6,7 +6,17 @@ import { mineWorks, deleteWork, deleteBatchWork, getWorkTags, setWorkTag, WorkVO
 import { useDict } from '@/stores/dict.store'
 import { useAuth } from '@/stores/auth.store'
 import { coverUrl } from '@/api/common.api'
+import { contentWrapper } from '@/utils/responsive-utils'
+import { decodeEntities } from '@/utils/text'
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint'
+
+// work_status 字典(sys_dict: 0已保存/1已提交/2优秀作品/4精选作品);固定映射避免刷新后字典丢失显示成数字
+const STATUS_TAG: Record<number, { text: string; color?: string }> = {
+  0: { text: '已保存' },
+  1: { text: '已提交', color: 'green' },
+  2: { text: '优秀作品', color: 'gold' },
+  4: { text: '精选作品', color: 'blue' },
+}
 
 function editHref(w: WorkVO): string {
   const t = Number(w.workType)
@@ -36,12 +46,12 @@ export default function MineWorkTable() {
   const batchDel = useMutation({ mutationFn: deleteBatchWork, onSuccess: () => { message.success('批量删除成功'); setSelected([]); qc.invalidateQueries({ queryKey: ['mineWorksTable'] }) } })
 
   const columns = [
-    { title: '作品名', dataIndex: 'workName', render: (v: string, r: WorkVO) => <a href={`/work-detail?id=${r.id}`} target="_blank" rel="noreferrer">{v}</a> },
-    { title: '封面', dataIndex: 'workCover', render: (_: any, r: WorkVO) => <img src={coverUrl(r)} alt="" style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }} loading="lazy" /> },
+    { title: '作品名', dataIndex: 'workName', render: (v: string, r: WorkVO) => <a href={`/work-detail?id=${r.id}`} target="_blank" rel="noreferrer">{decodeEntities(v)}</a> },
+    { title: '封面', dataIndex: 'workCover', render: (_: any, r: WorkVO) => coverUrl(r) ? <img src={coverUrl(r)} alt="" style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }} loading="lazy" /> : '—' },
     { title: '类型', dataIndex: 'workType', render: (v: number) => dict.textOf('work_type', String(v)) },
-    { title: '状态', dataIndex: 'workStatus', render: (v: number) => v === 1 ? <Tag color="green">已提交</Tag> : <Tag>草稿</Tag> },
+    { title: '状态', dataIndex: 'workStatus', render: (v: number) => { const s = STATUS_TAG[v ?? 0] ?? STATUS_TAG[0]; return <Tag color={s.color}>{s.text}</Tag> } },
     { title: '标签', dataIndex: 'workTag', render: (v: string) => v ? v.split(',').map((t:string) => <Tag key={t}>{t}</Tag>) : '—' },
-    { title: '得分', dataIndex: 'teacherScore', render: (v: number, r: WorkVO) => v ? <Tooltip title={r.teacherComment}><Rate disabled value={v} allowHalf /></Tooltip> : '—' },
+    { title: '得分', dataIndex: 'score', render: (v: number, r: WorkVO) => v ? <Tooltip title={r.teacherComment}><Rate disabled value={v} allowHalf /></Tooltip> : '—' },
     { title: '观看', dataIndex: 'viewCount', sorter: true },
     { title: '点赞', dataIndex: 'starCount', sorter: true },
     { title: '创建时间', dataIndex: 'createTime', sorter: true },
@@ -55,7 +65,7 @@ export default function MineWorkTable() {
 
   if (!isLoggedIn) {
     return (
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? 12 : 24 }}>
+      <div style={{ ...contentWrapper, padding: isMobile ? 12 : 24 }}>
         <Empty description="登录后可查看和管理我的作品" style={{ padding: '40px 0' }}>
           <Button type="primary" onClick={() => nav('/login')}>去登录</Button>
         </Empty>
@@ -64,7 +74,7 @@ export default function MineWorkTable() {
   }
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? 12 : 24 }}>
+    <div style={{ ...contentWrapper, padding: isMobile ? 12 : 24 }}>
       <Space style={{ marginBottom: 16, flexWrap: 'wrap' }}>
         <Input.Search placeholder="作品名" allowClear onSearch={(v) => { setFilters({ ...filters, workName: v || undefined }); setPage(1) }} style={{ width: isMobile ? '100%' : 180 }} />
         <Select placeholder="标签" allowClear style={{ width: isMobile ? '100%' : 120 }} options={(tagsQ.data || []).map((t:string) => ({ label: t, value: t }))} onChange={(v) => { setFilters({ ...filters, workTag: v }); setPage(1) }} />

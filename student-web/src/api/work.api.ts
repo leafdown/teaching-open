@@ -22,9 +22,16 @@ export interface WorkVO {
   starCount?: number
   teacherComment?: string
   teacherScore?: number
+  // mine/list 接口实际返回的批改分数(teaching_work_correct 子表 join),字段名为 score
+  score?: number
   mineWorkStatus?: number
   workUrl_url?: string
   workFileKey_url?: string
+  // leaderboard 接口附带的作者信息
+  realname?: string
+  username?: string
+  userId?: string
+  avatar?: string
   [k: string]: unknown
 }
 

@@ -2,6 +2,7 @@ import { Card, Tag } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import { WorkVO } from '@/api/work.api'
 import { coverUrl } from '@/api/common.api'
+import { decodeEntities } from '@/utils/text'
 
 interface Props { work: WorkVO }
 
@@ -28,7 +29,7 @@ export default function WorkCard({ work }: Props) {
           )}
         </div>
       }>
-      <Card.Meta title={<span style={{ fontSize: 13 }}>{work.workName}</span>} />
+      <Card.Meta title={<span style={{ fontSize: 13 }}>{decodeEntities(work.workName)}</span>} />
       <div style={{ marginTop: 6, display: 'flex', gap: 6 }}>
         <Tag color={type.color} style={{ fontSize: 10 }}>{type.label}</Tag>
         {work.starNum != null && <span style={{ fontSize: 11, color: '#999' }}>⭐ {work.starNum}</span>}

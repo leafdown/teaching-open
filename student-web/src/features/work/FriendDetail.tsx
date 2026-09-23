@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Spin, Card, Avatar, Row, Col, Empty, Statistic, Space, Button, Pagination } from 'antd'
 import { workUserInfo, leaderboard, WorkVO } from '@/api/work.api'
 import { coverUrl } from '@/api/common.api'
+import { decodeEntities } from '@/utils/text'
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint'
 
 export default function FriendDetail() {
@@ -16,13 +17,13 @@ export default function FriendDetail() {
   const u = useQuery({ queryKey: ['friend', userId], queryFn: () => workUserInfo(userId) })
   const works = useQuery({ queryKey: ['friendWorks', userId, page, orderBy], queryFn: () => leaderboard({ pageNo: page, pageSize: 12, orderBy, userId }) })
 
-  // 聚合统计(基于当前页数据 + total)
+  // 聚合统计(基于当前页数据 + total);接口字段为 starNum/viewNum
   const stats = useMemo(() => {
     const list = works.data?.records || []
     return {
       total: works.data?.total || 0,
-      star: list.reduce((s, w) => s + (Number(w.starCount) || 0), 0),
-      view: list.reduce((s, w) => s + (Number(w.viewCount) || 0), 0),
+      star: list.reduce((s, w) => s + (Number(w.starNum ?? w.starCount) || 0), 0),
+      view: list.reduce((s, w) => s + (Number(w.viewNum ?? w.viewCount) || 0), 0),
     }
   }, [works.data])
 
@@ -57,8 +58,8 @@ export default function FriendDetail() {
       <Row gutter={[16, 16]}>
         {(works.data?.records || []).map((w: WorkVO) => (
           <Col key={w.id} xs={12} sm={8} md={6}>
-            <Card size="small" hoverable cover={<div style={{ height: 110, background: '#f0f0f0', overflow: 'hidden' }}><img src={coverUrl(w)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" /></div>}>
-              <Card.Meta title={<a href={`/work-detail?id=${w.id}`} target="_blank" rel="noreferrer">{w.workName}</a>} description={<span style={{ fontSize: 12, color: '#999' }}>❤ {w.starCount || 0}</span>} />
+            <Card size="small" hoverable cover={<div style={{ height: 110, background: '#f0f0f0', overflow: 'hidden' }}>{coverUrl(w) && <img src={coverUrl(w)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />}</div>}>
+              <Card.Meta title={<a href={`/work-detail?id=${w.id}`} target="_blank" rel="noreferrer">{decodeEntities(w.workName)}</a>} description={<span style={{ fontSize: 12, color: '#999' }}>❤ {w.starNum ?? w.starCount ?? 0} · 👁 {w.viewNum ?? w.viewCount ?? 0}</span>} />
             </Card>
           </Col>
         ))}
