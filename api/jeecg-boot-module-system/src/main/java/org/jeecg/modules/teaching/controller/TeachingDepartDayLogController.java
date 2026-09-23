@@ -51,7 +51,8 @@ public class TeachingDepartDayLogController extends JeecgController<TeachingDepa
    public Result<?> unitViewLog(@RequestParam String unitId){
        String departId = teachingCourseUnitService.getUserDepartIdByUnitId(getCurrentUser().getId(), unitId);
        String key = String.format("departLog:unitView:%s", departId);
-       if (getCurrentUser().getUserIdentity().equals(2)){
+       // 自主注册用户 user_identity 为 null,直接 .equals(2) 会 NPE
+       if (Integer.valueOf(2).equals(getCurrentUser().getUserIdentity())){
             if (!redisUtil.sHasKey(key, unitId)){
                 redisUtil.sSet(key, unitId);
                 teachingDepartDayLogService.addLog(departId, DepartDayLogType.UNIT_OPEN_COUNT);

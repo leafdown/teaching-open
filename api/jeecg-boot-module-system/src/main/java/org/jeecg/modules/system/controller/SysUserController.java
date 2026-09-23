@@ -1202,6 +1202,10 @@ public class SysUserController extends BaseController {
             password = RandomUtil.randomString(8);
         }
 		String email = jsonObject.getString("email");
+		// uniq_sys_user_email 唯一索引:多条 email='' 会判重复导致注册失败,空邮箱统一存 NULL
+		if (oConvertUtils.isEmpty(email)) {
+			email = null;
+		}
 		SysUser sysUser1 = sysUserService.getUserByName(username);
 		if (sysUser1 != null) {
 			result.setMessage("用户名已注册");

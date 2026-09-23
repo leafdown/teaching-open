@@ -76,6 +76,20 @@ public class TeachingCourseController extends JeecgController<TeachingCourse, IT
 		IPage<TeachingCourse> pageList = teachingCourseService.page(page, queryWrapper);
 		return Result.ok(pageList);
 	}
+
+	/**
+	 * 学生端课程详情(无权限注解)
+	 * 学生课程页 /course/:id 需要课程名/地图等展示字段,而 queryById 挂着
+	 * teaching:course:query 权限,学生调用一律 403。此接口只按 id 返回未删除课程。
+	 */
+	@GetMapping("studentCourseDetail")
+	public Result<?> studentCourseDetail(@RequestParam(name="id") String id){
+		TeachingCourse course = teachingCourseService.getById(id);
+		if (course == null || Integer.valueOf(1).equals(course.getDelFlag())) {
+			return Result.error("课程不存在");
+		}
+		return Result.ok(course);
+	}
 	
 	/**
 	 * 分页列表查询
