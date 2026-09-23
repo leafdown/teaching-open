@@ -4,6 +4,7 @@ import { Card, Row, Col, Input, Spin, Empty, Tag, Pagination, Modal, Button } fr
 import { SoundOutlined } from '@ant-design/icons'
 import { assetList, AssetVO, ASSET_TYPES } from '@/api/asset.api'
 import { fileUrl } from '@/api/common.api'
+import { contentWrapper } from '@/utils/responsive-utils'
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint'
 
 const PAGE_SIZE = 24
@@ -40,7 +41,7 @@ export default function Assets() {
   })
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: 24 }}>
+    <div style={contentWrapper}>
       <h2 style={{ marginBottom: 16 }}>素材库</h2>
 
       {/* 分类标签 */}

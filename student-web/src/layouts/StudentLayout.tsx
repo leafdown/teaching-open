@@ -1,5 +1,5 @@
 import { Layout, Menu, Dropdown, Avatar, Space, message, Button } from 'antd'
-import { UserOutlined, LogoutOutlined, HomeOutlined, BookOutlined, FolderOpenOutlined, ReadOutlined, SettingOutlined, FileTextOutlined, RocketOutlined, DownOutlined } from '@ant-design/icons'
+import { UserOutlined, LogoutOutlined, HomeOutlined, FolderOpenOutlined, ReadOutlined, SettingOutlined, FileTextOutlined, RocketOutlined, DownOutlined, TrophyOutlined } from '@ant-design/icons'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/stores/auth.store'
 import { logout as apiLogout } from '@/api/auth.api'
@@ -41,12 +41,22 @@ export default function StudentLayout() {
     ]
   }
 
-  const current = loc.pathname.startsWith('/course') ? 'course' :
+  // 高亮映射:长路径前缀(/courses)必须先于短前缀(/course)判断,否则公开课程会错误高亮
+  const current = loc.pathname.startsWith('/courses') || loc.pathname.startsWith('/course/') ? 'courses' :
     loc.pathname.startsWith('/center') ? 'center' :
-    loc.pathname.startsWith('/work') ? 'works' :
     loc.pathname.startsWith('/news') ? 'news' : loc.pathname.startsWith('/assets') ? 'assets' : loc.pathname.startsWith('/contest') ? 'contest' :
-    loc.pathname.startsWith('/courses') ? 'courses' :
-    loc.pathname === '/' ? 'index' : 'home'
+    'home'
+
+  // 「我的课程」菜单移除:该功能尚未上线(个人中心内为占位),两个菜单项都指向 /home 只会误导
+  const openCreate = (key: string) => {
+    const map: Record<string, string> = {
+      scratch3: '/scratch3/index.html?scene=create',
+      scratchjr: '/scratchjr/home.html',
+      python: '/ide?workType=4',
+      blockly: '/blockly/index.html?lang=zh-hans&scene=create',
+    }
+    if (map[key]) window.open(map[key], '_blank')
+  }
 
   return (
     <Layout style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -60,24 +70,28 @@ export default function StudentLayout() {
             <MobileMenu isAdmin={isAdmin} />
           </div>
         ) : (
-          <Menu mode="horizontal" selectedKeys={[current]} style={{ flex: 1, borderBottom: 'none' }} items={[
-            { key: 'home', icon: <HomeOutlined />, label: '社区', onClick: () => nav('/home') },
-            { key: 'create', icon: <RocketOutlined />, label: (
-              <Dropdown menu={{ items: [
-                { key: 'scratch3', label: 'Scratch3 创作', onClick: () => window.open('/scratch3/index.html?scene=create', '_blank') },
-                { key: 'scratchjr', label: 'ScratchJr 创作', onClick: () => window.open('/scratchjr/home.html', '_blank') },
-                { key: 'python', label: 'Python 创作', onClick: () => window.open('/ide?workType=4', '_blank') },
-              ] }}>
-                <span>创作 <DownOutlined /></span>
-              </Dropdown>
-            ) },
-            { key: 'courses', icon: <ReadOutlined />, label: '公开课程', onClick: () => nav('/courses') },
-            { key: 'course', icon: <BookOutlined />, label: '我的课程', onClick: () => nav('/home') },
-            { key: 'center', icon: <FolderOpenOutlined />, label: '个人中心', onClick: () => nav('/center') },
-            { key: 'news', icon: <FileTextOutlined />, label: '资讯', onClick: () => nav('/news') },
-            { key: 'contest', label: '赛事', onClick: () => nav('/contest') },
-            ...(isAdmin ? [{ key: 'admin', label: '管理后台', onClick: () => nav('/admin') }] : []),
-          ]} />
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', minWidth: 0 }}>
+            <Menu mode="horizontal" selectedKeys={[current]} style={{ borderBottom: 'none' }} items={[
+              { key: 'home', icon: <HomeOutlined />, label: '社区', onClick: () => nav('/home') },
+            ]} />
+            {/* rc-menu 横向子菜单弹层在本工程依赖树中不挂载(submenu-open 但 portal 缺失),
+                故「创作」用已验证可用的 Dropdown 作为菜单兄弟元素实现,与用户菜单同机制 */}
+            <Dropdown menu={{ items: [
+              { key: 'scratch3', icon: <RocketOutlined />, label: 'Scratch3 创作' },
+              { key: 'scratchjr', icon: <RocketOutlined />, label: 'ScratchJr 创作' },
+              { key: 'python', icon: <RocketOutlined />, label: 'Python 创作' },
+              { key: 'blockly', icon: <RocketOutlined />, label: 'Blockly 创作' },
+            ], onClick: (e) => openCreate(e.key) }} placement="bottomLeft">
+              <span className="nav-create-trigger">创作 <DownOutlined style={{ fontSize: 10 }} /></span>
+            </Dropdown>
+            <Menu mode="horizontal" selectedKeys={[current]} style={{ flex: 1, borderBottom: 'none', minWidth: 0 }} items={[
+              { key: 'courses', icon: <ReadOutlined />, label: '公开课程', onClick: () => nav('/courses') },
+              { key: 'center', icon: <FolderOpenOutlined />, label: '个人中心', onClick: () => nav('/center') },
+              { key: 'news', icon: <FileTextOutlined />, label: '资讯', onClick: () => nav('/news') },
+              { key: 'contest', icon: <TrophyOutlined />, label: '赛事', onClick: () => nav('/contest') },
+              ...(isAdmin ? [{ key: 'admin', label: '管理后台', onClick: () => nav('/admin') }] : []),
+            ]} />
+          </div>
         )}
         {userInfo ? (
           <Dropdown menu={userMenu}>

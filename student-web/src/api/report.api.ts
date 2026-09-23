@@ -39,12 +39,13 @@ export interface MonthReport {
 }
 
 // ===== dashboard 看板 =====
-// 访问日志统计 GET /sys/loginfo (jeecg 约定:今日访问/IP/访问量等)
+// 访问日志统计 GET /sys/loginfo → { totalVisitCount, todayVisitCount, todayIp }
 export function getLoginfo() {
   return getAction<Record<string, number>>('/sys/loginfo')
 }
 
-// 访问来源/浏览器分布 GET /sys/visitInfo
+// 按天访问统计 GET /sys/visitInfo → [{ tian: '2026-09-19', ip: 1, visit: 6, type: '09-19' }]
+export interface VisitDayStat { tian?: string; type?: string; ip?: number; visit?: number }
 export function getVisitInfo() {
-  return getAction<{ type?: string; count?: number }[] | Record<string, unknown>>('/sys/visitInfo')
+  return getAction<VisitDayStat[]>('/sys/visitInfo')
 }

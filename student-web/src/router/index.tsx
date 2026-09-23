@@ -18,6 +18,7 @@ const Home = lazy(() => import('@/features/home'))
 const WorkList = lazy(() => import('@/features/work'))
 const WorkDetail = lazy(() => import('@/features/work/WorkDetail'))
 const FriendDetail = lazy(() => import('@/features/work/FriendDetail'))
+const AdditionalWork = lazy(() => import('@/features/work/AdditionalWork'))
 const CourseView = lazy(() => import('@/features/course'))
 const PublicCourse = lazy(() => import('@/features/course/PublicCourse'))
 const NewsList = lazy(() => import('@/features/home/NewsList'))
@@ -85,6 +86,9 @@ export const routes: RouteObject[] = [
     children: [
       { path: 'assets', element: <Lazy><Assets /></Lazy> },
       { path: 'center', element: <Lazy><Center /></Lazy> },
+      // 班级作业(附加作业):旧后端菜单路径 /center/myAdditionalWork,重定向保持旧链接可用
+      { path: 'additional-work', element: <Lazy><AdditionalWork /></Lazy> },
+      { path: 'center/myAdditionalWork', element: <Navigate to="/additional-work" replace /> },
       { path: 'settings', element: <Lazy><Settings /></Lazy> },
       { path: 'ppt', element: <Lazy><PptGenerator /></Lazy> },
     ]

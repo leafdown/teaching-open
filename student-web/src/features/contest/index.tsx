@@ -4,6 +4,7 @@ import { Card, List, Pagination, Empty, Spin, Tag, Space, Select, Input } from '
 import { FilePdfOutlined, FileZipOutlined, DownloadOutlined } from '@ant-design/icons'
 import { newsList, toNewsArray, NewsVO } from '@/api/news.api'
 import { fileUrl } from '@/api/common.api'
+import { contentWrapper } from '@/utils/responsive-utils'
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint'
 
 const PAGE_SIZE = 10
@@ -30,7 +31,7 @@ export default function Contest() {
   const paged = list.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
-    <div style={{ maxWidth: 1000, margin: '0 auto', padding: isMobile ? 12 : 24 }}>
+    <div style={contentWrapper}>
       <h2 style={{ marginBottom: 16 }}>赛事资料</h2>
       <Space style={{ marginBottom: 16, flexWrap: 'wrap' }}>
         <Select value={contestType} onChange={(v) => { setContestType(v); setPage(1) }} style={{ width: isMobile ? '100%' : 200 }} options={CONTEST_TYPES} />

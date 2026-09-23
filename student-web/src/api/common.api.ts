@@ -1,8 +1,22 @@
 import { getAction, postAction } from './client'
 import { useConfig } from '@/stores/config.store'
 
-// 通用文件上传 POST /sys/common/upload
-export function uploadFile(file: Blob, fileName: string, bizPath = 'study') {
+// 通用文件上传:按 sysConfig.uploadType 分发。
+// - qiniu:浏览器直传七牛 + 注册 sysFile(与旧前端 upload2Qiniu→sysFile 链路一致),存 key;
+//   后端 /sys/common/upload 所指向的存储在本部署不可用(OSS AccessKey 已停用),必须绕行
+// - 其他:POST /sys/common/upload 后端本地存储,返回 { url: 路径 }
+export async function uploadFile(file: Blob, fileName: string, bizPath = 'study'): Promise<{ url: string; key?: string }> {
+  const cfg = useConfig.getState().sysConfig
+  if (cfg?.uploadType === 'qiniu' && cfg?.qiniuDomain) {
+    const ext = (fileName.includes('.') ? fileName.split('.').pop() : 'bin') || 'bin'
+    const uuid = typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : Date.now() + '-' + Math.random().toString(36).slice(2)
+    const key = `${bizPath}/${uuid}.${ext}`
+    await uploadQiniuKey(file, key)
+    await registerSysFile(key, bizPath)
+    return { url: key, key }
+  }
   const form = new FormData()
   form.append('file', file, fileName)
   form.append('bizPath', bizPath)
@@ -10,8 +24,10 @@ export function uploadFile(file: Blob, fileName: string, bizPath = 'study') {
 }
 
 // 七牛上传凭证 GET /common/qiniu/getToken
+// 兼容两种返回形态:后端实际返回纯字符串 token,旧代码按 {uptoken} 解析会拿到 undefined → 上传 401
 export function getQiniuToken() {
-  return getAction<{ uptoken: string; domain?: string }>('/common/qiniu/getToken')
+  return getAction<{ uptoken: string } | string>('/common/qiniu/getToken')
+    .then(r => (typeof r === 'string' ? { uptoken: r } : r))
 }
 
 // 富文本图片/视频上传(对齐旧 JEditor.vue):
@@ -45,6 +61,47 @@ export async function uploadQiniu(file: File, uuidName: string): Promise<string>
   const resp = await fetch(`https://upload-${area}.qiniup.com`, { method: 'POST', body: form })
   const res = await resp.json()
   return domain.replace(/\/$/, '') + '/' + res.key
+}
+
+// 七牛直传,返回原始 key(配合 registerSysFile 换短 id 用)
+export async function uploadQiniuKey(file: Blob, key: string): Promise<string> {
+  const cfg = useConfig.getState().sysConfig
+  const area = cfg?.qiniuArea || 'z0'
+  const { uptoken } = await getQiniuToken()
+  const form = new FormData()
+  form.append('file', file, key)
+  form.append('token', uptoken)
+  form.append('key', key)
+  const resp = await fetch(`https://upload-${area}.qiniup.com`, { method: 'POST', body: form })
+  if (!resp.ok) throw new Error('七牛上传失败: HTTP ' + resp.status)
+  const res = await resp.json()
+  if (!res.key) throw new Error('七牛上传失败: ' + (res.error || '未知错误'))
+  return res.key
+}
+
+// 注册 sysFile,返回短 id:teaching_work.work_file 列 varchar(32) 只存得下 id,
+// 存路径/URL 会 SQL 超长异常。后端据 work_file 关联 sysFile 解析出 workFileKey_url。
+export async function registerSysFile(key: string, fileTag: string, fileLocation = 2): Promise<string> {
+  return postAction<{ id: string }>('/system/sysFile/add', {
+    fileType: 2, fileName: key, filePath: key, fileLocation, fileTag,
+  }).then(r => r.id)
+}
+
+// 作品文件上传:按 sysConfig.uploadType 分发 —— qiniu 直传后注册 sysFile(存 id);
+// 其他走后端 /sys/common/upload 本地存储(存路径)。与旧前端 upload2Qiniu 链路对齐。
+export async function uploadWorkFile(file: Blob, ext: string, dir = 'python-work'): Promise<string> {
+  const cfg = useConfig.getState().sysConfig
+  if (cfg?.uploadType === 'qiniu' && cfg?.qiniuDomain) {
+    const uuid = typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : Date.now() + '-' + Math.random().toString(36).slice(2)
+    const key = `${dir}/${uuid}.${ext}`
+    const qiniuKey = await uploadQiniuKey(file, key)
+    return registerSysFile(key, dir)
+  }
+  const name = `${dir}_${Date.now()}.${ext}`
+  const res = await uploadFile(file, name, dir)
+  return res.key || res.url || name
 }
 
 // 字段唯一性校验 GET /sys/duplicateCheck
@@ -83,7 +140,9 @@ export function getFilePreview(path?: string): string {
 // 文件访问 URL 拼接(对齐旧前端 getFileAccessHttpUrl)
 export function fileUrl(relativePath?: string): string {
   if (!relativePath) return ''
-  if (/^https?:|^data:|^blob:/.test(relativePath)) return relativePath
+  // 已经是 URL 的直接透传:https://、data:、blob:,以及 //domain 形式
+  // (后端 coursePpt/coursePlan 等经 QiniuUtil 拼接后返回协议相对地址,再拼一次会变成坏链)
+  if (/^(https?:|data:|blob:|\/\/)/.test(relativePath)) return relativePath
   const cfg = useConfig.getState().sysConfig
   const uploadType = cfg?.uploadType || 'local'
   if (uploadType === 'qiniu' && cfg?.qiniuDomain) {

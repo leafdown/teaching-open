@@ -8,9 +8,10 @@ import { useConfig } from '@/stores/config.store'
 import { SafeHtml } from '@/utils/safe-html'
 import { RESPONSIVE, contentWrapper } from '@/utils/responsive-utils'
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint'
+import WorkCard from '@/components/WorkCard'
 
-const openIDE = (type: 'scratch3' | 'scratchjr' | 'python') => {
-  const map = { scratch3: '/scratch3/index.html?scene=create', scratchjr: '/scratchjr/home.html', python: '/ide?workType=4' }
+const openIDE = (type: 'scratch3' | 'scratchjr' | 'python' | 'blockly') => {
+  const map = { scratch3: '/scratch3/index.html?scene=create', scratchjr: '/scratchjr/home.html', python: '/ide?workType=4', blockly: '/blockly/index.html?lang=zh-hans&scene=create' }
   window.open(map[type], '_blank')
 }
 
@@ -36,23 +37,30 @@ export default function Landing() {
       )}
 
       <h2 style={{ marginBottom: 12 }}>开始创作</h2>
+      {/* 4个创作入口:用 col4 保证桌面一行四个,避免 3+1 换行 */}
       <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: 24 }}>
-        <Col {...RESPONSIVE.col3}>
+        <Col {...RESPONSIVE.col4}>
           <Card hoverable onClick={() => openIDE('scratchjr')} styles={{ body: { display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px' } }}>
             <img src="/images/tools/scratchjr.png" alt="" style={{ width: 44, height: 44, borderRadius: 8, flexShrink: 0, objectFit: 'contain' }} />
             <Card.Meta title={<span style={{ fontSize: 16, fontWeight: 600 }}>ScratchJr</span>} description={<span style={{ fontSize: 13 }}>低年级图形化编程</span>} />
           </Card>
         </Col>
-        <Col {...RESPONSIVE.col3}>
+        <Col {...RESPONSIVE.col4}>
           <Card hoverable onClick={() => openIDE('scratch3')} styles={{ body: { display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px' } }}>
             <img src="/images/tools/scratch3.jpg" alt="" style={{ width: 44, height: 44, borderRadius: 8, flexShrink: 0, objectFit: 'contain' }} />
             <Card.Meta title={<span style={{ fontSize: 16, fontWeight: 600 }}>Scratch3</span>} description={<span style={{ fontSize: 13 }}>图形化编程创作</span>} />
           </Card>
         </Col>
-        <Col {...RESPONSIVE.col3}>
+        <Col {...RESPONSIVE.col4}>
           <Card hoverable onClick={() => openIDE('python')} styles={{ body: { display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px' } }}>
             <img src="/images/tools/python.png" alt="" style={{ width: 44, height: 44, borderRadius: 8, flexShrink: 0, objectFit: 'contain' }} />
             <Card.Meta title={<span style={{ fontSize: 16, fontWeight: 600 }}>Python</span>} description={<span style={{ fontSize: 13 }}>Python Turtle 编程</span>} />
+          </Card>
+        </Col>
+        <Col {...RESPONSIVE.col4}>
+          <Card hoverable onClick={() => openIDE('blockly')} styles={{ body: { display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px' } }}>
+            <img src="/images/tools/blockly.png" alt="" style={{ width: 44, height: 44, borderRadius: 8, flexShrink: 0, objectFit: 'contain' }} />
+            <Card.Meta title={<span style={{ fontSize: 16, fontWeight: 600 }}>Blockly</span>} description={<span style={{ fontSize: 13 }}>代码块进阶编程</span>} />
           </Card>
         </Col>
       </Row>
@@ -62,9 +70,7 @@ export default function Landing() {
           <Row gutter={[isMobile ? 8 : 12, isMobile ? 8 : 12]}>
             {(featured.data?.records || []).map((w: WorkVO) => (
               <Col key={w.id} {...RESPONSIVE.col4}>
-                <Card size="small" hoverable onClick={() => window.open(`/work-detail?id=${w.id}`, '_blank')} cover={<div style={cardCoverStyle}><img src={coverUrl(w)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" /></div>}>
-                  <Card.Meta title={w.workName} description={<span style={{ fontSize: 12 }}>❤ {w.starCount || 0}</span>} />
-                </Card>
+                <WorkCard w={w} isMobile={isMobile} />
               </Col>
             ))}
             {(!featured.data?.records?.length) && <Empty description="暂无作品" />}
@@ -92,9 +98,7 @@ export default function Landing() {
           <Row gutter={[isMobile ? 8 : 12, isMobile ? 8 : 12]}>
             {(starred.data?.records || []).map((w: WorkVO) => (
               <Col key={w.id} {...RESPONSIVE.col4}>
-                <Card size="small" hoverable onClick={() => window.open(`/work-detail?id=${w.id}`, '_blank')} cover={<div style={cardCoverStyle}><img src={coverUrl(w)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" /></div>}>
-                  <Card.Meta title={w.workName} description={<span style={{ fontSize: 12 }}>❤ {w.starCount || 0}</span>} />
-                </Card>
+                <WorkCard w={w} isMobile={isMobile} />
               </Col>
             ))}
             {(!starred.data?.records?.length) && <Empty description="暂无作品" />}

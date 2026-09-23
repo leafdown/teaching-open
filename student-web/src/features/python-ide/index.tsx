@@ -9,7 +9,7 @@ import { usePyodide, detectTurtleMode, formatPyError } from './usePyodide'
 import FileTree from './FileTree'
 import OutputPanel from './OutputPanel'
 import { submitWork, studentWorkInfo } from '@/api/work.api'
-import { workFileUrl, fileUrl, uploadFile } from '@/api/common.api'
+import { workFileUrl, fileUrl, uploadWorkFile } from '@/api/common.api'
 import AssetPanel from './AssetPanel'
 import { saveDraft, loadDraft, removeDraft } from '@/utils/draftStorage'
 import JSZip from 'jszip'
@@ -190,7 +190,9 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
   // 序列化多文件为 ZIP: 所有 .py + 资源文件打包
   const serializeFiles = async (): Promise<string> => {
     if (files.length === 1 && files[0].name === 'main.py' && files[0].type !== 'binary') {
-      return files[0].code // 单文件纯文本向后兼容
+      // 单文件同样上传为文件:work_file 列只存 sysFile 短 id/路径,裸代码会 SQL 超长异常(提交 500)
+      const blob = new Blob([files[0].code], { type: 'text/x-python' })
+      return uploadWorkFile(blob, 'py')
     }
     const zip = new JSZip()
     for (const f of files) {
@@ -206,11 +208,9 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
       order: files.map(f => f.name),
     }))
     const blob = await zip.generateAsync({ type: 'blob' })
-    const fileName = `python_${Date.now()}.zip`
     // 上传 ZIP 到服务器
     try {
-      const res = await uploadFile(blob, fileName, 'python-work')
-      return res.key || res.url || fileName
+      return await uploadWorkFile(blob, 'zip')
     } catch (e: any) {
       message.error('上传文件失败: ' + (e.message || ''))
       throw e

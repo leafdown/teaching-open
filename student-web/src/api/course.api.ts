@@ -44,9 +44,10 @@ export function getHomeCourse(params: { pageNo: number; pageSize: number; course
   return getAction<PageResult<CourseVO>>('/teaching/teachingCourse/getHomeCourse', params)
 }
 
-// 课程详情 GET /teaching/teachingCourse/queryById
+// 课程详情 GET /teaching/teachingCourse/studentCourseDetail
+// 不用 queryById:它挂 teaching:course:query 权限,学生端调用 403
 export function getCourseById(id: string) {
-  return getAction<CourseVO>('/teaching/teachingCourse/queryById', { id })
+  return getAction<CourseVO>('/teaching/teachingCourse/studentCourseDetail', { id })
 }
 
 // 我的单元 GET /teaching/teachingCourseUnit/mineUnit

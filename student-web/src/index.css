@@ -1,3 +1,16 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body, #root { height: 100%; }
 body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+
+/* 顶部导航「创作」下拉触发器:对齐 antd 横向菜单项的视觉 */
+.nav-create-trigger {
+  display: inline-block;
+  padding: 0 20px;
+  line-height: 64px;
+  color: rgba(0, 0, 0, 0.88);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+.nav-create-trigger:hover { color: #1677ff; }
+

@@ -3,28 +3,15 @@ import { useQuery } from '@tanstack/react-query'
 import { Card, Row, Col, Spin, Empty, Button } from 'antd'
 import { leaderboard } from '@/api/work.api'
 import { getHomeCourse } from '@/api/course.api'
-import { fileUrl, coverUrl, workFileUrl } from '@/api/common.api'
-import { WorkVO } from '@/api/work.api'
+import { coverUrl } from '@/api/common.api'
 import { CourseVO } from '@/api/course.api'
 import { RESPONSIVE, contentWrapper } from '@/utils/responsive-utils'
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint'
+import WorkCard from '@/components/WorkCard'
 
 const openIDE = (type: 'scratch3' | 'scratchjr' | 'python') => {
   const map = { scratch3: '/scratch3/index.html?scene=create', scratchjr: '/scratchjr/home.html', python: '/ide?workType=4' }
   window.open(map[type], '_blank')
-}
-
-function WorkCard({ w, isMobile }: { w: WorkVO; isMobile: boolean }) {
-  const nav = useNavigate()
-  return (
-    <Card size="small" hoverable styles={{ body: { padding: 8 } }} onClick={() => window.open(`/work-detail?id=${w.id}`, '_blank')}>
-      <div style={{ height: isMobile ? 90 : 110, background: '#f0f0f0', borderRadius: 4, overflow: 'hidden' }}>
-        {w.workCover ? <img src={coverUrl(w)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" /> : null}
-      </div>
-      <div style={{ fontSize: 13, marginTop: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{w.workName}</div>
-      <div style={{ fontSize: 12, color: '#999' }}>❤ {w.starNum ?? w.starCount ?? 0} · 👁 {w.viewNum ?? w.viewCount ?? 0}</div>
-    </Card>
-  )
 }
 
 function CourseCard({ c, isMobile }: { c: CourseVO; isMobile: boolean }) {

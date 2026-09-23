@@ -19,12 +19,25 @@ export function newsList(params: { pageSize?: number; cmsStatus?: number; cmsTyp
 
 // 资讯详情 GET /teaching/teachingNews/newsDetail
 export function newsDetail(id: string) {
-  return getAction<NewsVO>('/teaching/teachingNews/newsDetail', { id })
+  return getAction<NewsVO>('/teaching/teachingNews/newsDetail', { id }).then(normalizeNews)
+}
+
+// 后端字段为 newsTitle/newsContent(cms 表),组件按 title/content 渲染;此处归一化
+function normalizeNews(n: NewsVO): NewsVO {
+  if (!n) return n
+  const content = (n as any).newsContent ?? n.content ?? ''
+  return {
+    ...n,
+    title: n.title ?? (n as any).newsTitle,
+    content,
+    // 列表摘要:后端列表接口不返回内容时由 description 兜底
+    description: n.description ?? (typeof content === 'string' ? content.replace(/<[^>]+>/g, '').slice(0, 80) : ''),
+  }
 }
 
 // 归一化为数组
 export function toNewsArray(data: NewsVO[] | PageResult<NewsVO> | undefined): NewsVO[] {
   if (!data) return []
-  if (Array.isArray(data)) return data
-  return data.records || []
+  const arr = Array.isArray(data) ? data : data.records || []
+  return arr.map(normalizeNews)
 }
