@@ -139,8 +139,6 @@ public class ShiroConfig {
 		filterChainDefinitionMap.put("/wechatPay/**", "anon");
 		filterChainDefinitionMap.put("/wechatHelper/**", "anon");
 
-		//支付
-		filterChainDefinitionMap.put("/teaching/teachingOrder/createOrder", "anon");
 		//菜单
 		filterChainDefinitionMap.put("/teaching/menu/getUserMenu", "anon");
 		//配置

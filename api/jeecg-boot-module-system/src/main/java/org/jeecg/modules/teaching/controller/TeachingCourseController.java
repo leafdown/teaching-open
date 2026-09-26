@@ -57,6 +57,8 @@ public class TeachingCourseController extends JeecgController<TeachingCourse, IT
 
 	/**
 	 * 获取首页展示的课程
+	 * 优先返回 showHome=1 的课程;若没有任何课程标记为首页展示,
+	 * 则回退返回全量未删除课程,避免前台"推荐课程"永久为空。
 	 * @return
 	 */
 	@GetMapping("getHomeCourse")
@@ -66,14 +68,28 @@ public class TeachingCourseController extends JeecgController<TeachingCourse, IT
 			@RequestParam(required = false) Integer courseCategory,
 			@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 			@RequestParam(name="pageSize", defaultValue="10") Integer pageSize){
+		// 兜底过滤条件:排除软删除课程(NULL 或 != 1 均视为未删除)
 		QueryWrapper<TeachingCourse> queryWrapper = new QueryWrapper<>();
 		queryWrapper.lambda()
 				.eq(TeachingCourse::getShowHome, 1)
 				.like(StringUtils.isNotBlank(courseName), TeachingCourse::getCourseName, courseName)
 				.eq(courseCategory!=null, TeachingCourse::getCourseCategory, courseCategory)
-				.eq(courseType!=null, TeachingCourse::getCourseType, courseType);
+				.eq(courseType!=null, TeachingCourse::getCourseType, courseType)
+				.and(w -> w.isNull(TeachingCourse::getDelFlag).or().ne(TeachingCourse::getDelFlag, 1));
+		queryWrapper.orderByAsc("order_num");
 		Page<TeachingCourse> page = new Page<TeachingCourse>(pageNo, pageSize);
 		IPage<TeachingCourse> pageList = teachingCourseService.page(page, queryWrapper);
+		if (pageNo == 1 && pageList.getTotal() == 0) {
+			// 无标记首页展示的课程,回退展示全量可见课程
+			QueryWrapper<TeachingCourse> fallback = new QueryWrapper<>();
+			fallback.lambda()
+					.like(StringUtils.isNotBlank(courseName), TeachingCourse::getCourseName, courseName)
+					.eq(courseCategory!=null, TeachingCourse::getCourseCategory, courseCategory)
+					.eq(courseType!=null, TeachingCourse::getCourseType, courseType)
+					.and(w -> w.isNull(TeachingCourse::getDelFlag).or().ne(TeachingCourse::getDelFlag, 1));
+			fallback.orderByAsc("order_num");
+			pageList = teachingCourseService.page(page, fallback);
+		}
 		return Result.ok(pageList);
 	}
 

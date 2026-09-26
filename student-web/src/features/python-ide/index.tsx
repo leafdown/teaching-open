@@ -220,6 +220,22 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
   // 解析 ZIP 或纯文本
   const deserializeFiles = async (raw: string): Promise<FileItem[] | null> => {
     if (!raw || !raw.trim()) return null
+    // 兼容旧版作品文件格式: {code: "[{name:main.py, content:...}, ...]"}
+    // 老编辑器/早期版本把多文件项目序列化成 JSON 字符串(顶部 code 字段),React IDE 需还原为文件列表
+    const trimmed = raw.trim()
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      try {
+        const outer = JSON.parse(trimmed)
+        const arr = typeof outer?.code === 'string' ? JSON.parse(outer.code) : outer
+        const list: FileItem[] = []
+        for (const f of Array.isArray(arr) ? arr : []) {
+          if (f && typeof f.name === 'string') {
+            list.push({ name: f.name, code: f.content || f.code || '', type: 'text' })
+          }
+        }
+        if (list.length > 0) return list
+      } catch {}
+    }
     // 尝试 ZIP (dataURL 或服务器文件路径)
     // 如果是服务器文件路径(非 dataURL, 非纯 Python 代码)
     const isLikelyZipPath = !raw.startsWith('data:') && !raw.startsWith('#') && !raw.includes('def ') &&

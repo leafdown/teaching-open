@@ -26,7 +26,6 @@ const ALIAS: Record<string, string> = {
   'teaching/TeachingCourseUnitList': 'teaching/CourseUnitList',
   'teaching/TeachingCourseDeptList': 'teaching/CourseDeptList',
   'teaching/TeachingNewsList': 'teaching/NewsList',
-  'teaching/TeachingOrderList': 'teaching/OrderList',
   'teaching/TeachingScratchAssetsList': 'teaching/ScratchAssetsList',
   'teaching/TeachingAdditionalWorkList': 'teaching/AdditionalWorkList',
   'teaching/TeachingWorkList': 'teaching/WorkList',

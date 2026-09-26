@@ -46,11 +46,18 @@ async function parseCode(raw: string): Promise<string> {
     } catch {}
   }
   // JSON 多文件格式(旧版)
+  // 兼容两种存储: {files:[{name,code}]} 与 {code:"[{name,content}]"}
   try {
     const parsed = JSON.parse(raw)
-    if (parsed.files && Array.isArray(parsed.files) && parsed.files.length > 0) {
-      return parsed.files.map((f: any, i: number) => {
-        const fileCode = f.code || ''
+    let arr: { name: string; code?: string; content?: string }[] | null = null
+    if (parsed.files && Array.isArray(parsed.files)) {
+      arr = parsed.files
+    } else if (typeof parsed.code === 'string' && parsed.code.trim().startsWith('[')) {
+      try { arr = JSON.parse(parsed.code) } catch {}
+    }
+    if (arr && arr.length > 0) {
+      return arr.map((f: any, i: number) => {
+        const fileCode = f.content || f.code || ''
         if (f.name === 'main.py' || i === 0) return fileCode
         return `\n# --- ${f.name} ---\n${fileCode}`
       }).join('\n')
