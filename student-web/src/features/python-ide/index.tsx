@@ -27,6 +27,13 @@ interface FileItem {
   size?: number
 }
 
+// 运行目标 = 当前选中的 .py 文件(IDE 惯例:运行当前文件);
+// 选中二进制/非 .py 文件时回退 main.py。其余文件仍写入虚拟文件系统供 import
+function resolveRunTarget(files: FileItem[], activeFile: string): FileItem | undefined {
+  return files.find(f => f.name === activeFile && f.type !== 'binary' && f.name.endsWith('.py'))
+    || files.find(f => f.name === 'main.py')
+}
+
 // 代码片段模板
 const SNIPPETS = [
   { key:'print', label:'print()', code:"print()\n" },
@@ -545,12 +552,15 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
     setRunning(true); setOutput([]); setAwaitingInput(false)
     // 清理 pending 的 input 等待
     if (inputResolveRef.current) { inputResolveRef.current(''); inputResolveRef.current = null }
+    // 运行目标 = 当前选中的 .py 文件(IDE 惯例:运行当前文件);
+    // 选中二进制/非 .py 文件时回退 main.py。其余文件写入虚拟文件系统供 import
+    const runName = resolveRunTarget(files, activeFile)?.name || 'main.py'
     // input() 桥接(__pythonInputShow)已在组件挂载时注册, Console 里同样可用
     // 多文件: 通过 Pyodide 的 Python 文件 API 写入虚拟文件系统
     // 先收集所有目录，一次性创建（包括空目录）
     const dirsToCreate = new Set<string>()
     for (const f of files) {
-      if (f.name === 'main.py') continue
+      if (f.name === runName) continue
       // 尝试从文件路径推断目录
       let dir = ''
       if (f.name.includes('/')) {
@@ -569,7 +579,7 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
       await py.runPythonAsync(`import os\n${cmds}`)
     }
     for (const f of files) {
-      if (f.name === 'main.py') continue
+      if (f.name === runName) continue
       try {
         if (f.type === 'binary' && f.dataUrl) {
           const resp = await fetch(f.dataUrl)
@@ -595,14 +605,16 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
     }
     const startTime = performance.now()
     try {
-      // 只执行 main.py, 其他文件通过 fs.writeFile 写入后被 Python import 机制自动加载
-      const mainCode = files.find(f => f.name === 'main.py')?.code || ''
-      let fullCode = mainCode
-      // 如果只有 main.py 且无二进制资源, 用原有拼接方式保持向后兼容(无 import 场景)
-      const hasExtraPyFiles = files.some(f => f.name !== 'main.py' && f.type !== 'binary')
-      if (!hasExtraPyFiles) {
-        fullCode = files.map(f => f.name === 'main.py' ? f.code : `# --- ${f.name} ---\n${f.code}`).join('\n\n')
+      // 执行当前选中的文件;其余 .py 已写入 fs,可被 import 加载
+      const runTarget = resolveRunTarget(files, activeFile)
+      let fullCode = runTarget?.code || ''
+      // 仅一个文本文件时保持拼接向后兼容(无 import 场景)
+      const hasOtherPyFiles = files.some(f => f.name !== runName && f.type !== 'binary' && f.name.endsWith('.py'))
+      if (!hasOtherPyFiles) {
+        fullCode = files.filter(f => f.type !== 'binary')
+          .map(f => f.name === runName ? f.code : `# --- ${f.name} ---\n${f.code}`).join('\n\n')
       }
+      setOutput(prev => [...prev, `▶ 运行 ${runName}`])
       // 代码质量检测
       const hints: string[] = []
       if (fullCode.includes('turtle.done()')) hints.push('💡 turtle.done() 会自动跳过，不必手动调用')
@@ -625,7 +637,7 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
         setOutput(prev => [...prev, `❌ ${formatPyError(raw)}`])
       }
     } finally { setRunning(false); runningRef.current = false }
-  }, [init, runCode, files])
+  }, [init, runCode, files, activeFile])
   const handleRunRef = useRef(handleRun)
   handleRunRef.current = handleRun
 
@@ -811,7 +823,10 @@ export default function PythonIDE({ readOnly = false }: { readOnly?: boolean }) 
             {running && <Button size="small" icon={<span style={{ fontSize: 10 }}>⏹</span>} onClick={handleStop}
               style={{ background: '#b91c1c', borderColor: '#b91c1c', color: '#fff', border: 'none' }}>停止</Button>}
             <Button size="small" icon={<PlayCircleOutlined />} onClick={handleRun} loading={running} disabled={loading}
-            style={{ background: '#2ea043', borderColor: '#2ea043', color: '#fff', border: 'none' }}>运行</Button>
+            title={`运行 ${resolveRunTarget(files, activeFile)?.name || 'main.py'}`}
+            style={{ background: '#2ea043', borderColor: '#2ea043', color: '#fff', border: 'none' }}>
+              {(() => { const n = resolveRunTarget(files, activeFile)?.name || 'main.py'; return n === 'main.py' ? '运行' : `运行 ${basename(n)}` })()}
+            </Button>
             <Button size="small" icon={<BugOutlined />} onClick={() => {
               const tips = [
                 '── Python 调试技巧 ──',
